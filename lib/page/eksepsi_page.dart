@@ -11,21 +11,22 @@ class EksepsiPage extends StatelessWidget {
     final controller = Get.put(EksepsiController());
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Eksepsi'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.blue,
         elevation: 0,
       ),
       body: Column(
         children: [
           Container(
-            color: Colors.blue,
+            color: Colors.white,
             child: TabBar(
               controller: controller.tabController,
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
+              indicatorColor: Colors.blue,
+              labelColor: Colors.blue,
+              unselectedLabelColor: Colors.grey,
               tabs: const [
                 Tab(text: 'Ajukan Eksepsi'),
                 Tab(text: 'Riwayat Saya'),
@@ -72,9 +73,9 @@ class EksepsiPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Colors.blue[50],
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(color: Colors.blue[200]!),
                       ),
                       child: Text(
                         controller.jenisEksepsi,
@@ -108,8 +109,8 @@ class EksepsiPage extends StatelessWidget {
                             icon: const Icon(Icons.add),
                             label: const Text('Tambah'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.green[100],
+                              foregroundColor: Colors.green[800],
                             ),
                           ),
                         ],
@@ -134,8 +135,8 @@ class EksepsiPage extends StatelessWidget {
                                 ? null
                                 : controller.submitEksepsiApplication,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue[100],
+                              foregroundColor: Colors.blue[800],
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             child: controller.isLoading.value
@@ -145,7 +146,7 @@ class EksepsiPage extends StatelessWidget {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
+                                        Colors.blue,
                                       ),
                                     ),
                                   )
@@ -192,7 +193,7 @@ class EksepsiPage extends StatelessWidget {
                 if (controller.eksepsiEntries.length > 1)
                   IconButton(
                     onPressed: () => controller.removeEksepsiEntry(index),
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.blue),
                   ),
               ],
             ),
@@ -319,7 +320,10 @@ class EksepsiPage extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Jumlah Hari: ${item['jumlah_hari'] ?? 1}',
-                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
@@ -400,10 +404,7 @@ class EksepsiPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: TextStyle(color: Colors.grey[700]),
-            ),
+            child: Text(value, style: TextStyle(color: Colors.grey[700])),
           ),
         ],
       ),
@@ -413,7 +414,7 @@ class EksepsiPage extends StatelessWidget {
   void _showDetailDialog(Map<String, dynamic> item) {
     final tanggalList = item['list_tanggal_eksepsi'] ?? '';
     final List<String> tanggalArray = tanggalList.split(', ');
-    
+
     showDialog(
       context: Get.context!,
       builder: (BuildContext context) {
@@ -443,10 +444,7 @@ class EksepsiPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 const Text(
                   'Tanggal yang Diajukan:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 Container(
@@ -457,21 +455,23 @@ class EksepsiPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final tanggal = tanggalArray[index].trim();
                       if (tanggal.isEmpty) return const SizedBox.shrink();
-                      
+
                       DateTime? date;
                       try {
                         date = DateTime.parse(tanggal);
                       } catch (e) {
                         // If parsing fails, try to display the raw string
                       }
-                      
+
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                          border: Border.all(
+                            color: Colors.blue.withOpacity(0.3),
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -483,9 +483,9 @@ class EksepsiPage extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                date != null 
-                                  ? '${_getDayName(date)}, ${DateFormat('dd MMMM yyyy').format(date)}'
-                                  : tanggal,
+                                date != null
+                                    ? '${_getDayName(date)}, ${DateFormat('dd MMMM yyyy').format(date)}'
+                                    : tanggal,
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -521,10 +521,7 @@ class EksepsiPage extends StatelessWidget {
                 if (item['tanggal_pengajuan'] != null)
                   Text(
                     'Diajukan pada: ${_formatDateDisplay(item['tanggal_pengajuan'])}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controller/eksepsi_controller.dart';
+import 'pdf_eksepsi_page.dart';
 
 class EksepsiPage extends StatelessWidget {
   const EksepsiPage({super.key});
@@ -330,6 +331,12 @@ class EksepsiPage extends StatelessWidget {
                   ),
                   Row(
                     children: [
+                      // PDF Button
+                      IconButton(
+                        onPressed: () => _navigateToPdfPreview(item),
+                        icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                        tooltip: 'Generate PDF',
+                      ),
                       // Only show status if it's not "Menunggu"
                       if (status.toLowerCase() != 'menunggu')
                         Container(
@@ -409,6 +416,10 @@ class EksepsiPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _navigateToPdfPreview(Map<String, dynamic> item) {
+    Get.to(() => PdfEksepsiPage(eksepsiData: item));
   }
 
   void _showDetailDialog(Map<String, dynamic> item) {

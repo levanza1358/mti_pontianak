@@ -21,7 +21,8 @@ class PdfCutiController extends GetxController {
   // Method untuk generate nama file PDF dengan format yang benar
   String generatePdfFileName(Map<String, dynamic> userData) {
     final nrp = userData?['nrp'] ?? '00000';
-    final randomNumber = (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
+    final randomNumber =
+        (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
     return 'surat_cuti_${nrp}_$randomNumber.pdf';
   }
 
@@ -86,7 +87,7 @@ class PdfCutiController extends GetxController {
           .select('*')
           .eq('jenis', jenis)
           .single();
-      
+
       return response;
     } catch (e) {
       print('Error fetching supervisor: $e');
@@ -127,23 +128,26 @@ class PdfCutiController extends GetxController {
   Future<Uint8List> generateCutiPdf(Map<String, dynamic> cutiData) async {
     isGenerating.value = true;
     final pdf = pw.Document();
-    
+
     try {
       // Initialize Indonesian locale for date formatting
       await initializeDateFormatting('id_ID', null);
-      
+
       // Load logo image
       final ByteData logoData = await rootBundle.load('assets/MTI_logo.png');
       final Uint8List logoBytes = logoData.buffer.asUint8List();
       final logoImage = pw.MemoryImage(logoBytes);
-      
+
       // Format dates
       final tanggalPengajuan = cutiData['tanggal_pengajuan'] != null
           ? DateTime.parse(cutiData['tanggal_pengajuan'])
           : DateTime.now();
-      
-      final formattedDate = DateFormat('dd MMMM yyyy', 'id_ID').format(tanggalPengajuan);
-      
+
+      final formattedDate = DateFormat(
+        'dd MMMM yyyy',
+        'id_ID',
+      ).format(tanggalPengajuan);
+
       // Get user data (pastikan memuat sisa_cuti)
       final userData = await fetchCurrentUserWithSisaCuti();
       final nama = userData?['name'] ?? 'Nama Pegawai';
@@ -153,29 +157,36 @@ class PdfCutiController extends GetxController {
       final unitKerja = userData?['unit_kerja'] ?? '-';
       final userStatus = userData?['status'] ?? 'Operasional';
       // Sisa cuti dari tabel users
-      final sisaCutiUser = (userData?['sisa_cuti'] ?? cutiController.sisaCuti.value ?? 0).toString();
-      
+      final sisaCutiUser =
+          (userData?['sisa_cuti'] ?? cutiController.sisaCuti.value ?? 0)
+              .toString();
+
       // Fetch supervisor data berdasarkan status user
       final supervisorJenis = getSupervisorJenisByUserStatus(userStatus);
       final supervisorData = await fetchSupervisorByJenis(supervisorJenis);
       final managerData = await fetchSupervisorByJenis('Manager_PDS');
-      
+
       // Set supervisor info
-      final supervisorNama = supervisorData?['nama'] ?? 'SUPERVISOR ${supervisorJenis.toUpperCase()}';
-      final supervisorJabatan = supervisorData?['jabatan'] ?? 'SUPERVISOR ${supervisorJenis.toUpperCase()}';
+      final supervisorNama =
+          supervisorData?['nama'] ??
+          'SUPERVISOR ${supervisorJenis.toUpperCase()}';
+      final supervisorJabatan =
+          supervisorData?['jabatan'] ??
+          'SUPERVISOR ${supervisorJenis.toUpperCase()}';
       final managerNama = managerData?['nama'] ?? 'REGIONAL MANAGER';
-      final managerJabatan = managerData?['jabatan'] ?? 'REGIONAL MANAGER JAKARTA';
-      
+      final managerJabatan =
+          managerData?['jabatan'] ?? 'REGIONAL MANAGER JAKARTA';
+
       // Get cuti details
       final alasanCuti = cutiData['alasan_cuti'] ?? '-';
       final lamaCuti = cutiData['lama_cuti'] ?? 0;
       final listTanggalCuti = cutiData['list_tanggal_cuti'] ?? '';
-      
+
       // Parse tanggal cuti
-      final tanggalCutiList = listTanggalCuti.isNotEmpty 
+      final tanggalCutiList = listTanggalCuti.isNotEmpty
           ? listTanggalCuti.split(',').map((e) => e.trim()).toList()
           : <String>[];
-      
+
       // Create PDF content
       pdf.addPage(
         pw.Page(
@@ -192,33 +203,45 @@ class PdfCutiController extends GetxController {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.end,
                       children: [
-                        pw.Text('Pontianak, $formattedDate',
-                            style: pw.TextStyle(fontSize: 10)),
+                        pw.Text(
+                          'Pontianak, $formattedDate',
+                          style: pw.TextStyle(fontSize: 10),
+                        ),
                         pw.SizedBox(height: 5),
-                        pw.Text('Yth. REGIONAL MANAGER JAKARTA',
-                            style: pw.TextStyle(fontSize: 10)),
-                        pw.Text('PT PELINDO DAYA SEJAHTERA',
-                            style: pw.TextStyle(fontSize: 10)),
-                        pw.Text('JAKARTA',
-                            style: pw.TextStyle(fontSize: 10)),
+                        pw.Text(
+                          'Yth. REGIONAL MANAGER JAKARTA',
+                          style: pw.TextStyle(fontSize: 10),
+                        ),
+                        pw.Text(
+                          'PT PELINDO DAYA SEJAHTERA',
+                          style: pw.TextStyle(fontSize: 10),
+                        ),
+                        pw.Text('JAKARTA', style: pw.TextStyle(fontSize: 10)),
                       ],
                     ),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 20),
-                
+
                 // Subject
-                pw.Text('Perihal: Permohonan Cuti Tahunan',
-                    style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                
+                pw.Text(
+                  'Perihal: Permohonan Cuti Tahunan',
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+
                 pw.SizedBox(height: 15),
-                
-                pw.Text('Yang bertanda tangan dibawah ini:',
-                    style: pw.TextStyle(fontSize: 11)),
-                
+
+                pw.Text(
+                  'Yang bertanda tangan dibawah ini:',
+                  style: pw.TextStyle(fontSize: 11),
+                ),
+
                 pw.SizedBox(height: 10),
-                
+
                 // User details
                 pw.Table(
                   columnWidths: {
@@ -233,9 +256,9 @@ class PdfCutiController extends GetxController {
                     _buildTableRow('Jabatan', ':', jabatan),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 15),
-                
+
                 // Intro paragraph with bold for count and date range
                 pw.RichText(
                   text: () {
@@ -243,24 +266,34 @@ class PdfCutiController extends GetxController {
                     final hariCount = tanggalCutiList.isNotEmpty
                         ? tanggalCutiList.length
                         : (lamaCuti is int
-                            ? lamaCuti
-                            : int.tryParse(lamaCuti.toString()) ?? 0);
+                              ? lamaCuti
+                              : int.tryParse(lamaCuti.toString()) ?? 0);
                     String rentang = '';
                     if (tanggalCutiList.isNotEmpty) {
                       try {
                         final first = DateTime.parse(tanggalCutiList.first);
                         final last = DateTime.parse(tanggalCutiList.last);
-                        final firstStr = DateFormat('dd MMMM yyyy', 'id_ID').format(first);
-                        final lastStr = DateFormat('dd MMMM yyyy', 'id_ID').format(last);
+                        final firstStr = DateFormat(
+                          'dd MMMM yyyy',
+                          'id_ID',
+                        ).format(first);
+                        final lastStr = DateFormat(
+                          'dd MMMM yyyy',
+                          'id_ID',
+                        ).format(last);
                         rentang = '$firstStr s.d $lastStr';
                       } catch (_) {}
                     }
                     return pw.TextSpan(
                       style: pw.TextStyle(fontSize: 11),
                       children: [
-                        pw.TextSpan(text: 'Dengan ini mengajukan permintaan ijin cuti tahunan selama '),
                         pw.TextSpan(
-                          text: '$hariCount (${angkaKeKataIndonesia(hariCount)})',
+                          text:
+                              'Dengan ini mengajukan permintaan ijin cuti tahunan selama ',
+                        ),
+                        pw.TextSpan(
+                          text:
+                              '$hariCount (${angkaKeKataIndonesia(hariCount)})',
                           style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                         ),
                         pw.TextSpan(text: ' hari kerja, pada tanggal '),
@@ -268,21 +301,25 @@ class PdfCutiController extends GetxController {
                           text: rentang,
                           style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                         ),
-                        pw.TextSpan(text: '. Selama menjalankan cuti alamat saya di Pontianak.'),
+                        pw.TextSpan(
+                          text:
+                              '. Selama menjalankan cuti alamat saya di Pontianak.',
+                        ),
                       ],
                     );
                   }(),
                 ),
-                
+
                 pw.SizedBox(height: 10),
-                
+
                 // Horizontal dates table like the example
                 pw.Table(
                   border: pw.TableBorder.all(width: 1),
                   columnWidths: {
                     0: pw.FixedColumnWidth(80),
                     // dynamic columns for each date
-                    for (var i = 1; i <= (tanggalCutiList.length); i++) i: pw.FlexColumnWidth(),
+                    for (var i = 1; i <= (tanggalCutiList.length); i++)
+                      i: pw.FlexColumnWidth(),
                   },
                   children: [
                     pw.TableRow(
@@ -291,21 +328,29 @@ class PdfCutiController extends GetxController {
                           padding: pw.EdgeInsets.all(6),
                           child: pw.Text(
                             'Tanggal',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 10,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
                         ...tanggalCutiList.map((t) {
                           String day = t;
                           try {
-                            day = DateFormat('d', 'id_ID').format(DateTime.parse(t));
+                            day = DateFormat(
+                              'd',
+                              'id_ID',
+                            ).format(DateTime.parse(t));
                           } catch (_) {}
                           return pw.Padding(
                             padding: pw.EdgeInsets.all(6),
                             child: pw.Text(
                               day,
                               textAlign: pw.TextAlign.center,
-                              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
                             ),
                           );
                         }).toList(),
@@ -317,61 +362,80 @@ class PdfCutiController extends GetxController {
                           padding: pw.EdgeInsets.all(6),
                           child: pw.Text(
                             'Ket.',
-                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 10,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
-                        ...tanggalCutiList.map((_) => pw.Padding(
-                              padding: pw.EdgeInsets.all(6),
-                              child: pw.Text('C', textAlign: pw.TextAlign.center),
-                            )).toList(),
+                        ...tanggalCutiList
+                            .map(
+                              (_) => pw.Padding(
+                                padding: pw.EdgeInsets.all(6),
+                                child: pw.Text(
+                                  'C',
+                                  textAlign: pw.TextAlign.center,
+                                ),
+                              ),
+                            )
+                            .toList(),
                       ],
                     ),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 15),
-                
+
                 // Summary bagian dihapus sesuai permintaan (tidak menampilkan Lama Cuti & Alasan Cuti)
                 pw.SizedBox(height: 8),
-                
+
                 pw.SizedBox(height: 15),
-                
+
                 pw.Text(
                   'Demikian surat permohonan ini saya buat untuk dapat dipertimbangkan sebagaimana mestinya.',
                   style: pw.TextStyle(fontSize: 11),
                 ),
-                
+
                 pw.SizedBox(height: 30),
-                
+
                 // Signature
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.end,
                   children: [
                     pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      children: [
+                        pw.Text(
+                          'Hormat Saya,',
+                          style: pw.TextStyle(fontSize: 11),
+                        ),
+                        pw.SizedBox(height: 50),
+                        pw.Column(
                           children: [
-                            pw.Text('Hormat Saya,', style: pw.TextStyle(fontSize: 11)),
-                            pw.SizedBox(height: 50),
-                            pw.Column(
-                              children: [
-                                pw.Text(nama.toUpperCase(), style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                                pw.Container(
-                                  width: nama.length * 6.0,
-                                  height: 1,
-                                  color: PdfColors.black,
-                                  margin: pw.EdgeInsets.only(top: 2),
-                                ),
-                              ],
+                            pw.Text(
+                              nama.toUpperCase(),
+                              style: pw.TextStyle(
+                                fontSize: 11,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                            pw.Container(
+                              width: nama.length * 6.0,
+                              height: 1,
+                              color: PdfColors.black,
+                              margin: pw.EdgeInsets.only(top: 2),
                             ),
                           ],
                         ),
+                      ],
+                    ),
                     pw.SizedBox(width: 50),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 30),
-                
+
                 // Approval & notes table (bottom)
                 pw.Table(
                   border: pw.TableBorder.all(width: 1),
@@ -388,7 +452,10 @@ class PdfCutiController extends GetxController {
                           padding: pw.EdgeInsets.all(8),
                           child: pw.Text(
                             'CATATAN PEJABAT PERSONALIA',
-                            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 8,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
@@ -396,7 +463,10 @@ class PdfCutiController extends GetxController {
                           padding: pw.EdgeInsets.all(8),
                           child: pw.Text(
                             'CATATAN PERTIMBANGAN ATASAN LANGSUNG',
-                            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 8,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
@@ -404,7 +474,10 @@ class PdfCutiController extends GetxController {
                           padding: pw.EdgeInsets.all(8),
                           child: pw.Text(
                             'KEPUTUSAN PEJABAT YANG BERWENANG MEMBERIKAN CUTI',
-                            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 8,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
@@ -420,12 +493,27 @@ class PdfCutiController extends GetxController {
                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                             mainAxisAlignment: pw.MainAxisAlignment.start,
                             children: [
-                              pw.Text('Cuti yang telah diambil dalam tahun yang bersangkutan:', style: pw.TextStyle(fontSize: 7)),
+                              pw.Text(
+                                'Cuti yang telah diambil dalam tahun yang bersangkutan:',
+                                style: pw.TextStyle(fontSize: 7),
+                              ),
                               pw.SizedBox(height: 4),
-                              pw.Text('1. Cuti Tahun : ${tanggalCutiList.isNotEmpty ? DateTime.tryParse(tanggalCutiList.first)?.year ?? tanggalPengajuan.year : tanggalPengajuan.year}', style: pw.TextStyle(fontSize: 7)),
-                              pw.Text('2. Cuti Alasan Penting : -', style: pw.TextStyle(fontSize: 7)),
-                              pw.Text('3. Lama Cuti : ${tanggalCutiList.length} Hari', style: pw.TextStyle(fontSize: 7)),
-                              pw.Text('4. Sisa Cuti : $sisaCutiUser Hari', style: pw.TextStyle(fontSize: 7)),
+                              pw.Text(
+                                '1. Cuti Tahun : ${tanggalCutiList.isNotEmpty ? DateTime.tryParse(tanggalCutiList.first)?.year ?? tanggalPengajuan.year : tanggalPengajuan.year}',
+                                style: pw.TextStyle(fontSize: 7),
+                              ),
+                              pw.Text(
+                                '2. Cuti Alasan Penting : -',
+                                style: pw.TextStyle(fontSize: 7),
+                              ),
+                              pw.Text(
+                                '3. Lama Cuti : ${tanggalCutiList.length} Hari',
+                                style: pw.TextStyle(fontSize: 7),
+                              ),
+                              pw.Text(
+                                '4. Sisa Cuti : $sisaCutiUser Hari',
+                                style: pw.TextStyle(fontSize: 7),
+                              ),
                             ],
                           ),
                         ),
@@ -436,7 +524,10 @@ class PdfCutiController extends GetxController {
                             children: [
                               pw.Text(
                                 supervisorJabatan.toUpperCase(),
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
                                 textAlign: pw.TextAlign.center,
                               ),
                               pw.Spacer(),
@@ -445,7 +536,10 @@ class PdfCutiController extends GetxController {
                                 children: [
                                   pw.Text(
                                     supervisorNama.toUpperCase(),
-                                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: pw.FontWeight.bold,
+                                    ),
                                     textAlign: pw.TextAlign.center,
                                   ),
                                   pw.Container(
@@ -466,7 +560,10 @@ class PdfCutiController extends GetxController {
                             children: [
                               pw.Text(
                                 managerJabatan.toUpperCase(),
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
                                 textAlign: pw.TextAlign.center,
                               ),
                               pw.Spacer(),
@@ -475,7 +572,10 @@ class PdfCutiController extends GetxController {
                                 children: [
                                   pw.Text(
                                     managerNama.toUpperCase(),
-                                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: pw.FontWeight.bold,
+                                    ),
                                     textAlign: pw.TextAlign.center,
                                   ),
                                   pw.Container(
@@ -493,13 +593,12 @@ class PdfCutiController extends GetxController {
                     ),
                   ],
                 ),
-                
               ],
             );
           },
         ),
       );
-      
+
       return pdf.save();
     } catch (e) {
       Get.snackbar(
@@ -513,7 +612,7 @@ class PdfCutiController extends GetxController {
       isGenerating.value = false;
     }
   }
-  
+
   pw.TableRow _buildTableRow(String label, String separator, String value) {
     return pw.TableRow(
       children: [
@@ -523,14 +622,14 @@ class PdfCutiController extends GetxController {
       ],
     );
   }
-  
+
   Future<void> savePdfToDevice(Uint8List pdfBytes, String fileName) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);
       pdfPath.value = file.path;
-      
+
       Get.snackbar(
         'Berhasil',
         'PDF berhasil disimpan di ${file.path}',
@@ -546,17 +645,14 @@ class PdfCutiController extends GetxController {
       );
     }
   }
-  
+
   Future<void> sharePdf(Uint8List pdfBytes, String fileName) async {
     try {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);
-      
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Dokumen Cuti',
-      );
+
+      await Share.shareXFiles([XFile(file.path)], text: 'Dokumen Cuti');
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -566,7 +662,7 @@ class PdfCutiController extends GetxController {
       );
     }
   }
-  
+
   Future<void> printPdf(Uint8List pdfBytes) async {
     try {
       await Printing.layoutPdf(

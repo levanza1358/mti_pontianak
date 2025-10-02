@@ -224,6 +224,17 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () => Get.toNamed('/group-management'),
                               ),
                               const SizedBox(height: 16),
+
+                              // Supervisor Management Card
+                              _buildKerenUIMenuCard(
+                                context: context,
+                                title: 'Manajemen Supervisor',
+                                subtitle: 'Kelola data supervisor Penunjang & Logistik',
+                                icon: Icons.supervisor_account_rounded,
+                                color: const Color(0xFF8b5cf6),
+                                onTap: () => Get.toNamed('/supervisor-management'),
+                              ),
+                              const SizedBox(height: 16),
                             ],
                           ),
                         ),

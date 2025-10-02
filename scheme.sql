@@ -11,6 +11,8 @@ CREATE TABLE users (
     status TEXT,
     group_ TEXT,
     status_group TEXT,
+    kontak TEXT,
+    unit_kerja TEXT,
     sisa_cuti INTEGER DEFAULT 12,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -97,6 +99,7 @@ CREATE TABLE public.eksepsi_tanggal (
   eksepsi_id uuid not null references eksepsi(id) on delete cascade,
   tanggal_eksepsi date not null,
   urutan integer not null,
+  alasan_eksepsi text not null,
   created_at timestamp with time zone not null default now(),
   constraint eksepsi_tanggal_pkey primary key (id),
   constraint unique_eksepsi_urutan unique(eksepsi_id, urutan),

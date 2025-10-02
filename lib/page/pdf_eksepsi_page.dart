@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 import 'dart:typed_data';
+import 'dart:math';
 import '../controller/pdf_eksepsi_controller.dart';
 
 class PdfEksepsiPage extends StatelessWidget {
@@ -80,7 +81,8 @@ class PdfEksepsiPage extends StatelessWidget {
             canChangeOrientation: false,
             canChangePageFormat: false,
             canDebug: false,
-            pdfFileName: 'eksepsi_${DateTime.now().millisecondsSinceEpoch}.pdf',
+            pdfFileName:
+                'surat_eksepsi_${eksepsiData['nip'] ?? controller.eksepsiController.currentUser.value?['nip'] ?? '0000000000'}_${Random().nextInt(90000) + 10000}.pdf',
           );
         },
       ),

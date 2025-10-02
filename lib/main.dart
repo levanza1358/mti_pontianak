@@ -21,6 +21,7 @@ import 'page/insentif_page.dart';
 import 'page/surat_keluar_page.dart';
 import 'page/edit_jabatan_page.dart';
 import 'page/group_management_page.dart';
+import 'page/supervisor_management_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -160,6 +161,12 @@ class MyApp extends StatelessWidget {
       GetPage(
         name: '/group-management',
         page: () => const GroupManagementPage(),
+      ),
+
+      // Supervisor Management
+      GetPage(
+        name: '/supervisor-management',
+        page: () => const SupervisorManagementPage(),
       ),
     ];
   }

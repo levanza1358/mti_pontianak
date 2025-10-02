@@ -19,6 +19,7 @@ class AddJabatanController extends GetxController {
   final permissionAtk = false.obs;
   final permissionAllInsentif = false.obs;
   final permissionSuratKeluar = false.obs;
+  final permissionManagementData = false.obs;
 
   @override
   void onClose() {
@@ -59,15 +60,43 @@ class AddJabatanController extends GetxController {
     permissionSuratKeluar.value = value;
   }
 
+  void togglePermissionManagementData(bool value) {
+    permissionManagementData.value = value;
+  }
+
   // Submit Jabatan Form
   Future<void> submitJabatanForm() async {
     if (jabatanFormKey.currentState!.validate()) {
       isLoading.value = true;
 
       try {
+        final namaBaru = namaJabatanController.text.trim();
+
+        // Cek duplikasi nama jabatan (trim + case-insensitive)
+        final existing = await SupabaseService.instance.client
+            .from('jabatan')
+            .select('id,nama');
+        final exists = List<Map<String, dynamic>>.from(existing).any(
+          (row) => (row['nama'] ?? '')
+              .toString()
+              .trim()
+              .toLowerCase() ==
+              namaBaru.toLowerCase(),
+        );
+        if (exists) {
+          Get.snackbar(
+            'Duplikasi Nama',
+            'Nama jabatan sudah ada dan tidak boleh duplikat.',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+          );
+          return;
+        }
+
         // Insert jabatan data to Supabase
         await SupabaseService.instance.insertData('jabatan', {
-          'nama': namaJabatanController.text.trim(),
+          'nama': namaBaru,
           'permissionCuti': permissionCuti.value,
           'permissionEksepsi': permissionEksepsi.value,
           'permissionAllCuti': permissionAllCuti.value,
@@ -76,6 +105,7 @@ class AddJabatanController extends GetxController {
           'permissionAtk': permissionAtk.value,
           'permissionAllInsentif': permissionAllInsentif.value,
           'permissionSuratKeluar': permissionSuratKeluar.value,
+          'permissionManagementData': permissionManagementData.value,
         });
 
         // Show success message
@@ -118,6 +148,7 @@ class AddJabatanController extends GetxController {
     permissionAtk.value = false;
     permissionAllInsentif.value = false;
     permissionSuratKeluar.value = false;
+    permissionManagementData.value = false;
   }
 
   // Form Validators

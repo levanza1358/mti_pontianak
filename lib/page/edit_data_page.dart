@@ -611,7 +611,16 @@ class EditDataPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     Obx(
                       () => DropdownButtonFormField<String>(
-                        value: controller.selectedJabatan.value,
+                        // Pastikan value hanya di-set jika benar-benar ada 1 item yang cocok
+                        value: (controller.selectedJabatan.value != null &&
+                                controller.jabatanList
+                                    .where((j) => (j['nama'] ?? '')
+                                        .toString()
+                                        .trim() ==
+                                        controller.selectedJabatan.value)
+                                    .length == 1)
+                            ? controller.selectedJabatan.value
+                            : null,
                         validator: controller.validateJabatan,
                         decoration: InputDecoration(
                           hintText: 'Pilih jabatan',
@@ -645,13 +654,18 @@ class EditDataPage extends StatelessWidget {
                         items: controller.isLoadingJabatan.value
                             ? []
                             : controller.jabatanList.map((jabatan) {
+                                final nama =
+                                    (jabatan['nama'] ?? '')
+                                        .toString()
+                                        .trim();
                                 return DropdownMenuItem<String>(
-                                  value: jabatan['nama'],
-                                  child: Text(jabatan['nama']),
+                                  value: nama,
+                                  child: Text(nama),
                                 );
                               }).toList(),
                         onChanged: (value) {
-                          controller.selectedJabatan.value = value;
+                          controller.selectedJabatan.value =
+                              value?.trim();
                         },
                         hint: controller.isLoadingJabatan.value
                             ? const Row(
@@ -1064,6 +1078,108 @@ class EditDataPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            // Tombol Hapus Pegawai
+            Obx(
+              () => Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: controller.isLoading.value
+                      ? LinearGradient(
+                          colors: [
+                            Colors.grey.shade400,
+                            Colors.grey.shade500,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : const LinearGradient(
+                          colors: [Color(0xFFef4444), Color(0xFFdc2626)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: controller.isLoading.value
+                      ? [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [
+                          BoxShadow(
+                            color: const Color(0xFFef4444).withOpacity(0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                            spreadRadius: 2,
+                          ),
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.1),
+                            blurRadius: 2,
+                            offset: const Offset(0, -2),
+                          ),
+                        ],
+                ),
+                child: ElevatedButton(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : controller.deletePegawai,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: controller.isLoading.value
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(
+                                  Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Memproses...',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.delete_forever_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Hapus Pegawai',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

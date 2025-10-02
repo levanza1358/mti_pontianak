@@ -338,6 +338,8 @@ class EditJabatanPage extends StatelessWidget {
     final bool hasAtkPermission = jabatan['permissionAtk'] ?? false;
     final bool hasSuratKeluarPermission =
         jabatan['permissionSuratKeluar'] ?? false;
+    final bool hasManagementDataPermission =
+        jabatan['permissionManagementData'] ?? false;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -433,6 +435,113 @@ class EditJabatanPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
+                // Delete Button
+                Obx(
+                  () => Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFef4444).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: controller.isLoading.value
+                          ? null
+                          : controller.deleteJabatan,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ).copyWith(
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>((states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.grey.withOpacity(0.5);
+                          }
+                          return Colors.transparent;
+                        }),
+                      ),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          gradient: controller.isLoading.value
+                              ? LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Colors.grey.withOpacity(0.5),
+                                    Colors.grey.withOpacity(0.3),
+                                  ],
+                                )
+                              : const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFFef4444),
+                                    Color(0xFFdc2626),
+                                  ],
+                                ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: controller.isLoading.value
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Memproses...',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.delete_forever_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Hapus Jabatan',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 // Permissions
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -522,6 +631,10 @@ class EditJabatanPage extends StatelessWidget {
                           _buildPermissionIndicator(
                             label: 'Surat Keluar',
                             hasPermission: hasSuratKeluarPermission,
+                          ),
+                          _buildPermissionIndicator(
+                            label: 'Manajemen Data',
+                            hasPermission: hasManagementDataPermission,
                           ),
                         ],
                       ),
@@ -1085,6 +1198,39 @@ class EditJabatanPage extends StatelessWidget {
                             value: controller.permissionSuratKeluar.value,
                             onChanged: (value) => controller
                                 .togglePermissionSuratKeluar(value ?? false),
+                            activeColor: Colors.orange,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Permission Management Data
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Obx(
+                          () => CheckboxListTile(
+                            title: const Text(
+                              'Permission Management Data',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            subtitle: const Text(
+                              'Akses untuk mengelola data manajemen',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                            value: controller.permissionManagementData.value,
+                            onChanged: (value) => controller
+                                .togglePermissionManagementData(value ?? false),
                             activeColor: Colors.orange,
                           ),
                         ),

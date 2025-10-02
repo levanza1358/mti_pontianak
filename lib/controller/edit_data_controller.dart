@@ -49,6 +49,72 @@ class EditDataController extends GetxController {
     searchController.addListener(_filterPegawai);
   }
 
+  // Delete Pegawai
+  Future<void> deletePegawai() async {
+    if (currentUserId.value.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Tidak ada pegawai yang dipilih untuk dihapus',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    // Konfirmasi hapus
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: Text('Apakah Anda yakin ingin menghapus pegawai "${currentUserName.value}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      isLoading.value = true;
+
+      await SupabaseService.instance.client
+          .from('users')
+          .delete()
+          .eq('id', currentUserId.value);
+
+      Get.snackbar(
+        'Berhasil',
+        'Pegawai berhasil dihapus',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+
+      // Refresh list dan kembali ke daftar
+      await loadPegawaiList();
+      resetToList();
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus pegawai: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   @override
   void onClose() {
     searchController.dispose();
@@ -92,7 +158,19 @@ class EditDataController extends GetxController {
           .select()
           .order('nama', ascending: true);
 
-      jabatanList.value = List<Map<String, dynamic>>.from(result);
+      // Normalisasi nama (trim) dan hilangkan duplikat berdasarkan field 'nama'
+      final raw = List<Map<String, dynamic>>.from(result);
+      final seen = <String>{};
+      final deduped = <Map<String, dynamic>>[];
+      for (final row in raw) {
+        final nama = (row['nama'] ?? '').toString().trim();
+        if (nama.isEmpty) continue; // skip entri kosong
+        if (seen.contains(nama)) continue; // skip duplikat
+        seen.add(nama);
+        // Simpan kembali nama yang sudah dinormalisasi
+        deduped.add({...row, 'nama': nama});
+      }
+      jabatanList.value = deduped;
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -134,7 +212,8 @@ class EditDataController extends GetxController {
     currentUserName.value = pegawai['name'] ?? '';
     nameController.text = pegawai['name'] ?? '';
     nrpController.text = pegawai['nrp'] ?? '';
-    selectedJabatan.value = pegawai['jabatan'];
+    // Normalisasi jabatan agar selaras dengan daftar (trim)
+    selectedJabatan.value = (pegawai['jabatan'] as String?)?.trim();
     selectedStatus.value = pegawai['status'];
     selectedGroup.value = pegawai['group'];
     selectedStatusGroup.value = pegawai['status_group'];

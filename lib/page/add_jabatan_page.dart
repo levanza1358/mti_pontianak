@@ -339,6 +339,17 @@ class AddJabatanPage extends StatelessWidget {
                                             .togglePermissionSuratKeluar(
                                               value ?? false,
                                             ),
+                                        isLast: false,
+                                      ),
+                                    ),
+                                    Obx(
+                                      () => _buildSimpleCheckbox(
+                                        'Permission Management Data',
+                                        controller.permissionManagementData.value,
+                                        (value) => controller
+                                            .togglePermissionManagementData(
+                                              value ?? false,
+                                            ),
                                         isLast: true,
                                       ),
                                     ),

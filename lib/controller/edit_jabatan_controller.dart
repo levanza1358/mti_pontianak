@@ -21,6 +21,7 @@ class EditJabatanController extends GetxController {
   final permissionAtk = false.obs;
   final permissionAllInsentif = false.obs;
   final permissionSuratKeluar = false.obs;
+  final permissionManagementData = false.obs;
 
   // Data jabatan yang sedang diedit
   final currentJabatanId = ''.obs;
@@ -33,6 +34,72 @@ class EditJabatanController extends GetxController {
   void onInit() {
     super.onInit();
     loadJabatanList();
+  }
+
+  // Delete Jabatan
+  Future<void> deleteJabatan() async {
+    if (currentJabatanId.value.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Tidak ada jabatan yang dipilih untuk dihapus',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    // Konfirmasi hapus
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: Text('Apakah Anda yakin ingin menghapus jabatan "${currentJabatanName.value}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      isLoading.value = true;
+
+      await SupabaseService.instance.client
+          .from('jabatan')
+          .delete()
+          .eq('id', currentJabatanId.value);
+
+      Get.snackbar(
+        'Berhasil',
+        'Jabatan berhasil dihapus',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+
+      // Refresh list dan kembali ke daftar
+      await loadJabatanList();
+      resetToList();
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal menghapus jabatan: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -78,6 +145,7 @@ class EditJabatanController extends GetxController {
     permissionAtk.value = jabatan['permissionAtk'] ?? false;
     permissionAllInsentif.value = jabatan['permissionAllInsentif'] ?? false;
     permissionSuratKeluar.value = jabatan['permissionSuratKeluar'] ?? false;
+    permissionManagementData.value = jabatan['permissionManagementData'] ?? false;
     isDataFound.value = true;
   }
 
@@ -114,12 +182,41 @@ class EditJabatanController extends GetxController {
     permissionSuratKeluar.value = value;
   }
 
+  void togglePermissionManagementData(bool value) {
+    permissionManagementData.value = value;
+  }
+
   // Update Jabatan
   Future<void> updateJabatan() async {
     if (editJabatanFormKey.currentState!.validate()) {
       isLoading.value = true;
 
       try {
+        // Cek duplikasi nama saat update (hindari nama sama pada id berbeda)
+        final newName = namaJabatanController.text.trim();
+        final existing = await SupabaseService.instance.client
+            .from('jabatan')
+            .select('id,nama');
+        final duplicate = List<Map<String, dynamic>>.from(existing).any(
+          (row) => (row['id'] ?? '') != currentJabatanId.value &&
+              (row['nama'] ?? '')
+                  .toString()
+                  .trim()
+                  .toLowerCase() ==
+                  newName.toLowerCase(),
+        );
+
+        if (duplicate) {
+          Get.snackbar(
+            'Duplikasi Nama',
+            'Nama jabatan sudah digunakan oleh entri lain.',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+          );
+          return;
+        }
+
         // Update jabatan data in Supabase
         await SupabaseService.instance.client
             .from('jabatan')
@@ -133,6 +230,7 @@ class EditJabatanController extends GetxController {
               'permissionAtk': permissionAtk.value,
               'permissionAllInsentif': permissionAllInsentif.value,
               'permissionSuratKeluar': permissionSuratKeluar.value,
+              'permissionManagementData': permissionManagementData.value,
             })
             .eq('id', currentJabatanId.value);
 
@@ -176,6 +274,7 @@ class EditJabatanController extends GetxController {
     permissionAtk.value = false;
     permissionAllInsentif.value = false;
     permissionSuratKeluar.value = false;
+    permissionManagementData.value = false;
     isDataFound.value = false;
     currentJabatanId.value = '';
     currentJabatanName.value = '';
@@ -192,6 +291,7 @@ class EditJabatanController extends GetxController {
     permissionAtk.value = false;
     permissionAllInsentif.value = false;
     permissionSuratKeluar.value = false;
+    permissionManagementData.value = false;
     isDataFound.value = false;
     currentJabatanId.value = '';
     currentJabatanName.value = '';

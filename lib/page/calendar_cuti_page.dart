@@ -69,6 +69,9 @@ class CalendarCutiPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Info tip (inspirasi dari halaman Cuti)
+                      _buildInfoTip(),
+                      const SizedBox(height: 12),
                       // User info card
                       _buildUserInfoCard(controller),
                       const SizedBox(height: 16),
@@ -86,6 +89,46 @@ class CalendarCutiPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoTip() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF4facfe).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.info_outline,
+              color: Color(0xFF4facfe),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              'Pilih tanggal cuti dengan teliti. Ketuk tanggal untuk melihat detail pengajuan Anda maupun tim.',
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -232,63 +275,101 @@ class CalendarCutiPage extends StatelessWidget {
               );
             }
 
-            return TableCalendar<Map<String, dynamic>>(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: controller.focusedDay.value,
-              calendarFormat: controller.calendarFormat.value,
-              eventLoader: controller.getEventsForDay,
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              calendarStyle: CalendarStyle(
-                outsideDaysVisible: false,
-                weekendTextStyle: const TextStyle(color: Color(0xFF64748B)),
-                holidayTextStyle: const TextStyle(color: Color(0xFFEF4444)),
-                selectedDecoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  shape: BoxShape.circle,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TableCalendar<Map<String, dynamic>>(
+                  firstDay: DateTime.utc(2020, 1, 1),
+                  lastDay: DateTime.utc(2030, 12, 31),
+                  focusedDay: controller.focusedDay.value,
+                  calendarFormat: controller.calendarFormat.value,
+                  eventLoader: controller.getEventsForDay,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  calendarStyle: CalendarStyle(
+                    outsideDaysVisible: false,
+                    weekendTextStyle: const TextStyle(color: Color(0xFF64748B)),
+                    holidayTextStyle: const TextStyle(color: Color(0xFFEF4444)),
+                    selectedDecoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    todayDecoration: BoxDecoration(
+                      color: colorScheme.primary.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    markerDecoration: const BoxDecoration(
+                      color: Color(0xFFEF4444),
+                      shape: BoxShape.circle,
+                    ),
+                    markersMaxCount: 3,
+                  ),
+                  headerStyle: const HeaderStyle(
+                    formatButtonVisible: true,
+                    titleCentered: true,
+                    formatButtonShowsNext: false,
+                    formatButtonDecoration: BoxDecoration(
+                      color: Color(0xFF3B82F6),
+                      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    ),
+                    formatButtonTextStyle: TextStyle(color: Colors.white),
+                    leftChevronIcon: Icon(
+                      Icons.chevron_left,
+                      color: Color(0xFF3B82F6),
+                      size: 28,
+                    ),
+                    rightChevronIcon: Icon(
+                      Icons.chevron_right,
+                      color: Color(0xFF3B82F6),
+                      size: 28,
+                    ),
+                    headerPadding: EdgeInsets.symmetric(vertical: 8.0),
+                    titleTextStyle: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, date, events) {
+                      if (events.isEmpty) return null;
+                      final dots = events.take(3).map((e) {
+                        final status = (e['status'] ?? '').toString();
+                        final isOwn = e['is_own'] == true;
+                        final color = isOwn
+                            ? const Color(0xFF0EA5E9)
+                            : const Color(0xFF64748B);
+                        return Container(
+                          width: 6,
+                          height: 6,
+                          margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                          ),
+                        );
+                      }).toList();
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: dots,
+                      );
+                    },
+                  ),
+                  onDaySelected: controller.onDaySelected,
+                  onFormatChanged: controller.onFormatChanged,
+                  onPageChanged: controller.onPageChanged,
+                  selectedDayPredicate: (day) {
+                    return isSameDay(controller.selectedDay.value, day);
+                  },
                 ),
-                todayDecoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.5),
-                  shape: BoxShape.circle,
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    // Legend chips dihapus karena tidak digunakan
+                  ],
                 ),
-                markerDecoration: const BoxDecoration(
-                  color: Color(0xFFEF4444),
-                  shape: BoxShape.circle,
-                ),
-                markersMaxCount: 3,
-              ),
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: true,
-                titleCentered: true,
-                formatButtonShowsNext: false,
-                formatButtonDecoration: BoxDecoration(
-                  color: Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                ),
-                formatButtonTextStyle: TextStyle(color: Colors.white),
-                leftChevronIcon: Icon(
-                  Icons.chevron_left,
-                  color: Color(0xFF3B82F6),
-                  size: 28,
-                ),
-                rightChevronIcon: Icon(
-                  Icons.chevron_right,
-                  color: Color(0xFF3B82F6),
-                  size: 28,
-                ),
-                headerPadding: EdgeInsets.symmetric(vertical: 8.0),
-                titleTextStyle: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              onDaySelected: controller.onDaySelected,
-              onFormatChanged: controller.onFormatChanged,
-              onPageChanged: controller.onPageChanged,
-              selectedDayPredicate: (day) {
-                return isSameDay(controller.selectedDay.value, day);
-              },
+              ],
             );
           }),
         ],
@@ -414,6 +495,7 @@ class CalendarCutiPage extends StatelessWidget {
                   ),
                 ),
               ),
+              // Badge status dihapus karena tidak digunakan
             ],
           ),
           const SizedBox(height: 8),
@@ -443,6 +525,8 @@ class CalendarCutiPage extends StatelessWidget {
       ),
     );
   }
+
+  // Helpers status & legend dihapus karena tidak digunakan.
 
   String _formatDate(DateTime date) {
     const months = [

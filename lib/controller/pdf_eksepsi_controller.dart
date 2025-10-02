@@ -3,23 +3,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import '../controller/eksepsi_controller.dart';
+import '../services/supabase_service.dart';
 
 class PdfEksepsiController extends GetxController {
   final EksepsiController eksepsiController = Get.find<EksepsiController>();
+  final SupabaseService supabaseService = SupabaseService.instance;
   final isGenerating = false.obs;
   final pdfPath = Rxn<String>();
+
+  // Method untuk generate nama file PDF dengan format yang benar
+  String generatePdfFileName(Map<String, dynamic> userData) {
+    final nrp = userData?['nrp'] ?? '00000';
+    final randomNumber = (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
+    return 'surat_eksepsi_${nrp}_$randomNumber.pdf';
+  }
+  Future<Map<String, dynamic>?> fetchSupervisorByJenis(String jenis) async {
+    try {
+      final response = await supabaseService.client
+          .from('supervisor')
+          .select('*')
+          .eq('jenis', jenis)
+          .single();
+      
+      return response;
+    } catch (e) {
+      print('Error fetching supervisor: $e');
+      return null;
+    }
+  }
+
+  // Method untuk menentukan jenis supervisor berdasarkan status user
+  String getSupervisorJenisByUserStatus(String? userStatus) {
+    if (userStatus == 'Non Operasional') {
+      return 'Penunjang';
+    } else if (userStatus == 'Operasional') {
+      return 'Logistik';
+    }
+    // Default ke Logistik jika status tidak dikenali
+    return 'Logistik';
+  }
 
   Future<Uint8List> generateEksepsiPdf(Map<String, dynamic> eksepsiData) async {
     isGenerating.value = true;
     final pdf = pw.Document();
     
     try {
+      // Initialize Indonesian locale for date formatting
+      await initializeDateFormatting('id_ID', null);
+      
       // Load logo image
       final ByteData logoData = await rootBundle.load('assets/MTI_logo.png');
       final Uint8List logoBytes = logoData.buffer.asUint8List();
@@ -30,7 +68,7 @@ class PdfEksepsiController extends GetxController {
           ? DateTime.parse(eksepsiData['tanggal_pengajuan'])
           : DateTime.now();
       
-      final formattedDate = DateFormat('dd MMMM yyyy').format(tanggalPengajuan);
+      final formattedDate = DateFormat('dd MMMM yyyy', 'id_ID').format(tanggalPengajuan);
       
       // Get user data
       final userData = eksepsiController.currentUser.value;
@@ -39,6 +77,18 @@ class PdfEksepsiController extends GetxController {
       final kontak = userData?['kontak'] ?? '-';
       final jabatan = userData?['jabatan'] ?? 'Jabatan Pegawai';
       final unitKerja = userData?['unit_kerja'] ?? '-';
+      final userStatus = userData?['status'] ?? 'Operasional';
+      
+      // Fetch supervisor data berdasarkan status user
+      final supervisorJenis = getSupervisorJenisByUserStatus(userStatus);
+      final supervisorData = await fetchSupervisorByJenis(supervisorJenis);
+      final managerData = await fetchSupervisorByJenis('Manager_PDS');
+      
+      // Set supervisor info
+      final supervisorNama = supervisorData?['nama'] ?? 'SUPERVISOR ${supervisorJenis.toUpperCase()}';
+      final supervisorJabatan = supervisorData?['jabatan'] ?? 'SUPERVISOR ${supervisorJenis.toUpperCase()}';
+      final managerNama = managerData?['nama'] ?? 'REGIONAL MANAGER';
+      final managerJabatan = managerData?['jabatan'] ?? 'REGIONAL MANAGER JAKARTA';
       
       // Get eksepsi details
       final jenisEksepsi = eksepsiData['jenis_eksepsi'] ?? 'Jam Masuk & Pulang';
@@ -173,7 +223,7 @@ class PdfEksepsiController extends GetxController {
                       String formattedTanggal = tanggalEksepsi;
                       try {
                         final date = DateTime.parse(tanggalEksepsi);
-                        formattedTanggal = DateFormat('dd MMMM yyyy').format(date);
+                        formattedTanggal = DateFormat('dd MMMM yyyy', 'id_ID').format(date);
                       } catch (e) {
                         // Use the raw string if parsing fails
                       }
@@ -216,13 +266,23 @@ class PdfEksepsiController extends GetxController {
                   mainAxisAlignment: pw.MainAxisAlignment.end,
                   children: [
                     pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.center,
-                      children: [
-                        pw.Text('Hormat Saya,', style: pw.TextStyle(fontSize: 11)),
-                        pw.SizedBox(height: 50),
-                        pw.Text(nama, style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                      ],
-                    ),
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text('Hormat Saya,', style: pw.TextStyle(fontSize: 11)),
+                            pw.SizedBox(height: 50),
+                            pw.Column(
+                              children: [
+                                pw.Text(nama.toUpperCase(), style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
+                                pw.Container(
+                                  width: nama.length * 6.0,
+                                  height: 1,
+                                  color: PdfColors.black,
+                                  margin: pw.EdgeInsets.only(top: 2),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                     pw.SizedBox(width: 50),
                   ],
                 ),
@@ -271,10 +331,11 @@ class PdfEksepsiController extends GetxController {
                     pw.TableRow(
                       children: [
                         pw.Container(
-                          height: 80,
-                          padding: pw.EdgeInsets.all(8),
+                          height: 60,
+                          padding: pw.EdgeInsets.all(6),
                           child: pw.Column(
                             crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
                             children: [
                               pw.Row(
                                 children: [
@@ -289,7 +350,6 @@ class PdfEksepsiController extends GetxController {
                                   pw.Text('Hadir / Pulang sesuai jam kerja', style: pw.TextStyle(fontSize: 7)),
                                 ],
                               ),
-                              pw.SizedBox(height: 5),
                               pw.Row(
                                 children: [
                                   pw.Container(
@@ -312,41 +372,61 @@ class PdfEksepsiController extends GetxController {
                           ),
                         ),
                         pw.Container(
-                          height: 80,
-                          padding: pw.EdgeInsets.all(8),
+                          height: 60,
+                          padding: pw.EdgeInsets.all(6),
                           child: pw.Column(
-                            mainAxisAlignment: pw.MainAxisAlignment.center,
+                            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                             children: [
                               pw.Text(
-                                'SUPERVISOR LOGISTIK',
+                                supervisorJabatan.toUpperCase(),
                                 style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
                                 textAlign: pw.TextAlign.center,
                               ),
-                              pw.SizedBox(height: 30),
-                              pw.Text(
-                                'BAHTIAR SETIO HONO',
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
-                                textAlign: pw.TextAlign.center,
+                              pw.SizedBox(height: 15),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    supervisorNama.toUpperCase(),
+                                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                    textAlign: pw.TextAlign.center,
+                                  ),
+                                  pw.Container(
+                                    width: supervisorNama.length * 4.5,
+                                    height: 1,
+                                    color: PdfColors.black,
+                                    margin: pw.EdgeInsets.only(top: 1),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                         pw.Container(
-                          height: 80,
-                          padding: pw.EdgeInsets.all(8),
+                          height: 60,
+                          padding: pw.EdgeInsets.all(6),
                           child: pw.Column(
-                            mainAxisAlignment: pw.MainAxisAlignment.center,
+                            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                             children: [
                               pw.Text(
-                                'REGIONAL MANAGER JAKARTA',
+                                managerJabatan.toUpperCase(),
                                 style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
                                 textAlign: pw.TextAlign.center,
                               ),
-                              pw.SizedBox(height: 30),
-                              pw.Text(
-                                'YOGI AULIA',
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
-                                textAlign: pw.TextAlign.center,
+                              pw.SizedBox(height: 15),
+                              pw.Column(
+                                children: [
+                                  pw.Text(
+                                    managerNama.toUpperCase(),
+                                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                    textAlign: pw.TextAlign.center,
+                                  ),
+                                  pw.Container(
+                                    width: managerNama.length * 4.5,
+                                    height: 1,
+                                    color: PdfColors.black,
+                                    margin: pw.EdgeInsets.only(top: 1),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

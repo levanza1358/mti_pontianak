@@ -26,9 +26,11 @@ class PdfEksepsiPage extends StatelessWidget {
             onPressed: () async {
               final pdfBytes = await controller.generateEksepsiPdf(eksepsiData);
               if (pdfBytes.isNotEmpty) {
+                final userData = controller.eksepsiController.currentUser.value;
+                final fileName = controller.generatePdfFileName(userData ?? {});
                 await controller.sharePdf(
                   pdfBytes,
-                  'eksepsi_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                  fileName,
                 );
               }
             },
@@ -38,9 +40,11 @@ class PdfEksepsiPage extends StatelessWidget {
             onPressed: () async {
               final pdfBytes = await controller.generateEksepsiPdf(eksepsiData);
               if (pdfBytes.isNotEmpty) {
+                final userData = controller.eksepsiController.currentUser.value;
+                final fileName = controller.generatePdfFileName(userData ?? {});
                 await controller.savePdfToDevice(
                   pdfBytes,
-                  'eksepsi_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                  fileName,
                 );
               }
             },
@@ -81,8 +85,7 @@ class PdfEksepsiPage extends StatelessWidget {
             canChangeOrientation: false,
             canChangePageFormat: false,
             canDebug: false,
-            pdfFileName:
-                'surat_eksepsi_${eksepsiData['nip'] ?? controller.eksepsiController.currentUser.value?['nip'] ?? '0000000000'}_${Random().nextInt(90000) + 10000}.pdf',
+            useActions: false, // Menghilangkan semua tombol bawah
           );
         },
       ),

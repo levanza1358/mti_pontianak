@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../controller/cuti_controller.dart';
+import 'pdf_cuti_page.dart';
 
 class CutiPage extends StatelessWidget {
   const CutiPage({super.key});
@@ -816,6 +817,26 @@ class CutiPage extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // PDF button
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => PdfCutiPage(cutiData: item));
+                            },
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Icon(
+                                Icons.picture_as_pdf,
+                                size: 20,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           // Lock/Unlock button
                           InkWell(
                             onTap: () {

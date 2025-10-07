@@ -369,6 +369,36 @@ class HomePage extends StatelessWidget {
       menus.add(const SizedBox(height: 8));
     }
 
+    // Semua Data Cuti - Show if user has permission to view all
+    if (authController.hasPermissionAllCuti) {
+      menus.add(
+        _buildKerenUIMenuCard(
+          context: context,
+          title: 'Semua Data Cuti',
+          subtitle: 'Lihat semua pengajuan cuti',
+          icon: Icons.list_alt_rounded,
+          color: const Color(0xFF10b981),
+          onTap: () => Get.toNamed('/all-cuti'),
+        ),
+      );
+      menus.add(const SizedBox(height: 8));
+    }
+
+    // Semua Data Eksepsi - Show if user has permission to view all eksepsi
+    if (authController.hasPermissionAllEksepsi) {
+      menus.add(
+        _buildKerenUIMenuCard(
+          context: context,
+          title: 'Semua Data Eksepsi',
+          subtitle: 'Lihat semua pengajuan eksepsi',
+          icon: Icons.fact_check_rounded,
+          color: const Color(0xFF22c55e),
+          onTap: () => Get.toNamed('/all-eksepsi'),
+        ),
+      );
+      menus.add(const SizedBox(height: 8));
+    }
+
     // Data Insentif - Show if user has insentif permission
     if (authController.hasPermissionInsentif) {
       menus.add(

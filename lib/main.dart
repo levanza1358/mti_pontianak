@@ -22,6 +22,8 @@ import 'page/surat_keluar_page.dart';
 import 'page/edit_jabatan_page.dart';
 import 'page/group_management_page.dart';
 import 'page/supervisor_management_page.dart';
+import 'page/semua_data_cuti_page.dart';
+import 'page/semua_data_eksepsi_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -147,6 +149,8 @@ class MyApp extends StatelessWidget {
       // Leave Management
       GetPage(name: '/cuti', page: () => const CutiPage()),
       GetPage(name: '/calendar-cuti', page: () => const CalendarCutiPage()),
+      GetPage(name: '/all-cuti', page: () => const SemuaDataCutiPage()),
+      GetPage(name: '/all-eksepsi', page: () => const SemuaDataEksepsiPage()),
 
       // Exception Management
       GetPage(name: '/eksepsi', page: () => const EksepsiPage()),

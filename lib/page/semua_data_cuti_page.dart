@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/semua_data_cuti_controller.dart';
+import '../theme/app_palette.dart';
 
 class SemuaDataCutiPage extends StatelessWidget {
   const SemuaDataCutiPage({super.key});
@@ -9,7 +10,7 @@ class SemuaDataCutiPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(SemuaDataCutiController());
 
-    const primaryGradient = [Color(0xFF667eea), Color(0xFF764ba2)];
+    const primaryGradient = AppPalette.cutiAllGradient;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -24,24 +25,21 @@ class SemuaDataCutiPage extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Header
+              // Header as gradient card (like Home)
               Container(
-                width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: primaryGradient,
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0x26667eea),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
+                      color: Color(0x40667eea),
+                      blurRadius: 12,
+                      offset: Offset(0, 6),
                     ),
                   ],
                 ),
@@ -80,14 +78,12 @@ class SemuaDataCutiPage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      CircleAvatar(
+                        backgroundColor: Colors.white54,
+                        radius: 18,
                         child: IconButton(
                           onPressed: controller.refreshData,
-                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          icon: const Icon(Icons.refresh, color: Colors.white, size: 18),
                         ),
                       ),
                     ],

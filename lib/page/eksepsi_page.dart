@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../theme/app_palette.dart';
 import '../controller/eksepsi_controller.dart';
 import 'pdf_eksepsi_page.dart';
 
@@ -11,39 +12,230 @@ class EksepsiPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(EksepsiController());
 
+    const primaryGradient = AppPalette.eksepsiGradient;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Eksepsi'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.blue,
-        elevation: 0,
+      backgroundColor: Colors.grey[50],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: primaryGradient.map((c) => c.withOpacity(0.08)).toList(),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header as gradient card (like Home)
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: primaryGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x40667eea),
+                      blurRadius: 12,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          onPressed: () => Get.back(),
+                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Pengajuan Eksepsi',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Ajukan eksepsi dan lihat riwayat Anda',
+                              style: TextStyle(fontSize: 13, color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                      CircleAvatar(
+                        backgroundColor: Colors.white54,
+                        radius: 18,
+                        child: const Icon(Icons.schedule, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Tab bar
+              Container(
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: TabBar(
+                  controller: controller.tabController,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: const Color(0xFF667eea),
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                  indicator: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: primaryGradient,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF667eea).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  tabs: const [
+                    Tab(icon: Icon(Icons.add_circle_outline), text: 'Ajukan Eksepsi'),
+                    Tab(icon: Icon(Icons.history), text: 'Riwayat Saya'),
+                  ],
+                ),
+              ),
+
+              // Tab views
+              Expanded(
+                child: TabBarView(
+                  controller: controller.tabController,
+                  children: [
+                    _buildEksepsiForm(controller),
+                    _buildHistoryTab(controller),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: Column(
+    );
+  }
+
+  // Copy of Home's menu card style (non-clickable if onTap is null)
+  Widget _buildHomeStyleCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    final content = Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
         children: [
           Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: controller.tabController,
-              indicatorColor: Colors.blue,
-              labelColor: Colors.blue,
-              unselectedLabelColor: Colors.grey,
-              tabs: const [
-                Tab(text: 'Ajukan Eksepsi'),
-                Tab(text: 'Riwayat Saya'),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color.withOpacity(0.8), color.withOpacity(0.6)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2D3748),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF718096),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
-          Expanded(
-            child: TabBarView(
-              controller: controller.tabController,
-              children: [
-                _buildEksepsiForm(controller),
-                _buildHistoryTab(controller),
-              ],
+          if (onTap != null)
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+              size: 16,
             ),
+        ],
+      ),
+    );
+
+    final card = Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
         ],
+        border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
+      ),
+      child: content,
+    );
+
+    if (onTap == null) return card;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: card,
       ),
     );
   }
@@ -56,40 +248,29 @@ class EksepsiPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Jenis Eksepsi',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue[200]!),
-                      ),
-                      child: Text(
-                        controller.jenisEksepsi,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            // Card persis seperti di Home (copy style)
+            _buildHomeStyleCard(
+              context: Get.context!,
+              title: 'Jenis Eksepsi',
+              subtitle: controller.jenisEksepsi,
+              icon: Icons.schedule,
+              color: const Color(0xFF667eea),
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: Card(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -98,20 +279,24 @@ class EksepsiPage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Tanggal Eksepsi',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: const [
+                              Icon(Icons.calendar_month, color: Color(0xFF667eea)),
+                              SizedBox(width: 8),
+                              Text(
+                                'Tanggal Eksepsi',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                           ElevatedButton.icon(
                             onPressed: controller.addEksepsiEntry,
                             icon: const Icon(Icons.add),
                             label: const Text('Tambah'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green[100],
-                              foregroundColor: Colors.green[800],
+                              backgroundColor: const Color(0xFF667eea),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                         ],
@@ -174,8 +359,20 @@ class EksepsiPage extends StatelessWidget {
     final alasanController = entry['alasan']!;
     final tanggalController = entry['tanggal']!;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -194,7 +391,7 @@ class EksepsiPage extends StatelessWidget {
                 if (controller.eksepsiEntries.length > 1)
                   IconButton(
                     onPressed: () => controller.removeEksepsiEntry(index),
-                    icon: const Icon(Icons.delete, color: Colors.blue),
+                    icon: const Icon(Icons.delete, color: Colors.redAccent),
                   ),
               ],
             ),
@@ -204,7 +401,6 @@ class EksepsiPage extends StatelessWidget {
               decoration: const InputDecoration(
                 labelText: 'Tanggal Eksepsi',
                 hintText: 'Pilih tanggal eksepsi',
-                border: OutlineInputBorder(),
                 suffixIcon: Icon(Icons.calendar_today),
               ),
               readOnly: true,
@@ -227,7 +423,6 @@ class EksepsiPage extends StatelessWidget {
               decoration: const InputDecoration(
                 labelText: 'Alasan Eksepsi',
                 hintText: 'Masukkan alasan eksepsi',
-                border: OutlineInputBorder(),
               ),
               maxLines: 3,
               validator: controller.validateAlasan,
@@ -246,10 +441,8 @@ class EksepsiPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Riwayat Eksepsi',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              const Text('Riwayat Eksepsi',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               IconButton(
                 onPressed: controller.refreshData,
                 icon: const Icon(Icons.refresh),
@@ -294,8 +487,20 @@ class EksepsiPage extends StatelessWidget {
     final statusColor = controller.getStatusColor(status);
     final statusIcon = controller.getStatusIcon(status);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
+      ),
       child: InkWell(
         onTap: () => _showDetailDialog(item),
         borderRadius: BorderRadius.circular(12),

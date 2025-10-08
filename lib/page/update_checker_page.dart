@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import '../theme/app_palette.dart';
 import '../controller/update_checker_controller.dart';
 
 class UpdateCheckerPage extends StatelessWidget {
@@ -8,14 +10,16 @@ class UpdateCheckerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.put(UpdateCheckerController());
-    const primaryGradient = [Color(0xFF667eea), Color(0xFF764ba2)];
+    const primaryGradient = AppPalette.updateGradient;
+    const softText = Color(0xFF718096);
+    const strongText = Color(0xFF2D3748);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: primaryGradient.map((c) => c.withOpacity(0.08)).toList(),
+            colors: primaryGradient.map((c) => c.withOpacity(0.14)).toList(),
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -24,45 +28,37 @@ class UpdateCheckerPage extends StatelessWidget {
           child: Obx(
             () => Column(
               children: [
-                // Header
+                // Header gradient card (match examples)
                 Container(
-                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: primaryGradient,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
                     boxShadow: [
                       BoxShadow(
-                        color: Color(0x26667eea),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
+                        color: Color(0x33000000),
+                        blurRadius: 12,
+                        offset: Offset(0, 6),
                       ),
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withOpacity(0.18),
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withOpacity(0.25)),
                           ),
                           child: IconButton(
                             onPressed: () => Get.back(),
-                            icon: const Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                            ),
+                            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -81,13 +77,15 @@ class UpdateCheckerPage extends StatelessWidget {
                               SizedBox(height: 3),
                               Text(
                                 'Periksa versi terbaru dan pasang pembaruan',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                ),
+                                style: TextStyle(fontSize: 13, color: Colors.white70),
                               ),
                             ],
                           ),
+                        ),
+                        CircleAvatar(
+                          backgroundColor: Colors.white54,
+                          radius: 18,
+                          child: const Icon(Icons.system_update_rounded, color: Colors.white),
                         ),
                       ],
                     ),
@@ -101,16 +99,59 @@ class UpdateCheckerPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _infoCard('Versi Saat Ini', c.currentVersion.value),
-                        const SizedBox(height: 12),
                         _infoCard(
-                          'Versi Terbaru',
-                          c.latestVersion.value.isEmpty
-                              ? '-'
-                              : c.latestVersion.value,
+                          icon: Icons.phone_android_rounded,
+                          iconColor: const Color(0xFF3182CE),
+                          title: 'Versi Saat Ini',
+                          value: c.currentVersion.value,
+                          softText: softText,
+                          strongText: strongText,
                         ),
                         const SizedBox(height: 12),
-                        _notesCard(c.releaseName.value, c.releaseNotes.value),
+                        _infoCard(
+                          icon: Icons.cloud_download_rounded,
+                          iconColor: const Color(0xFF38A169),
+                          title: 'Versi Terbaru',
+                          value: c.latestVersion.value.isEmpty
+                              ? '-'
+                              : c.latestVersion.value,
+                          softText: softText,
+                          strongText: strongText,
+                          trailing: c.isUpdateAvailable.value
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFDEF7EC),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: const Text(
+                                    'Tersedia',
+                                    style: TextStyle(
+                                      color: Color(0xFF046C4E),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                        _notesCard(
+                          name: c.releaseName.value,
+                          notes: c.releaseNotes.value,
+                          softText: softText,
+                          strongText: strongText,
+                          onOpenRelease: () {
+                            final url = c.releasePageUrl.value;
+                            if (url.isNotEmpty) {
+                              launchUrlString(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            }
+                          },
+                        ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -124,6 +165,14 @@ class UpdateCheckerPage extends StatelessWidget {
                                   c.isChecking.value
                                       ? 'Memeriksa...'
                                       : 'Cek Pembaruan',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                 ),
                               ),
                             ),
@@ -148,6 +197,12 @@ class UpdateCheckerPage extends StatelessWidget {
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF22c55e),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                 ),
                               ),
                               if (c.isDownloading.value)
@@ -192,77 +247,133 @@ class UpdateCheckerPage extends StatelessWidget {
     );
   }
 
-  Widget _infoCard(String title, String value) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF718096)),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value.isEmpty ? '-' : value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2D3748),
+  Widget _infoCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+    required Color softText,
+    required Color strongText,
+    Widget? trailing,
+  }) {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconColor),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 12, color: softText),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    value.isEmpty ? '-' : value,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: strongText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (trailing != null) trailing,
+          ],
+        ),
       ),
     );
   }
 
-  Widget _notesCard(String name, String notes) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Rilis Terbaru',
-            style: TextStyle(fontSize: 13, color: Color(0xFF718096)),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            name.isEmpty ? '-' : name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2D3748),
+  Widget _notesCard({
+    required String name,
+    required String notes,
+    required Color softText,
+    required Color strongText,
+    VoidCallback? onOpenRelease,
+  }) {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEEBC8),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child:
+                      const Icon(Icons.new_releases_rounded, color: Color(0xFFDD6B20)),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Rilis Terbaru',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF718096)),
+                  ),
+                ),
+                if (onOpenRelease != null)
+                  TextButton.icon(
+                    onPressed: onOpenRelease,
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF3182CE),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    ),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                    label: const Text('Lihat'),
+                  ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            notes.isEmpty ? 'Belum ada catatan rilis.' : notes,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF4A5568)),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Text(
+              name.isEmpty ? '-' : name,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: strongText,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7FAFC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: SelectableText(
+                notes.isEmpty ? 'Belum ada catatan rilis.' : notes,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF4A5568), height: 1.35),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

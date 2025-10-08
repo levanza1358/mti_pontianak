@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mti_pontianak/controller/insentif_controller.dart';
+import '../theme/app_palette.dart';
 import 'package:intl/intl.dart';
 
 class InsentifPage extends GetView<InsentifController> {
@@ -11,64 +12,157 @@ class InsentifPage extends GetView<InsentifController> {
     Get.put(InsentifController());
     final theme = Theme.of(context);
 
+    const primaryGradient = AppPalette.insentifGradient;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Data Insentif'),
-        actions: [
-          Obx(() {
-            final years = controller.availableYears.toList()
-              ..sort((a, b) => b.compareTo(a));
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<int>(
-                  value: controller.selectedYear.value,
-                  dropdownColor: theme.primaryColor,
-                  icon: const Icon(Icons.calendar_today, color: Colors.white),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+      backgroundColor: Colors.grey[50],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: primaryGradient.map((c) => c.withOpacity(0.08)).toList(),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header as gradient card like Home
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: primaryGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  items: years.map((int year) {
-                    return DropdownMenuItem<int>(
-                      value: year,
-                      child: Text(year.toString()),
-                    );
-                  }).toList(),
-                  onChanged: (int? newValue) {
-                    if (newValue != null) {
-                      controller.changeYear(newValue);
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(color: Color(0x40667eea), blurRadius: 12, offset: Offset(0, 6)),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          onPressed: () => Get.back(),
+                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Data Insentif',
+                                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                            const SizedBox(height: 3),
+                            Obx(() {
+                              final years = controller.availableYears.toList()..sort((a, b) => b.compareTo(a));
+                              return Row(children: [
+                                const Icon(Icons.calendar_today, color: Colors.white70, size: 16),
+                                const SizedBox(width: 8),
+                                DropdownButtonHideUnderline(
+                                  child: DropdownButton<int>(
+                                    value: controller.selectedYear.value,
+                                    dropdownColor: Colors.black87,
+                                    iconEnabledColor: Colors.white,
+                                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                                    items: years
+                                        .map((y) => DropdownMenuItem<int>(value: y, child: Text('$y')))
+                                        .toList(),
+                                    onChanged: (v) => v != null ? controller.changeYear(v) : null,
+                                  ),
+                                ),
+                              ]);
+                            }),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Segmented tabs (custom) to replace default TabBar style
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: AnimatedBuilder(
+                  animation: controller.tabController,
+                  builder: (context, _) {
+                    final idx = controller.tabController.index;
+                    Widget buildSeg(String text, IconData icon, int target) {
+                      final selected = idx == target;
+                      return Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => controller.tabController.index = target,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: selected ? null : Colors.white,
+                              gradient: selected
+                                  ? const LinearGradient(
+                                      colors: primaryGradient,
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                if (!selected)
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 4),
+                                  ),
+                              ],
+                              border: Border.all(color: Colors.grey.withOpacity(0.08), width: selected ? 0 : 1),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(icon, size: 18, color: selected ? Colors.white : const Color(0xFF667eea)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  text,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: selected ? Colors.white : const Color(0xFF667eea),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
                     }
+
+                    return Row(
+                      children: [
+                        buildSeg('Insentif Premi', Icons.stacked_bar_chart, 0),
+                        const SizedBox(width: 10),
+                        buildSeg('Insentif Lembur', Icons.timer, 1),
+                      ],
+                    );
                   },
                 ),
               ),
-            );
-          }),
-        ],
-        bottom: TabBar(
-          controller: controller.tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+              const SizedBox(height: 8),
+              Expanded(
+                child: TabBarView(
+                  controller: controller.tabController,
+                  children: [_buildPremiTab(theme), _buildLemburTab(theme)],
+                ),
+              ),
+            ],
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 16,
-          ),
-          tabs: const [
-            Tab(text: 'Insentif Premi'),
-            Tab(text: 'Insentif Lembur'),
-          ],
         ),
-      ),
-      body: TabBarView(
-        controller: controller.tabController,
-        children: [_buildPremiTab(theme), _buildLemburTab(theme)],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

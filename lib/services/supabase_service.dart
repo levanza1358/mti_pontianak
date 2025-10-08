@@ -23,6 +23,9 @@ class SupabaseService {
       await client.from('users').select('nrp').limit(1);
       return true;
     } catch (e) {
+      // Surface error in logs to help diagnose release issues
+      // ignore: avoid_print
+      print('Supabase testConnection error: $e');
       return false;
     }
   }
@@ -69,7 +72,8 @@ class SupabaseService {
 
       return response;
     } catch (e) {
-      return null;
+      // Propagate error to caller so UI can show actual reason
+      rethrow;
     }
   }
 
@@ -84,7 +88,7 @@ class SupabaseService {
 
       return response;
     } catch (e) {
-      return null;
+      rethrow;
     }
   }
 
@@ -109,7 +113,7 @@ class SupabaseService {
 
       return response;
     } catch (e) {
-      return null;
+      rethrow;
     }
   }
 

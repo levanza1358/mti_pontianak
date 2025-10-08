@@ -131,21 +131,46 @@ class UpdateCheckerPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         if (c.isUpdateAvailable.value)
-                          ElevatedButton.icon(
-                            onPressed: c.isDownloading.value
-                                ? null
-                                : c.downloadAndInstall,
-                            icon: const Icon(Icons.download_rounded),
-                            label: Text(
-                              c.isDownloading.value
-                                  ? (c.progressText.value.isNotEmpty
-                                        ? 'Mengunduh ${c.progressText.value}'
-                                        : 'Mengunduh...')
-                                  : 'Unduh & Pasang',
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF22c55e),
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: c.isDownloading.value
+                                    ? null
+                                    : c.downloadAndInstall,
+                                icon: const Icon(Icons.download_rounded),
+                                label: Text(
+                                  c.isDownloading.value
+                                      ? (c.progressText.value.isNotEmpty
+                                            ? 'Mengunduh ${c.progressText.value}'
+                                            : 'Mengunduh...')
+                                      : 'Unduh & Pasang',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF22c55e),
+                                ),
+                              ),
+                              if (c.isDownloading.value)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      LinearProgressIndicator(
+                                        value: c.downloadPercent.value == 0
+                                            ? null
+                                            : c.downloadPercent.value,
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Progress: ${c.progressText.value}',
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
                           ),
                         if (c.errorText.value.isNotEmpty)
                           Padding(

@@ -4,13 +4,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateCheckerController extends GetxController {
   final isChecking = false.obs;
   final isDownloading = false.obs;
-
+  final downloadPercent = 0.0.obs; // 0.0 - 1.0
+  
   final currentVersion = ''.obs;
   final latestVersion = ''.obs;
   final releaseName = ''.obs;
@@ -21,6 +26,7 @@ class UpdateCheckerController extends GetxController {
   final progressText = ''.obs; // e.g., 35%
   final errorText = ''.obs;
   final isUpdateAvailable = false.obs;
+  bool _autoChecked = false;
 
   static const _releasesApi =
       'https://api.github.com/repos/levanza1358/mti_pontianak/releases/latest';
@@ -29,6 +35,7 @@ class UpdateCheckerController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
     await _loadCurrentVersion();
+    await _cleanupDownloadedApkIfUpdated();
   }
 
   Future<void> _loadCurrentVersion() async {
@@ -52,11 +59,12 @@ class UpdateCheckerController extends GetxController {
         headers: {
           'Accept': 'application/vnd.github+json',
           'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'mti-pontianak-app',
         },
       );
 
       if (resp.statusCode != 200) {
-        throw Exception('HTTP ${resp.statusCode}');
+        throw Exception('HTTP ${resp.statusCode}: ${resp.body}');
       }
 
       final data = json.decode(resp.body) as Map<String, dynamic>;
@@ -110,6 +118,86 @@ class UpdateCheckerController extends GetxController {
     }
   }
 
+  // Dipanggil dari Home sekali saja
+  Future<void> checkOnHomeOnce() async {
+    if (_autoChecked) return;
+    _autoChecked = true;
+    await checkForUpdate();
+    if (isUpdateAvailable.value) {
+      promptUpdate();
+    }
+  }
+
+  void promptUpdate() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Pembaruan Tersedia'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Versi saat ini: ${currentVersion.value.isEmpty ? '-' : currentVersion.value}'),
+            Text('Versi terbaru: ${latestVersion.value.isEmpty ? '-' : latestVersion.value}'),
+            const SizedBox(height: 8),
+            const Text('Catatan rilis:'),
+            const SizedBox(height: 4),
+            SingleChildScrollView(
+              child: Text(
+                releaseNotes.value.isEmpty ? '-' : releaseNotes.value,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF4A5568)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Nanti')),
+          ElevatedButton.icon(
+            onPressed: () {
+              Get.back();
+              _startDownloadWithDialog();
+            },
+            icon: const Icon(Icons.system_update_rounded),
+            label: const Text('Update Sekarang'),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  void _startDownloadWithDialog() {
+    Get.dialog(
+      Obx(() => AlertDialog(
+            title: const Text('Mengunduh Pembaruan'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                LinearProgressIndicator(
+                  value: isDownloading.value && downloadPercent.value > 0
+                      ? downloadPercent.value
+                      : null,
+                ),
+                const SizedBox(height: 8),
+                Text(isDownloading.value
+                    ? 'Progress: ${progressText.value}'
+                    : (errorText.value.isNotEmpty
+                        ? 'Gagal: ${errorText.value}'
+                        : 'Selesai, membuka installer...')),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isDownloading.value ? null : () => Get.back(),
+                child: const Text('Tutup'),
+              ),
+            ],
+          )),
+      barrierDismissible: false,
+    );
+    downloadAndInstall();
+  }
+
   bool _isNewerVersion(String latest, String current) {
     // Strip leading 'v' and compare semver lexically with padding fallback.
     String norm(String v) =>
@@ -132,8 +220,9 @@ class UpdateCheckerController extends GetxController {
     for (int i = 0; i < 3; i++) {
       if (lp[i] != cp[i]) return lp[i] > cp[i];
     }
-    // If numeric equal but strings differ, treat tag as newer
-    return l != c;
+    // If numeric parts are equal, ignore build metadata differences like "+1"
+    // Treat versions as equal to avoid false update prompts (e.g., 1.0.0+1 vs 1.0.0)
+    return false;
   }
 
   Future<void> downloadAndInstall() async {
@@ -146,23 +235,100 @@ class UpdateCheckerController extends GetxController {
       return;
     }
 
-    // Tanpa plugin OTA (untuk kompatibilitas build), buka tautan unduhan di browser.
+    // In-app download with progress; then trigger installer
     try {
       isDownloading.value = true;
-      progressText.value = '';
+      downloadPercent.value = 0.0;
+      progressText.value = '0%';
       errorText.value = '';
-      await launchUrlString(url, mode: LaunchMode.externalApplication);
+
+      final dio = Dio();
+      final dir = await getTemporaryDirectory();
+      final versionTag = latestVersion.value.isEmpty ? 'update' : latestVersion.value;
+      final filePath = '${dir.path}/mti_pontianak-$versionTag.apk';
+
+      await dio.download(
+        url,
+        filePath,
+        onReceiveProgress: (received, total) {
+          if (total > 0) {
+            final p = received / total;
+            downloadPercent.value = p;
+            final pct = (p * 100).clamp(0, 100).toStringAsFixed(0);
+            progressText.value = '$pct%';
+          }
+        },
+        options: Options(followRedirects: true, receiveTimeout: const Duration(minutes: 10)),
+      );
+
+      // Simpan marker untuk cleanup setelah instal
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('pending_apk_path', filePath);
+        await prefs.setString('pending_apk_version', versionTag);
+      } catch (_) {}
+
+      if (Platform.isAndroid) {
+        await OpenFilex.open(filePath);
+      } else {
+        await launchUrlString(url, mode: LaunchMode.externalApplication);
+      }
     } catch (e) {
       errorText.value = e.toString();
       Get.snackbar(
         'Error',
-        'Gagal membuka tautan unduhan: $e',
+        'Gagal mengunduh/memasang pembaruan: $e',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
       );
     } finally {
       isDownloading.value = false;
+    }
+  }
+
+  Future<void> _cleanupDownloadedApkIfUpdated() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final pendingPath = prefs.getString('pending_apk_path');
+      final pendingVersion = prefs.getString('pending_apk_version') ?? '';
+      if (pendingPath == null || pendingPath.isEmpty) return;
+
+      final info = await PackageInfo.fromPlatform();
+      final currentVer = info.version.trim();
+      if (currentVer.isEmpty) return;
+
+      // Jika versi aplikasi sudah sama/lebih baru dari versi pending, hapus file
+      bool shouldDelete = false;
+      if (pendingVersion.isEmpty) {
+        shouldDelete = true;
+      } else {
+        // compare semver major.minor.patch
+        int cmp(String a, String b) {
+          List<int> p(String v) {
+            final core = v.split('+').first;
+            final s = core.split('.');
+            return List<int>.generate(3, (i) => i < s.length ? int.tryParse(s[i]) ?? 0 : 0);
+          }
+          final ap = p(a), bp = p(b);
+          for (int i = 0; i < 3; i++) {
+            if (ap[i] != bp[i]) return ap[i] - bp[i];
+          }
+          return 0;
+        }
+        shouldDelete = cmp(currentVer, pendingVersion) >= 0;
+      }
+
+      if (shouldDelete) {
+        final f = File(pendingPath);
+        if (await f.exists()) {
+          await f.delete();
+        }
+        await prefs.remove('pending_apk_path');
+        await prefs.remove('pending_apk_version');
+      }
+    } catch (_) {
+      // ignore
     }
   }
 }

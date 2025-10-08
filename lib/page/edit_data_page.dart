@@ -380,10 +380,10 @@ class EditDataPage extends StatelessWidget {
                                             ),
                                           ),
                                         ],
-                                        if (pegawai['group_'] != null) ...[
+                                        if (pegawai['group'] != null) ...[
                                           const SizedBox(height: 2),
                                           Text(
-                                            'Group: ${pegawai['group_']}',
+                                            'Group: ${pegawai['group']}',
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: const Color(0xFF718096),
@@ -753,12 +753,14 @@ class EditDataPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Obx(
-                      () => DropdownButtonFormField<String>(
+                    Obx(() {
+                      final isLoading = controller.isLoadingGroup.value;
+                      final groups = controller.groupList;
+                      return DropdownButtonFormField<String>(
                         value: controller.selectedGroup.value,
                         validator: controller.validateGroup,
                         decoration: InputDecoration(
-                          hintText: 'Pilih group',
+                          hintText: isLoading ? 'Memuat data group...' : 'Pilih group',
                           hintStyle: const TextStyle(color: Color(0xFF64748B)),
                           prefixIcon: const Icon(
                             Icons.group_outlined,
@@ -786,17 +788,22 @@ class EditDataPage extends StatelessWidget {
                           filled: true,
                           fillColor: const Color(0xFFF8FAFC),
                         ),
-                        items: controller.groupOptions.map((group) {
-                          return DropdownMenuItem<String>(
-                            value: group,
-                            child: Text(group),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          controller.selectedGroup.value = value;
-                        },
-                      ),
-                    ),
+                        items: isLoading
+                            ? const []
+                            : groups.map((g) {
+                                final name = (g['nama'] ?? '').toString();
+                                return DropdownMenuItem<String>(
+                                  value: name,
+                                  child: Text(name.isEmpty ? '-' : name),
+                                );
+                              }).toList(),
+                        onChanged: isLoading
+                            ? null
+                            : (value) {
+                                controller.selectedGroup.value = value;
+                              },
+                      );
+                    }),
                     const SizedBox(height: 16),
 
                     // Status Group Dropdown

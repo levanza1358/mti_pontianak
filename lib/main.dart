@@ -70,8 +70,56 @@ class MyApp extends StatelessWidget {
       scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       appBarTheme: _buildAppBarTheme(),
       cardTheme: _buildCardTheme(),
-
       elevatedButtonTheme: _buildElevatedButtonTheme(),
+      iconTheme: const IconThemeData(color: Color(0xFF64748B)),
+      hintColor: const Color(0xFF6B7280),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(color: Color(0xFF1F2937)),
+        displayMedium: TextStyle(color: Color(0xFF1F2937)),
+        displaySmall: TextStyle(color: Color(0xFF1F2937)),
+        headlineLarge: TextStyle(color: Color(0xFF1F2937)),
+        headlineMedium: TextStyle(color: Color(0xFF1F2937)),
+        headlineSmall: TextStyle(color: Color(0xFF1F2937)),
+        titleLarge: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+        titleSmall: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(color: Color(0xFF1F2937)),
+        bodyMedium: TextStyle(color: Color(0xFF1F2937)),
+        bodySmall: TextStyle(color: Color(0xFF374151)),
+        labelLarge: TextStyle(color: Colors.white),
+        labelMedium: TextStyle(color: Color(0xFF1F2937)),
+        labelSmall: TextStyle(color: Color(0xFF1F2937)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: const TextStyle(color: Color(0xFF6B7280)),
+        labelStyle: const TextStyle(color: Color(0xFF374151)),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFEF4444)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        prefixIconColor: const Color(0xFF64748B),
+        suffixIconColor: const Color(0xFF64748B),
+      ),
+      listTileTheme: const ListTileThemeData(
+        iconColor: Color(0xFF64748B),
+        textColor: Color(0xFF2D3748),
+        subtitleTextStyle: TextStyle(color: Color(0xFF718096), fontSize: 12),
+      ),
     );
   }
 

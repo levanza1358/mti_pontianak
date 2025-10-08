@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:ota_update/ota_update.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -142,67 +141,28 @@ class UpdateCheckerController extends GetxController {
     if (url.isEmpty) {
       // Fallback: open release page
       if (releasePageUrl.value.isNotEmpty) {
-        await launchUrlString(
-          releasePageUrl.value,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrlString(releasePageUrl.value, mode: LaunchMode.externalApplication);
       }
       return;
     }
 
-    if (!Platform.isAndroid) {
-      // Only Android supports direct APK install; open in browser otherwise
-      await launchUrlString(url, mode: LaunchMode.externalApplication);
-      return;
-    }
-
+    // Tanpa plugin OTA (untuk kompatibilitas build), buka tautan unduhan di browser.
     try {
       isDownloading.value = true;
-      progressText.value = '0%';
+      progressText.value = '';
       errorText.value = '';
-
-      final stream = OtaUpdate().execute(
-        url,
-        destinationFilename: 'mti_pontianak-${latestVersion.value}.apk',
-      );
-
-      await for (final event in stream) {
-        switch (event.status) {
-          case OtaStatus.DOWNLOADING:
-            progressText.value = '${event.value ?? '0'}%';
-            break;
-          case OtaStatus.INSTALLING:
-            progressText.value = 'Memasang...';
-            break;
-          case OtaStatus.ALREADY_RUNNING_ERROR:
-          case OtaStatus.PERMISSION_NOT_GRANTED_ERROR:
-          case OtaStatus.INTERNAL_ERROR:
-          case OtaStatus.DOWNLOAD_ERROR:
-          case OtaStatus.CHECKSUM_ERROR:
-            errorText.value = event.value ?? 'Terjadi kesalahan saat mengunduh';
-            isDownloading.value = false;
-            Get.snackbar(
-              'Error',
-              errorText.value,
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.TOP,
-            );
-            return;
-        }
-      }
-      // Stream selesai tanpa error: anggap selesai/ditangani oleh installer
-      isDownloading.value = false;
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      isDownloading.value = false;
       errorText.value = e.toString();
       Get.snackbar(
         'Error',
-        'Gagal mengunduh/memasang pembaruan: $e',
+        'Gagal membuka tautan unduhan: $e',
         backgroundColor: Colors.red,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
       );
+    } finally {
+      isDownloading.value = false;
     }
   }
 }

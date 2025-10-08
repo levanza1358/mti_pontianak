@@ -14,6 +14,7 @@ class EditDataController extends GetxController {
 
   // Dropdown data
   final jabatanList = <Map<String, dynamic>>[].obs;
+  final groupList = <Map<String, dynamic>>[].obs;
   final selectedJabatan = Rxn<String>();
   final selectedStatus = Rxn<String>();
   final selectedGroup = Rxn<String>();
@@ -23,12 +24,12 @@ class EditDataController extends GetxController {
   final isLoading = false.obs;
   final isLoadingList = false.obs;
   final isLoadingJabatan = false.obs;
+  final isLoadingGroup = false.obs;
   final isDataFound = false.obs;
   final isPasswordVisible = false.obs;
 
   // Dropdown options
   final statusOptions = ['Operasional', 'Non Operasional'];
-  final groupOptions = ['A', 'B', 'C', 'D', 'Billing', 'Forklift'];
   final statusGroupOptions = ['Atasan', 'Bawahan'];
 
   // Data pegawai yang sedang diedit
@@ -44,9 +45,33 @@ class EditDataController extends GetxController {
     super.onInit();
     loadPegawaiList();
     loadJabatanList();
+    loadGroupList();
 
     // Setup search listener
     searchController.addListener(_filterPegawai);
+  }
+
+  // Load group list from database
+  Future<void> loadGroupList() async {
+    isLoadingGroup.value = true;
+    try {
+      final result = await SupabaseService.instance.client
+          .from('group')
+          .select()
+          .order('nama', ascending: true);
+
+      groupList.value = List<Map<String, dynamic>>.from(result);
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal memuat data group: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoadingGroup.value = false;
+    }
   }
 
   // Delete Pegawai

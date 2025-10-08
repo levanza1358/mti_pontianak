@@ -132,7 +132,6 @@ class LoginController extends GetxController {
 
       userPermissions.value = result;
     } catch (e) {
-      print('Error loading user permissions: $e');
       userPermissions.value = null;
     }
   }

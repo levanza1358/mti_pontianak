@@ -166,6 +166,7 @@ class SemuaDataCutiPage extends StatelessWidget {
                             ),
                             child: ListTile(
                               contentPadding: const EdgeInsets.all(16),
+                              onTap: () => controller.showDetail(item),
                               leading: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -278,4 +279,3 @@ class SemuaDataCutiPage extends StatelessWidget {
     );
   }
 }
-

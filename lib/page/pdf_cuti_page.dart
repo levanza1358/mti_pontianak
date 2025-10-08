@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 import 'dart:typed_data';
-import 'dart:math';
 import '../controller/pdf_cuti_controller.dart';
 
 class PdfCutiPage extends StatelessWidget {
   final Map<String, dynamic> cutiData;
 
-  const PdfCutiPage({Key? key, required this.cutiData}) : super(key: key);
+  const PdfCutiPage({super.key, required this.cutiData});
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +27,7 @@ class PdfCutiPage extends StatelessWidget {
               if (pdfBytes.isNotEmpty) {
                 final userData = controller.cutiController.currentUser.value;
                 final fileName = controller.generatePdfFileName(userData ?? {});
-                await controller.sharePdf(
-                  pdfBytes,
-                  fileName,
-                );
+                await controller.sharePdf(pdfBytes, fileName);
               }
             },
           ),
@@ -42,10 +38,7 @@ class PdfCutiPage extends StatelessWidget {
               if (pdfBytes.isNotEmpty) {
                 final userData = controller.cutiController.currentUser.value;
                 final fileName = controller.generatePdfFileName(userData ?? {});
-                await controller.savePdfToDevice(
-                  pdfBytes,
-                  fileName,
-                );
+                await controller.savePdfToDevice(pdfBytes, fileName);
               }
             },
           ),

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -381,7 +383,7 @@ class CalendarCutiPage extends StatelessWidget {
                     markerBuilder: (context, date, events) {
                       if (events.isEmpty) return null;
                       final dots = events.take(3).map((e) {
-                        final status = (e['status'] ?? '').toString();
+                        (e['status'] ?? '').toString();
                         final isOwn = e['is_own'] == true;
                         final color = isOwn
                             ? const Color(0xFF0EA5E9)

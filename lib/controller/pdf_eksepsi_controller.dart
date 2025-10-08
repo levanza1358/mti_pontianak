@@ -20,10 +20,12 @@ class PdfEksepsiController extends GetxController {
 
   // Method untuk generate nama file PDF dengan format yang benar
   String generatePdfFileName(Map<String, dynamic> userData) {
-    final nrp = userData?['nrp'] ?? '00000';
-    final randomNumber = (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
+    final nrp = userData['nrp'] ?? '00000';
+    final randomNumber =
+        (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
     return 'surat_eksepsi_${nrp}_$randomNumber.pdf';
   }
+
   Future<Map<String, dynamic>?> fetchSupervisorByJenis(String jenis) async {
     try {
       final response = await supabaseService.client
@@ -31,10 +33,9 @@ class PdfEksepsiController extends GetxController {
           .select('*')
           .eq('jenis', jenis)
           .single();
-      
+
       return response;
     } catch (e) {
-      print('Error fetching supervisor: $e');
       return null;
     }
   }
@@ -53,56 +54,63 @@ class PdfEksepsiController extends GetxController {
   Future<Uint8List> generateEksepsiPdf(Map<String, dynamic> eksepsiData) async {
     isGenerating.value = true;
     final pdf = pw.Document();
-    
+
     try {
       // Initialize Indonesian locale for date formatting
       await initializeDateFormatting('id_ID', null);
-      
+
       // Load logo image
       final ByteData logoData = await rootBundle.load('assets/MTI_logo.png');
       final Uint8List logoBytes = logoData.buffer.asUint8List();
       final logoImage = pw.MemoryImage(logoBytes);
-      
+
       // Format dates
       final tanggalPengajuan = eksepsiData['tanggal_pengajuan'] != null
           ? DateTime.parse(eksepsiData['tanggal_pengajuan'])
           : DateTime.now();
-      
-      final formattedDate = DateFormat('dd MMMM yyyy', 'id_ID').format(tanggalPengajuan);
-      
+
+      final formattedDate = DateFormat(
+        'dd MMMM yyyy',
+        'id_ID',
+      ).format(tanggalPengajuan);
+
       // Get user data
       final userData = eksepsiController.currentUser.value;
       final nama = userData?['name'] ?? 'Nama Pegawai';
       final nip = userData?['nrp'] ?? 'NRP Pegawai';
       final kontak = userData?['kontak'] ?? '-';
       final jabatan = userData?['jabatan'] ?? 'Jabatan Pegawai';
-      final unitKerja = userData?['unit_kerja'] ?? '-';
       final userStatus = userData?['status'] ?? 'Operasional';
-      
+
       // Fetch supervisor data berdasarkan status user
       final supervisorJenis = getSupervisorJenisByUserStatus(userStatus);
       final supervisorData = await fetchSupervisorByJenis(supervisorJenis);
       final managerData = await fetchSupervisorByJenis('Manager_PDS');
-      
+
       // Set supervisor info
-      final supervisorNama = supervisorData?['nama'] ?? 'SUPERVISOR ${supervisorJenis.toUpperCase()}';
-      final supervisorJabatan = supervisorData?['jabatan'] ?? 'SUPERVISOR ${supervisorJenis.toUpperCase()}';
+      final supervisorNama =
+          supervisorData?['nama'] ??
+          'SUPERVISOR ${supervisorJenis.toUpperCase()}';
+      final supervisorJabatan =
+          supervisorData?['jabatan'] ??
+          'SUPERVISOR ${supervisorJenis.toUpperCase()}';
       final managerNama = managerData?['nama'] ?? 'REGIONAL MANAGER';
-      final managerJabatan = managerData?['jabatan'] ?? 'REGIONAL MANAGER JAKARTA';
-      
+      final managerJabatan =
+          managerData?['jabatan'] ?? 'REGIONAL MANAGER JAKARTA';
+
       // Get eksepsi details
       final jenisEksepsi = eksepsiData['jenis_eksepsi'] ?? 'Jam Masuk & Pulang';
-      
+
       // Get tanggal data with alasan per tanggal
       final eksepsiTanggalList = eksepsiData['eksepsi_tanggal'] as List? ?? [];
-      
+
       // Sort by urutan or tanggal_eksepsi
       eksepsiTanggalList.sort((a, b) {
         final urutanA = a['urutan'] ?? 0;
         final urutanB = b['urutan'] ?? 0;
         return urutanA.compareTo(urutanB);
       });
-      
+
       // Create PDF content
       pdf.addPage(
         pw.Page(
@@ -119,33 +127,45 @@ class PdfEksepsiController extends GetxController {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.end,
                       children: [
-                        pw.Text('Pontianak, $formattedDate',
-                            style: pw.TextStyle(fontSize: 10)),
+                        pw.Text(
+                          'Pontianak, $formattedDate',
+                          style: pw.TextStyle(fontSize: 10),
+                        ),
                         pw.SizedBox(height: 5),
-                        pw.Text('Yth. REGIONAL MANAGER JAKARTA',
-                            style: pw.TextStyle(fontSize: 10)),
-                        pw.Text('PT PELINDO DAYA SEJAHTERA',
-                            style: pw.TextStyle(fontSize: 10)),
-                        pw.Text('JAKARTA',
-                            style: pw.TextStyle(fontSize: 10)),
+                        pw.Text(
+                          'Yth. REGIONAL MANAGER JAKARTA',
+                          style: pw.TextStyle(fontSize: 10),
+                        ),
+                        pw.Text(
+                          'PT PELINDO DAYA SEJAHTERA',
+                          style: pw.TextStyle(fontSize: 10),
+                        ),
+                        pw.Text('JAKARTA', style: pw.TextStyle(fontSize: 10)),
                       ],
                     ),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 20),
-                
+
                 // Subject
-                pw.Text('Perihal: Permohonan Ijin Perubahan Sistem Presensi',
-                    style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                
+                pw.Text(
+                  'Perihal: Permohonan Ijin Perubahan Sistem Presensi',
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+
                 pw.SizedBox(height: 15),
-                
-                pw.Text('Yang bertanda tangan dibawah ini:',
-                    style: pw.TextStyle(fontSize: 11)),
-                
+
+                pw.Text(
+                  'Yang bertanda tangan dibawah ini:',
+                  style: pw.TextStyle(fontSize: 11),
+                ),
+
                 pw.SizedBox(height: 10),
-                
+
                 // User details
                 pw.Table(
                   columnWidths: {
@@ -160,16 +180,16 @@ class PdfEksepsiController extends GetxController {
                     _buildTableRow('Jabatan', ':', jabatan),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 15),
-                
+
                 pw.Text(
                   'Dengan ini mengajukan permohonan perubahan eksepsi presensi dengan rincian sebagai berikut:',
                   style: pw.TextStyle(fontSize: 11),
                 ),
-                
+
                 pw.SizedBox(height: 10),
-                
+
                 // Eksepsi details table
                 pw.Table(
                   border: pw.TableBorder.all(width: 1),
@@ -185,28 +205,32 @@ class PdfEksepsiController extends GetxController {
                       children: [
                         pw.Padding(
                           padding: pw.EdgeInsets.all(5),
-                          child: pw.Text('No', 
+                          child: pw.Text(
+                            'No',
                             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
                         pw.Padding(
                           padding: pw.EdgeInsets.all(5),
-                          child: pw.Text('Tanggal', 
+                          child: pw.Text(
+                            'Tanggal',
                             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
                         pw.Padding(
                           padding: pw.EdgeInsets.all(5),
-                          child: pw.Text('Jenis Eksepsi', 
+                          child: pw.Text(
+                            'Jenis Eksepsi',
                             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
                         pw.Padding(
                           padding: pw.EdgeInsets.all(5),
-                          child: pw.Text('Keterangan', 
+                          child: pw.Text(
+                            'Keterangan',
                             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                             textAlign: pw.TextAlign.center,
                           ),
@@ -215,24 +239,40 @@ class PdfEksepsiController extends GetxController {
                     ),
                     ...List.generate(eksepsiTanggalList.length, (index) {
                       final tanggalData = eksepsiTanggalList[index];
-                      final tanggalEksepsi = tanggalData['tanggal_eksepsi'] ?? '';
-                      final alasanEksepsi = tanggalData['alasan_eksepsi'] ?? '-';
-                      
-                      if (tanggalEksepsi.isEmpty) return pw.TableRow(children: [pw.SizedBox(), pw.SizedBox(), pw.SizedBox(), pw.SizedBox()]);
-                      
+                      final tanggalEksepsi =
+                          tanggalData['tanggal_eksepsi'] ?? '';
+                      final alasanEksepsi =
+                          tanggalData['alasan_eksepsi'] ?? '-';
+
+                      if (tanggalEksepsi.isEmpty)
+                        return pw.TableRow(
+                          children: [
+                            pw.SizedBox(),
+                            pw.SizedBox(),
+                            pw.SizedBox(),
+                            pw.SizedBox(),
+                          ],
+                        );
+
                       String formattedTanggal = tanggalEksepsi;
                       try {
                         final date = DateTime.parse(tanggalEksepsi);
-                        formattedTanggal = DateFormat('dd MMMM yyyy', 'id_ID').format(date);
+                        formattedTanggal = DateFormat(
+                          'dd MMMM yyyy',
+                          'id_ID',
+                        ).format(date);
                       } catch (e) {
                         // Use the raw string if parsing fails
                       }
-                      
+
                       return pw.TableRow(
                         children: [
                           pw.Padding(
                             padding: pw.EdgeInsets.all(5),
-                            child: pw.Text('${index + 1}', textAlign: pw.TextAlign.center),
+                            child: pw.Text(
+                              '${index + 1}',
+                              textAlign: pw.TextAlign.center,
+                            ),
                           ),
                           pw.Padding(
                             padding: pw.EdgeInsets.all(5),
@@ -251,44 +291,53 @@ class PdfEksepsiController extends GetxController {
                     }),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 15),
-                
+
                 pw.Text(
                   'Demikian surat permohonan ini saya buat untuk dapat dipertimbangkan sebagaimana mestinya.',
                   style: pw.TextStyle(fontSize: 11),
                 ),
-                
+
                 pw.SizedBox(height: 30),
-                
+
                 // Signature
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.end,
                   children: [
                     pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      children: [
+                        pw.Text(
+                          'Hormat Saya,',
+                          style: pw.TextStyle(fontSize: 11),
+                        ),
+                        pw.SizedBox(height: 50),
+                        pw.Column(
                           children: [
-                            pw.Text('Hormat Saya,', style: pw.TextStyle(fontSize: 11)),
-                            pw.SizedBox(height: 50),
-                            pw.Column(
-                              children: [
-                                pw.Text(nama.toUpperCase(), style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)),
-                                pw.Container(
-                                  width: nama.length * 6.0,
-                                  height: 1,
-                                  color: PdfColors.black,
-                                  margin: pw.EdgeInsets.only(top: 2),
-                                ),
-                              ],
+                            pw.Text(
+                              nama.toUpperCase(),
+                              style: pw.TextStyle(
+                                fontSize: 11,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                            pw.Container(
+                              width: nama.length * 6.0,
+                              height: 1,
+                              color: PdfColors.black,
+                              margin: pw.EdgeInsets.only(top: 2),
                             ),
                           ],
                         ),
+                      ],
+                    ),
                     pw.SizedBox(width: 50),
                   ],
                 ),
-                
+
                 pw.SizedBox(height: 30),
-                
+
                 // Signature table
                 pw.Table(
                   border: pw.TableBorder.all(width: 1),
@@ -305,7 +354,10 @@ class PdfEksepsiController extends GetxController {
                           padding: pw.EdgeInsets.all(8),
                           child: pw.Text(
                             'SETUJU / TIDAK SETUJU MEMBERIKAN EKSEPSI PRESENSI',
-                            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 8,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
@@ -313,7 +365,10 @@ class PdfEksepsiController extends GetxController {
                           padding: pw.EdgeInsets.all(8),
                           child: pw.Text(
                             'CATATAN PERTIMBANGAN ATASAN LANGSUNG',
-                            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 8,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
@@ -321,7 +376,10 @@ class PdfEksepsiController extends GetxController {
                           padding: pw.EdgeInsets.all(8),
                           child: pw.Text(
                             'MENGETAHUI',
-                            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                              fontSize: 8,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
                             textAlign: pw.TextAlign.center,
                           ),
                         ),
@@ -347,7 +405,10 @@ class PdfEksepsiController extends GetxController {
                                     ),
                                   ),
                                   pw.SizedBox(width: 5),
-                                  pw.Text('Hadir / Pulang sesuai jam kerja', style: pw.TextStyle(fontSize: 7)),
+                                  pw.Text(
+                                    'Hadir / Pulang sesuai jam kerja',
+                                    style: pw.TextStyle(fontSize: 7),
+                                  ),
                                 ],
                               ),
                               pw.Row(
@@ -375,11 +436,15 @@ class PdfEksepsiController extends GetxController {
                           height: 60,
                           padding: pw.EdgeInsets.all(6),
                           child: pw.Column(
-                            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
                             children: [
                               pw.Text(
                                 supervisorJabatan.toUpperCase(),
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
                                 textAlign: pw.TextAlign.center,
                               ),
                               pw.SizedBox(height: 15),
@@ -387,7 +452,10 @@ class PdfEksepsiController extends GetxController {
                                 children: [
                                   pw.Text(
                                     supervisorNama.toUpperCase(),
-                                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: pw.FontWeight.bold,
+                                    ),
                                     textAlign: pw.TextAlign.center,
                                   ),
                                   pw.Container(
@@ -405,11 +473,15 @@ class PdfEksepsiController extends GetxController {
                           height: 60,
                           padding: pw.EdgeInsets.all(6),
                           child: pw.Column(
-                            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
                             children: [
                               pw.Text(
                                 managerJabatan.toUpperCase(),
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
                                 textAlign: pw.TextAlign.center,
                               ),
                               pw.SizedBox(height: 15),
@@ -417,7 +489,10 @@ class PdfEksepsiController extends GetxController {
                                 children: [
                                   pw.Text(
                                     managerNama.toUpperCase(),
-                                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: pw.FontWeight.bold,
+                                    ),
                                     textAlign: pw.TextAlign.center,
                                   ),
                                   pw.Container(
@@ -435,13 +510,12 @@ class PdfEksepsiController extends GetxController {
                     ),
                   ],
                 ),
-                
               ],
             );
           },
         ),
       );
-      
+
       return pdf.save();
     } catch (e) {
       Get.snackbar(
@@ -455,7 +529,7 @@ class PdfEksepsiController extends GetxController {
       isGenerating.value = false;
     }
   }
-  
+
   pw.TableRow _buildTableRow(String label, String separator, String value) {
     return pw.TableRow(
       children: [
@@ -465,14 +539,14 @@ class PdfEksepsiController extends GetxController {
       ],
     );
   }
-  
+
   Future<void> savePdfToDevice(Uint8List pdfBytes, String fileName) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);
       pdfPath.value = file.path;
-      
+
       Get.snackbar(
         'Berhasil',
         'PDF berhasil disimpan di ${file.path}',
@@ -488,17 +562,14 @@ class PdfEksepsiController extends GetxController {
       );
     }
   }
-  
+
   Future<void> sharePdf(Uint8List pdfBytes, String fileName) async {
     try {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);
-      
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Dokumen Eksepsi',
-      );
+
+      await Share.shareXFiles([XFile(file.path)], text: 'Dokumen Eksepsi');
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -508,7 +579,7 @@ class PdfEksepsiController extends GetxController {
       );
     }
   }
-  
+
   Future<void> printPdf(Uint8List pdfBytes) async {
     try {
       await Printing.layoutPdf(

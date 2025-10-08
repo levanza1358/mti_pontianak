@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/login_controller.dart';
@@ -430,40 +432,20 @@ class HomePage extends StatelessWidget {
     }
 
     // Always show these menus (no permission required)
-    menus.add(
-      _buildKerenUIMenuCard(
-        context: context,
-        title: 'Laporan',
-        subtitle: 'Lihat laporan dan statistik sistem',
-        icon: Icons.assessment_rounded,
-        color: const Color(0xFFfa709a),
-        onTap: () => _showComingSoon(context, 'Laporan'),
-      ),
-    );
-    menus.add(const SizedBox(height: 8));
 
     menus.add(
       _buildKerenUIMenuCard(
         context: context,
-        title: 'Pengaturan',
-        subtitle: 'Konfigurasi dan preferensi sistem',
-        icon: Icons.settings_rounded,
+        title: 'Update Aplikasi',
+        subtitle: 'Cek versi terbaru dan pasang update',
+        icon: Icons.system_update_rounded,
         color: const Color(0xFF8360c3),
-        onTap: () => _showComingSoon(context, 'Pengaturan'),
+        onTap: () => Get.toNamed('/update-checker'),
       ),
     );
     menus.add(const SizedBox(height: 8));
 
-    menus.add(
-      _buildKerenUIMenuCard(
-        context: context,
-        title: 'Bantuan',
-        subtitle: 'Panduan penggunaan dan dukungan',
-        icon: Icons.help_rounded,
-        color: const Color(0xFF11998e),
-        onTap: () => _showComingSoon(context, 'Bantuan'),
-      ),
-    );
+    // (Bantuan dihapus)
 
     return menus;
   }

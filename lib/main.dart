@@ -24,6 +24,7 @@ import 'page/group_management_page.dart';
 import 'page/supervisor_management_page.dart';
 import 'page/semua_data_cuti_page.dart';
 import 'page/semua_data_eksepsi_page.dart';
+import 'page/update_checker_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -172,6 +173,9 @@ class MyApp extends StatelessWidget {
         name: '/supervisor-management',
         page: () => const SupervisorManagementPage(),
       ),
+
+      // Update Checker
+      GetPage(name: '/update-checker', page: () => const UpdateCheckerPage()),
     ];
   }
 }

@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 import 'dart:typed_data';
-import 'dart:math';
 import '../controller/pdf_eksepsi_controller.dart';
 
 class PdfEksepsiPage extends StatelessWidget {
   final Map<String, dynamic> eksepsiData;
 
-  const PdfEksepsiPage({Key? key, required this.eksepsiData}) : super(key: key);
+  const PdfEksepsiPage({super.key, required this.eksepsiData});
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +27,7 @@ class PdfEksepsiPage extends StatelessWidget {
               if (pdfBytes.isNotEmpty) {
                 final userData = controller.eksepsiController.currentUser.value;
                 final fileName = controller.generatePdfFileName(userData ?? {});
-                await controller.sharePdf(
-                  pdfBytes,
-                  fileName,
-                );
+                await controller.sharePdf(pdfBytes, fileName);
               }
             },
           ),
@@ -42,10 +38,7 @@ class PdfEksepsiPage extends StatelessWidget {
               if (pdfBytes.isNotEmpty) {
                 final userData = controller.eksepsiController.currentUser.value;
                 final fileName = controller.generatePdfFileName(userData ?? {});
-                await controller.savePdfToDevice(
-                  pdfBytes,
-                  fileName,
-                );
+                await controller.savePdfToDevice(pdfBytes, fileName);
               }
             },
           ),

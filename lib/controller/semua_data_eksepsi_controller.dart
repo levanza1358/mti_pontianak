@@ -101,4 +101,57 @@ class SemuaDataEksepsiController extends GetxController {
   Future<void> refreshData() async {
     await fetchAllEksepsi();
   }
+
+  void showDetail(Map<String, dynamic> item) {
+    final userName = (item['user_name'] ?? '') as String;
+    final userNrp = (item['user_nrp'] ?? '') as String;
+    final userId = (item['user_id'] ?? '')?.toString() ?? '';
+    final jenis = (item['jenis_eksepsi'] ?? '-') as String;
+    final tanggalPengajuan = (item['tanggal_pengajuan'] ?? '')?.toString() ?? '';
+    final tanggalList = (item['list_tanggal_eksepsi'] ?? '') as String;
+    final jumlahHari = item['jumlah_hari']?.toString() ?? '-';
+    final alasan = (item['alasan_eksepsi'] ?? '-') as String;
+
+    final titleText = userName.isNotEmpty
+        ? userName
+        : (userNrp.isNotEmpty ? userNrp : (userId.isNotEmpty ? userId : '-'));
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Detail Eksepsi'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _row('Pengaju', titleText),
+            _row('Jenis', jenis),
+            _row('Tanggal Pengajuan', tanggalPengajuan.isEmpty ? '-' : tanggalPengajuan),
+            _row('Tanggal Eksepsi', tanggalList.isEmpty ? '-' : tanggalList.replaceAll(',', ', ')),
+            _row('Jumlah Hari', '$jumlahHari hari'),
+            const SizedBox(height: 8),
+            const Text('Alasan:', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(alasan.isEmpty ? '-' : alasan),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Tutup')),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 130, child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+          const Text(': '),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
 }

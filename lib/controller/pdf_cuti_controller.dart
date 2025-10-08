@@ -20,7 +20,7 @@ class PdfCutiController extends GetxController {
 
   // Method untuk generate nama file PDF dengan format yang benar
   String generatePdfFileName(Map<String, dynamic> userData) {
-    final nrp = userData?['nrp'] ?? '00000';
+    final nrp = userData['nrp'] ?? '00000';
     final randomNumber =
         (10000 + (DateTime.now().millisecondsSinceEpoch % 90000)).toString();
     return 'surat_cuti_${nrp}_$randomNumber.pdf';
@@ -154,7 +154,6 @@ class PdfCutiController extends GetxController {
       final nip = userData?['nrp'] ?? 'NRP Pegawai';
       final kontak = userData?['kontak'] ?? '-';
       final jabatan = userData?['jabatan'] ?? 'Jabatan Pegawai';
-      final unitKerja = userData?['unit_kerja'] ?? '-';
       final userStatus = userData?['status'] ?? 'Operasional';
       // Sisa cuti dari tabel users
       final sisaCutiUser =
@@ -178,7 +177,6 @@ class PdfCutiController extends GetxController {
           managerData?['jabatan'] ?? 'REGIONAL MANAGER JAKARTA';
 
       // Get cuti details
-      final alasanCuti = cutiData['alasan_cuti'] ?? '-';
       final lamaCuti = cutiData['lama_cuti'] ?? 0;
       final listTanggalCuti = cutiData['list_tanggal_cuti'] ?? '';
 

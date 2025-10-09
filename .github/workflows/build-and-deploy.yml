@@ -1,0 +1,59 @@
+name: Build and Deploy Flutter Web
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.35.4'
+        channel: 'stable'
+        
+    - name: Get Flutter dependencies
+      run: flutter pub get
+      
+    - name: Analyze Flutter code
+      run: flutter analyze
+      
+    - name: Run Flutter tests
+      run: flutter test
+      
+    - name: Build Flutter web
+      run: flutter build web --release --base-href "/mti_pontianak/"
+      
+    - name: Deploy to docs folder
+      run: |
+        # Remove existing docs content (except .git related files)
+        find docs -mindepth 1 -not -path 'docs/.git*' -delete 2>/dev/null || true
+        
+        # Copy build output to docs
+        cp -r build/web/* docs/
+        
+        # Create .nojekyll file to bypass Jekyll processing
+        touch docs/.nojekyll
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Auto-deploy: Update web build $(date +'%Y-%m-%d %H:%M:%S')"
+          git push
+        fi

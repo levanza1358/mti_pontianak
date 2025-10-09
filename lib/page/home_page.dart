@@ -2,9 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mti_pontianak/theme/app_spacing.dart';
 import '../controller/login_controller.dart';
 import '../controller/update_checker_controller.dart';
 import '../controller/home_controller.dart';
+import 'settings_page.dart';
+import '../theme/app_tokens.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -17,11 +20,9 @@ class HomePage extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: theme.colorScheme.onPrimary.withOpacity(0.2),
+            color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.colorScheme.onPrimary.withOpacity(0.3),
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -57,19 +58,20 @@ class HomePage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: t.card,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x14000000),
+            color: t.shadowColor,
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
+        border: Border.all(color: t.borderSubtle, width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -92,25 +94,25 @@ class HomePage extends StatelessWidget {
                   ),
                   child: Icon(icon, color: Colors.white, size: 26),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppSpacing.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2D3748),
+                          color: t.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: AppSpacing.xxs),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF718096),
+                          color: t.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -119,7 +121,7 @@ class HomePage extends StatelessWidget {
                 ),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+                  color: t.textPrimary.withOpacity(0.5),
                   size: 16,
                 ),
               ],
@@ -140,20 +142,19 @@ class HomePage extends StatelessWidget {
       Future.microtask(() => update.checkOnHomeOnce());
     } catch (_) {}
     final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50,
-              Colors.indigo.shade50,
-              Colors.purple.shade50,
-            ],
-            stops: const [0.0, 0.5, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: t.homeGradient
+                .map((c) => c.withOpacity(isDark ? 0.08 : 0.14))
+                .toList(),
           ),
         ),
         child: SafeArea(
@@ -168,14 +169,14 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                      gradient: LinearGradient(
+                        colors: t.homeGradient,
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Color(0x40667eea),
+                          color: t.shadowColor,
                           blurRadius: 10,
                           offset: Offset(0, 6),
                         ),
@@ -198,7 +199,7 @@ class HomePage extends StatelessWidget {
                                     color: theme.colorScheme.onPrimary,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: AppSpacing.xs),
                                 Text(
                                   authController.currentUser.value != null
                                       ? 'Halo, ${authController.currentUser.value!['name'] ?? 'User'}'
@@ -377,14 +378,24 @@ class HomePage extends StatelessWidget {
                           color: theme.textTheme.headlineSmall?.color,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.md),
 
                       // Menu Cards in KERENUI Layout with Permission Check
                       ...Get.put(HomeController()).buildPermissionBasedMenus(
                         context,
                         _buildKerenUIMenuCard,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.md),
+                      // Settings entry
+                      _buildKerenUIMenuCard(
+                        context: context,
+                        title: 'Pengaturan',
+                        subtitle: 'Tema & pembaruan aplikasi',
+                        icon: Icons.settings,
+                        color: const Color(0xFF06B6D4),
+                        onTap: () => Get.to(const SettingsPage()),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
                     ],
                   ),
                 ),

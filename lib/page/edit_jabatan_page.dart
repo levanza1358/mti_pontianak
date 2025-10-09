@@ -1,146 +1,328 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/edit_jabatan_controller.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_tokens.dart';
 
 class EditJabatanPage extends StatelessWidget {
   const EditJabatanPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final EditJabatanController controller = Get.put(EditJabatanController());
+    final controller = Get.put(EditJabatanController());
+    final theme = Theme.of(context);
+    final tokens = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
+    final accentGradient = tokens.updateGradient;
+    final accent = accentGradient.first;
+    final accentAlt = accentGradient.last;
+    final overlayFactor = isDark ? 0.08 : 0.14;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50,
-              Colors.indigo.shade50,
-              Colors.purple.shade50,
-            ],
-            stops: const [0.0, 0.5, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: accentGradient
+                .map((color) => color.withAlpha((overlayFactor * 255).round()))
+                .toList(),
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Header Card
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [const Color(0xFF667eea), const Color(0xFF764ba2)],
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              children: [
+                _HeaderCard(
+                  controller: controller,
+                  tokens: tokens,
+                  accentGradient: accentGradient,
+                  theme: theme,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Expanded(
+                  child: Obx(() {
+                    if (controller.isDataFound.value) {
+                      return _EditForm(
+                        controller: controller,
+                        tokens: tokens,
+                        theme: theme,
+                        accent: accent,
+                        accentAlt: accentAlt,
+                      );
+                    }
+                    return _JabatanList(
+                      controller: controller,
+                      tokens: tokens,
+                      accent: accent,
+                      accentAlt: accentAlt,
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderCard extends StatelessWidget {
+  const _HeaderCard({
+    required this.controller,
+    required this.tokens,
+    required this.accentGradient,
+    required this.theme,
+  });
+
+  final EditJabatanController controller;
+  final AppTokens tokens;
+  final List<Color> accentGradient;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.section),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: accentGradient,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: tokens.shadowColor,
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _GlassIconButton(
+            icon: Icons.arrow_back_rounded,
+            onTap: () => Get.back(),
+            theme: theme,
+          ),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Edit Data Jabatan',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onPrimary,
                   ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF667eea).withOpacity(0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                      spreadRadius: 2,
-                    ),
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.1),
-                      blurRadius: 2,
-                      offset: const Offset(0, -2),
-                      spreadRadius: 0,
-                    ),
-                  ],
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: IconButton(
-                        onPressed: () => Get.back(),
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: Colors.white,
-                          size: 26,
-                        ),
-                      ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Pilih jabatan lalu ubah hak aksesnya',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.colorScheme.onPrimary.withAlpha(
+                      (0.88 * 255).round(),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Edit Data Jabatan',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                  color: Colors.black.withOpacity(0.3),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Pilih dan edit jabatan yang tersedia',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white.withOpacity(0.9),
-                              fontWeight: FontWeight.w500,
-                              shadows: [
-                                Shadow(
-                                  offset: const Offset(0, 1),
-                                  blurRadius: 2,
-                                  color: Colors.black.withOpacity(0.2),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: IconButton(
-                        onPressed: controller.refreshData,
-                        icon: const Icon(
-                          Icons.refresh_rounded,
-                          color: Colors.white,
-                          size: 26,
-                        ),
-                        tooltip: 'Refresh Data',
-                      ),
-                    ),
-                  ],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+              ],
+            ),
+          ),
+          _GlassIconButton(
+            icon: Icons.refresh_rounded,
+            onTap: controller.refreshData,
+            theme: theme,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _JabatanList extends StatelessWidget {
+  const _JabatanList({
+    required this.controller,
+    required this.tokens,
+    required this.accent,
+    required this.accentAlt,
+  });
+
+  final EditJabatanController controller;
+  final AppTokens tokens;
+  final Color accent;
+  final Color accentAlt;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (controller.isLoadingList.value) {
+        return Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(accent),
+          ),
+        );
+      }
+
+      final list = controller.jabatanList;
+      if (list.isEmpty) {
+        return _EmptyState(
+          tokens: tokens,
+          accent: accent,
+          message: 'Belum ada data jabatan',
+          description: 'Tambahkan jabatan baru sebelum melakukan pengeditan.',
+        );
+      }
+
+      return ListView.separated(
+        padding: const EdgeInsets.only(bottom: AppSpacing.section),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+        itemBuilder: (context, index) {
+          final jabatan = list[index];
+          return _JabatanCard(
+            jabatan: jabatan,
+            controller: controller,
+            tokens: tokens,
+            accent: accent,
+            accentAlt: accentAlt,
+          );
+        },
+      );
+    });
+  }
+}
+
+class _JabatanCard extends StatelessWidget {
+  const _JabatanCard({
+    required this.jabatan,
+    required this.controller,
+    required this.tokens,
+    required this.accent,
+    required this.accentAlt,
+  });
+
+  final Map<String, dynamic> jabatan;
+  final EditJabatanController controller;
+  final AppTokens tokens;
+  final Color accent;
+  final Color accentAlt;
+
+  @override
+  Widget build(BuildContext context) {
+    final nama = (jabatan['nama'] ?? 'Nama tidak tersedia').toString();
+
+    final permissions = <_PermissionInfo>[
+      _PermissionInfo('Cuti', jabatan['permissionCuti'] ?? false),
+      _PermissionInfo('Eksepsi', jabatan['permissionEksepsi'] ?? false),
+      _PermissionInfo('Semua Cuti', jabatan['permissionAllCuti'] ?? false),
+      _PermissionInfo(
+        'Semua Eksepsi',
+        jabatan['permissionAllEksepsi'] ?? false,
+      ),
+      _PermissionInfo('Insentif', jabatan['permissionInsentif'] ?? false),
+      _PermissionInfo(
+        'Semua Insentif',
+        jabatan['permissionAllInsentif'] ?? false,
+      ),
+      _PermissionInfo('ATK', jabatan['permissionAtk'] ?? false),
+      _PermissionInfo(
+        'Surat Keluar',
+        jabatan['permissionSuratKeluar'] ?? false,
+      ),
+      _PermissionInfo(
+        'Management Data',
+        jabatan['permissionManagementData'] ?? false,
+      ),
+    ];
+
+    return InkWell(
+      onTap: () => controller.selectJabatan(jabatan),
+      borderRadius: BorderRadius.circular(20),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: tokens.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: tokens.borderSubtle),
+          boxShadow: [
+            BoxShadow(
+              color: tokens.shadowColor,
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [accent, accentAlt],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.workspace_premium_rounded,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 26,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nama,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: tokens.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Ketuk untuk mengedit hak akses jabatan ini',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: tokens.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: tokens.textMuted),
+                ],
               ),
-              // List Jabatan atau Edit Form
-              Expanded(
-                child: Obx(
-                  () => controller.isDataFound.value
-                      ? _buildEditForm(controller)
-                      : _buildJabatanList(controller),
-                ),
+              const SizedBox(height: AppSpacing.lg),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: permissions
+                    .map(
+                      (permission) => _PermissionBadge(
+                        info: permission,
+                        accent: accent,
+                        tokens: tokens,
+                      ),
+                    )
+                    .toList(),
               ),
             ],
           ),
@@ -148,1278 +330,528 @@ class EditJabatanPage extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildPermissionIndicator({
-    required String label,
-    required bool hasPermission,
-  }) {
+class _PermissionInfo {
+  const _PermissionInfo(this.label, this.enabled);
+
+  final String label;
+  final bool enabled;
+}
+
+class _PermissionBadge extends StatelessWidget {
+  const _PermissionBadge({
+    required this.info,
+    required this.accent,
+    required this.tokens,
+  });
+
+  final _PermissionInfo info;
+  final Color accent;
+  final AppTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final background = info.enabled
+        ? accent.withAlpha((0.18 * 255).round())
+        : tokens.surface;
+    final borderColor = info.enabled
+        ? accent.withAlpha((0.38 * 255).round())
+        : tokens.borderSubtle;
+    final icon = info.enabled ? Icons.check_rounded : Icons.close_rounded;
+    final iconColor = info.enabled ? accent : tokens.textMuted;
+    final textColor = info.enabled ? accent : tokens.textSecondary;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
-        gradient: hasPermission
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF10B981).withOpacity(0.1),
-                  const Color(0xFF059669).withOpacity(0.05),
-                ],
-              )
-            : LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFF6B7280).withOpacity(0.08),
-                  const Color(0xFF4B5563).withOpacity(0.04),
-                ],
-              ),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: hasPermission
-              ? const Color(0xFF10B981).withOpacity(0.3)
-              : const Color(0xFF6B7280).withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: hasPermission
-            ? [
-                BoxShadow(
-                  color: const Color(0xFF10B981).withOpacity(0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                  spreadRadius: 0,
-                ),
-              ]
-            : [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.08),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                  spreadRadius: 0,
-                ),
-              ],
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: hasPermission
-                  ? const Color(0xFF10B981)
-                  : const Color(0xFF6B7280),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(
-              hasPermission ? Icons.check_rounded : Icons.close_rounded,
-              size: 12,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 8),
+          Icon(icon, size: 14, color: iconColor),
+          const SizedBox(width: AppSpacing.xs),
           Text(
-            label,
+            info.label,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: hasPermission
-                  ? const Color(0xFF065F46)
-                  : const Color(0xFF4B5563),
-              shadows: [
-                Shadow(
-                  color: Colors.black.withOpacity(0.1),
-                  offset: const Offset(0, 0.5),
-                  blurRadius: 1,
-                ),
-              ],
+              color: textColor,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildJabatanList(EditJabatanController controller) {
-    return Obx(() {
-      if (controller.isLoadingList.value) {
-        return const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(color: Colors.orange),
-              SizedBox(height: 16),
-              Text(
-                'Memuat data jabatan...',
-                style: TextStyle(color: Color(0xFF64748B)),
-              ),
-            ],
-          ),
-        );
-      }
+class _EditForm extends StatelessWidget {
+  const _EditForm({
+    required this.controller,
+    required this.tokens,
+    required this.theme,
+    required this.accent,
+    required this.accentAlt,
+  });
 
-      if (controller.jabatanList.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.work_off_outlined, size: 64, color: Color(0xFF64748B)),
-              const SizedBox(height: 16),
-              Text(
-                'Tidak ada data jabatan',
-                style: TextStyle(fontSize: 18, color: Color(0xFF64748B)),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Tambahkan jabatan baru terlebih dahulu',
-                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-              ),
-            ],
-          ),
-        );
-      }
+  final EditJabatanController controller;
+  final AppTokens tokens;
+  final ThemeData theme;
+  final Color accent;
+  final Color accentAlt;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Daftar Jabatan (${controller.jabatanList.length})',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const Text(
-                  'Diurutkan A-Z',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // List
-          Expanded(
-            child: RefreshIndicator(
-              color: Colors.orange,
-              onRefresh: controller.refreshData,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                itemCount: controller.jabatanList.length,
-                itemBuilder: (context, index) {
-                  final jabatan = controller.jabatanList[index];
-                  return _buildJabatanCard(jabatan, controller);
-                },
-              ),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildJabatanCard(
-    Map<String, dynamic> jabatan,
-    EditJabatanController controller,
-  ) {
-    final bool hasCutiPermission = jabatan['permissionCuti'] ?? false;
-    final bool hasEksepsiPermission = jabatan['permissionEksepsi'] ?? false;
-    final bool hasAllCutiPermission = jabatan['permissionAllCuti'] ?? false;
-    final bool hasAllEksepsiPermission =
-        jabatan['permissionAllEksepsi'] ?? false;
-    final bool hasInsentifPermission = jabatan['permissionInsentif'] ?? false;
-    final bool hasAllInsentifPermission =
-        jabatan['permissionAllInsentif'] ?? false;
-    final bool hasAtkPermission = jabatan['permissionAtk'] ?? false;
-    final bool hasSuratKeluarPermission =
-        jabatan['permissionSuratKeluar'] ?? false;
-    final bool hasManagementDataPermission =
-        jabatan['permissionManagementData'] ?? false;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-            spreadRadius: -2,
-          ),
-        ],
-        border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => controller.selectJabatan(jabatan),
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Nama jabatan
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            const Color(0xFF667eea).withOpacity(0.8),
-                            const Color(0xFF667eea).withOpacity(0.6),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF667eea).withOpacity(0.25),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.work_outline_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        jabatan['nama'] ?? 'Nama tidak tersedia',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF2D3748),
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.1),
-                              offset: const Offset(0, 1),
-                              blurRadius: 2,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF667eea).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.edit_rounded,
-                        color: Color(0xFF667eea),
-                        size: 18,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Delete Button
-                Obx(
-                  () => Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFef4444).withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : controller.deleteJabatan,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                      ).copyWith(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(MaterialState.disabled)) {
-                            return Colors.grey.withOpacity(0.5);
-                          }
-                          return Colors.transparent;
-                        }),
-                      ),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: controller.isLoading.value
-                              ? LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.grey.withOpacity(0.5),
-                                    Colors.grey.withOpacity(0.3),
-                                  ],
-                                )
-                              : const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFFef4444),
-                                    Color(0xFFdc2626),
-                                  ],
-                                ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: controller.isLoading.value
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text(
-                                      'Memproses...',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.delete_forever_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Hapus Jabatan',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Permissions
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFF),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF667eea).withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  const Color(0xFF667eea).withOpacity(0.8),
-                                  const Color(0xFF667eea).withOpacity(0.6),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Icon(
-                              Icons.security_rounded,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Permissions',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF4A5568),
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: const Offset(0, 1),
-                                  blurRadius: 1,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildPermissionIndicator(
-                            label: 'Cuti',
-                            hasPermission: hasCutiPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Eksepsi',
-                            hasPermission: hasEksepsiPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Semua Cuti',
-                            hasPermission: hasAllCutiPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Semua Eksepsi',
-                            hasPermission: hasAllEksepsiPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Insentif',
-                            hasPermission: hasInsentifPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Semua Insentif',
-                            hasPermission: hasAllInsentifPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'ATK',
-                            hasPermission: hasAtkPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Surat Keluar',
-                            hasPermission: hasSuratKeluarPermission,
-                          ),
-                          _buildPermissionIndicator(
-                            label: 'Manajemen Data',
-                            hasPermission: hasManagementDataPermission,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEditForm(EditJabatanController controller) {
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-              spreadRadius: -2,
-            ),
-          ],
-          border: Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: controller.editJabatanFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFF667eea).withOpacity(0.1),
-                        const Color(0xFF764ba2).withOpacity(0.05),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFF667eea).withOpacity(0.1),
-                      width: 1,
-                    ),
+      padding: const EdgeInsets.only(bottom: AppSpacing.section),
+      child: Form(
+        key: controller.editJabatanFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              decoration: _cardDecoration(tokens),
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Row(
+                children: [
+                  _GlassIconButton(
+                    icon: Icons.arrow_back_rounded,
+                    onTap: controller.resetToList,
+                    theme: theme,
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF667eea).withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: GestureDetector(
-                          onTap: controller.resetToList,
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Edit Jabatan',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF2D3748),
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Obx(
-                              () => Text(
-                                controller.currentJabatanName.value,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF667eea),
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      offset: const Offset(0, 1),
-                                      blurRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Nama Jabatan Field
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                        spreadRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: TextFormField(
-                    controller: controller.namaJabatanController,
-                    validator: controller.validateNamaJabatan,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF2D3748),
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'Nama Jabatan',
-                      hintText: 'Masukkan nama jabatan baru',
-                      hintStyle: TextStyle(
-                        color: const Color(0xFF9CA3AF),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      labelStyle: TextStyle(
-                        color: const Color(0xFF667eea),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      prefixIcon: Container(
-                        margin: const EdgeInsets.all(12),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              const Color(0xFF667eea).withOpacity(0.8),
-                              const Color(0xFF667eea).withOpacity(0.6),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.work_outline_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.withOpacity(0.2),
-                          width: 1,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: Colors.grey.withOpacity(0.2),
-                          width: 1,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF667eea),
-                          width: 2,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFEF4444),
-                          width: 1,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFEF4444),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    textInputAction: TextInputAction.done,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Permissions Section
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFF667eea).withOpacity(0.08),
-                        const Color(0xFF764ba2).withOpacity(0.04),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFF667eea).withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(
+                    child: Obx(
+                      () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF667eea,
-                                  ).withOpacity(0.3),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.security_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
                           Text(
-                            'Hak Akses Jabatan',
+                            'Edit Jabatan',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF2D3748),
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
+                              fontWeight: FontWeight.w700,
+                              color: tokens.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            'Mengedit: ${controller.currentJabatanName.value}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: tokens.textSecondary,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-
-                      // Permission Cuti
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Cuti',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola data cuti',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionCuti.value,
-                            onChanged: (value) =>
-                                controller.togglePermissionCuti(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission Eksepsi
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Eksepsi',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola data eksepsi',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionEksepsi.value,
-                            onChanged: (value) => controller
-                                .togglePermissionEksepsi(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission All Cuti
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Semua Cuti',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola semua data cuti',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionAllCuti.value,
-                            onChanged: (value) => controller
-                                .togglePermissionAllCuti(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission All Eksepsi
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Semua Eksepsi',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola semua data eksepsi',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionAllEksepsi.value,
-                            onChanged: (value) => controller
-                                .togglePermissionAllEksepsi(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission Insentif
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Insentif',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola data insentif',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionInsentif.value,
-                            onChanged: (value) => controller
-                                .togglePermissionInsentif(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission All Insentif
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Semua Insentif',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola semua data insentif',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionAllInsentif.value,
-                            onChanged: (value) => controller
-                                .togglePermissionAllInsentif(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission ATK
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission ATK',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola data ATK',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionAtk.value,
-                            onChanged: (value) =>
-                                controller.togglePermissionAtk(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission Surat Keluar
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Surat Keluar',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola surat keluar',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionSuratKeluar.value,
-                            onChanged: (value) => controller
-                                .togglePermissionSuratKeluar(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Permission Management Data
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Obx(
-                          () => CheckboxListTile(
-                            title: const Text(
-                              'Permission Management Data',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            subtitle: const Text(
-                              'Akses untuk mengelola data manajemen',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                            value: controller.permissionManagementData.value,
-                            onChanged: (value) => controller
-                                .togglePermissionManagementData(value ?? false),
-                            activeColor: Colors.orange,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Update Button
-                Obx(
-                  () => Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF667eea).withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: const Color(0xFF667eea).withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : controller.updateJabatan,
-                      style:
-                          ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 0,
-                          ).copyWith(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>((
-                                  Set<MaterialState> states,
-                                ) {
-                                  if (states.contains(MaterialState.disabled)) {
-                                    return Colors.grey.withOpacity(0.5);
-                                  }
-                                  return Colors.transparent;
-                                }),
-                          ),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: controller.isLoading.value
-                              ? LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.grey.withOpacity(0.5),
-                                    Colors.grey.withOpacity(0.3),
-                                  ],
-                                )
-                              : const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFF667eea),
-                                    Color(0xFF764ba2),
-                                  ],
-                                ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: controller.isLoading.value
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Memperbarui...',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: [
-                                          Shadow(
-                                            color: Colors.black.withOpacity(
-                                              0.2,
-                                            ),
-                                            offset: const Offset(0, 1),
-                                            blurRadius: 2,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  'PERBARUI JABATAN',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        offset: const Offset(0, 1),
-                                        blurRadius: 2,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                        ),
-                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // Cancel Button
-                Obx(
-                  () => Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: OutlinedButton(
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : controller.resetToList,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF6B7280),
-                        side: BorderSide(
-                          color: const Color(0xFF6B7280).withOpacity(0.3),
-                          width: 1.5,
-                        ),
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'BATAL',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          letterSpacing: 0.5,
-                          color: const Color(0xFF6B7280),
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.1),
-                              offset: const Offset(0, 1),
-                              blurRadius: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(height: AppSpacing.lg),
+            Container(
+              decoration: _cardDecoration(tokens),
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _LabeledField(
+                    label: 'Nama Jabatan',
+                    tokens: tokens,
+                    child: TextFormField(
+                      controller: controller.namaJabatanController,
+                      validator: controller.validateNamaJabatan,
+                      decoration: _inputDecoration(
+                        tokens: tokens,
+                        theme: theme,
+                        accent: accent,
+                        hintText: 'Masukkan nama jabatan',
+                        icon: Icons.workspace_premium_outlined,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.section),
+                  Text(
+                    'Hak Akses',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: tokens.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Aktifkan hak akses yang dimiliki oleh jabatan ini.',
+                    style: TextStyle(fontSize: 13, color: tokens.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _PermissionToggle(
+                    title: 'Pengajuan Cuti',
+                    subtitle: 'Akses untuk fitur cuti pribadi',
+                    value: controller.permissionCuti,
+                    onChanged: controller.togglePermissionCuti,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Pengajuan Eksepsi',
+                    subtitle: 'Akses untuk fitur eksepsi pribadi',
+                    value: controller.permissionEksepsi,
+                    onChanged: controller.togglePermissionEksepsi,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Semua Data Cuti',
+                    subtitle: 'Mengelola data cuti seluruh pegawai',
+                    value: controller.permissionAllCuti,
+                    onChanged: controller.togglePermissionAllCuti,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Semua Data Eksepsi',
+                    subtitle: 'Mengelola data eksepsi seluruh pegawai',
+                    value: controller.permissionAllEksepsi,
+                    onChanged: controller.togglePermissionAllEksepsi,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Data Insentif',
+                    subtitle: 'Akses modul insentif dan verifikasinya',
+                    value: controller.permissionInsentif,
+                    onChanged: controller.togglePermissionInsentif,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Semua Data Insentif',
+                    subtitle: 'Mengelola seluruh data insentif',
+                    value: controller.permissionAllInsentif,
+                    onChanged: controller.togglePermissionAllInsentif,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'ATK',
+                    subtitle: 'Akses modul data ATK',
+                    value: controller.permissionAtk,
+                    onChanged: controller.togglePermissionAtk,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Surat Keluar',
+                    subtitle: 'Pengelolaan surat keluar organisasi',
+                    value: controller.permissionSuratKeluar,
+                    onChanged: controller.togglePermissionSuratKeluar,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                  _PermissionToggle(
+                    title: 'Management Data',
+                    subtitle: 'Akses halaman manajemen data pegawai',
+                    value: controller.permissionManagementData,
+                    onChanged: controller.togglePermissionManagementData,
+                    tokens: tokens,
+                    accent: accent,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.section),
+            Obx(() {
+              final isBusy = controller.isLoading.value;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: isBusy ? null : controller.updateJabatan,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accent,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isBusy
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            'Simpan Perubahan',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ElevatedButton(
+                    onPressed: isBusy ? null : controller.deleteJabatan,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.error,
+                      foregroundColor: theme.colorScheme.onError,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isBusy
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.onError,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            'Hapus Jabatan',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ],
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PermissionToggle extends StatelessWidget {
+  const _PermissionToggle({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+    required this.tokens,
+    required this.accent,
+  });
+
+  final String title;
+  final String subtitle;
+  final RxBool value;
+  final ValueChanged<bool> onChanged;
+  final AppTokens tokens;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: tokens.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: tokens.borderSubtle),
+        ),
+        child: SwitchListTile.adaptive(
+          value: value.value,
+          onChanged: onChanged,
+          activeColor: accent,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.sm,
+          ),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: tokens.textPrimary,
+            ),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: TextStyle(fontSize: 12, color: tokens.textSecondary),
           ),
         ),
       ),
     );
   }
+}
+
+class _LabeledField extends StatelessWidget {
+  const _LabeledField({
+    required this.label,
+    required this.child,
+    required this.tokens,
+  });
+
+  final String label;
+  final Widget child;
+  final AppTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: tokens.textPrimary,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        child,
+      ],
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({
+    required this.tokens,
+    required this.accent,
+    required this.message,
+    required this.description,
+  });
+
+  final AppTokens tokens;
+  final Color accent;
+  final String message;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.inbox_outlined, size: 56, color: tokens.textMuted),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: tokens.textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            description,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: tokens.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlassIconButton extends StatelessWidget {
+  const _GlassIconButton({
+    required this.icon,
+    required this.onTap,
+    required this.theme,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.onPrimary.withAlpha((0.18 * 255).round()),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.colorScheme.onPrimary.withAlpha((0.28 * 255).round()),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Icon(icon, color: theme.colorScheme.onPrimary, size: 24),
+        ),
+      ),
+    );
+  }
+}
+
+InputDecoration _inputDecoration({
+  required AppTokens tokens,
+  required ThemeData theme,
+  required Color accent,
+  required String hintText,
+  IconData? icon,
+}) {
+  return InputDecoration(
+    hintText: hintText,
+    hintStyle: TextStyle(color: tokens.textSecondary),
+    filled: true,
+    fillColor: theme.inputDecorationTheme.fillColor ?? tokens.surface,
+    prefixIcon: icon == null ? null : Icon(icon, color: accent),
+    contentPadding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.lg,
+      vertical: AppSpacing.md,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: BorderSide(color: tokens.borderSubtle),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: BorderSide(color: tokens.borderSubtle),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: BorderSide(color: accent, width: 2),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
+    ),
+  );
+}
+
+BoxDecoration _cardDecoration(AppTokens tokens) {
+  return BoxDecoration(
+    color: tokens.card,
+    borderRadius: BorderRadius.circular(20),
+    border: Border.all(color: tokens.borderSubtle),
+    boxShadow: [
+      BoxShadow(
+        color: tokens.shadowColor,
+        blurRadius: 14,
+        offset: const Offset(0, 6),
+      ),
+    ],
+  );
 }

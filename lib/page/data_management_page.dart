@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'edit_jabatan_page.dart';
+import '../theme/app_tokens.dart';
+import '../theme/app_spacing.dart';
 
 class DataManagementPage extends StatelessWidget {
   const DataManagementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
+    final accentGradient = t.homeGradient;
+    final accent = accentGradient.first;
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50,
-              Colors.indigo.shade50,
-              Colors.purple.shade50,
-            ],
-            stops: const [0.0, 0.5, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: accentGradient
+                .map((c) => c.withOpacity(isDark ? 0.08 : 0.14))
+                .toList(),
           ),
         ),
         child: SafeArea(
@@ -32,14 +37,14 @@ class DataManagementPage extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+                  gradient: LinearGradient(
+                    colors: accentGradient,
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4facfe).withOpacity(0.3),
+                      color: t.shadowColor,
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -52,16 +57,16 @@ class DataManagementPage extends StatelessWidget {
                       children: [
                         // Back Button
                         Container(
-                          margin: const EdgeInsets.only(right: 16),
+                          margin: const EdgeInsets.only(right: AppSpacing.lg),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: theme.colorScheme.onPrimary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: IconButton(
                             onPressed: () => Get.back(),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back_ios_new,
-                              color: Colors.white,
+                              color: theme.colorScheme.onPrimary,
                               size: 20,
                             ),
                             padding: const EdgeInsets.all(12),
@@ -72,20 +77,21 @@ class DataManagementPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Manajemen Data',
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onPrimary,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: AppSpacing.xs),
                               Text(
                                 'Kelola data sistem dengan mudah',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color:
+                                      theme.colorScheme.onPrimary.withOpacity(0.9),
                                 ),
                               ),
                             ],
@@ -94,14 +100,14 @@ class DataManagementPage extends StatelessWidget {
                         // Home Button
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: theme.colorScheme.onPrimary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: IconButton(
                             onPressed: () => Get.offAllNamed('/home'),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.home,
-                              color: Colors.white,
+                              color: theme.colorScheme.onPrimary,
                               size: 20,
                             ),
                             padding: const EdgeInsets.all(12),
@@ -116,19 +122,19 @@ class DataManagementPage extends StatelessWidget {
               // Content
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.xl),
+                        padding: const EdgeInsets.all(AppSpacing.lg),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: t.card,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: t.shadowColor,
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -139,22 +145,22 @@ class DataManagementPage extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF4facfe).withOpacity(0.1),
+                                color: accent.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.info_outline,
-                                color: Color(0xFF4facfe),
+                                color: accent,
                                 size: 20,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            const Expanded(
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
                               child: Text(
                                 'Pilih menu untuk mengelola data sistem',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: t.textSecondary,
                                 ),
                               ),
                             ),
@@ -176,10 +182,10 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/add-pegawai'),
                               ),
-                              const SizedBox(height: 16),
+                               const SizedBox(height: AppSpacing.lg),
 
-                              // Tambah Jabatan Card
-                              _buildKerenUIMenuCard(
+                               // Tambah Jabatan Card
+                               _buildKerenUIMenuCard(
                                 context: context,
                                 title: 'Tambah Jabatan',
                                 subtitle: 'Menambahkan jabatan baru ke sistem',
@@ -188,7 +194,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/add-jabatan'),
                               ),
-                              const SizedBox(height: 16),
+                               const SizedBox(height: AppSpacing.lg),
 
                               // Edit Data Card
                               _buildKerenUIMenuCard(
@@ -200,7 +206,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/edit'),
                               ),
-                              const SizedBox(height: 16),
+                               const SizedBox(height: AppSpacing.lg),
 
                               // Edit Data Jabatan Card
                               _buildKerenUIMenuCard(
@@ -212,7 +218,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.to(() => const EditJabatanPage()),
                               ),
-                              const SizedBox(height: 16),
+                               const SizedBox(height: AppSpacing.lg),
 
                               // Group Management Card
                               _buildKerenUIMenuCard(
@@ -258,17 +264,20 @@ class DataManagementPage extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: t.card,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: t.shadowColor,
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: t.borderSubtle, width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -276,11 +285,11 @@ class DataManagementPage extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
@@ -289,25 +298,25 @@ class DataManagementPage extends StatelessWidget {
                   ),
                   child: Icon(icon, color: color, size: 28),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: AppSpacing.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: t.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         subtitle,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: t.textSecondary,
                           fontWeight: FontWeight.w400,
                         ),
                       ),

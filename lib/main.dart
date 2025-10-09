@@ -25,6 +25,9 @@ import 'page/supervisor_management_page.dart';
 import 'page/semua_data_cuti_page.dart';
 import 'page/semua_data_eksepsi_page.dart';
 import 'page/update_checker_page.dart';
+import 'page/settings_page.dart';
+import 'controller/theme_controller.dart';
+import 'theme/app_tokens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +51,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'MTI Pontianak',
       theme: _buildAppTheme(),
-      themeMode: ThemeMode.light,
+      darkTheme: _buildDarkAppTheme(),
+      themeMode: ThemeMode.system,
       initialRoute: '/login',
       getPages: _buildRoutes(),
       debugShowCheckedModeBanner: false,
@@ -58,6 +62,7 @@ class MyApp extends StatelessWidget {
   /// Initialize all required controllers
   void _initializeControllers() {
     Get.put(LoginController());
+    Get.put(ThemeController(), permanent: true);
   }
 
   /// Build application theme
@@ -73,6 +78,9 @@ class MyApp extends StatelessWidget {
       elevatedButtonTheme: _buildElevatedButtonTheme(),
       iconTheme: const IconThemeData(color: Color(0xFF64748B)),
       hintColor: const Color(0xFF6B7280),
+      extensions: const <ThemeExtension<dynamic>>[
+        AppTokens.light,
+      ],
       textTheme: const TextTheme(
         displayLarge: TextStyle(color: Color(0xFF1F2937)),
         displayMedium: TextStyle(color: Color(0xFF1F2937)),
@@ -119,6 +127,99 @@ class MyApp extends StatelessWidget {
         iconColor: Color(0xFF64748B),
         textColor: Color(0xFF2D3748),
         subtitleTextStyle: TextStyle(color: Color(0xFF718096), fontSize: 12),
+      ),
+    );
+  }
+
+  /// Build dark theme
+  ThemeData _buildDarkAppTheme() {
+    return ThemeData(
+      brightness: Brightness.dark,
+      primarySwatch: Colors.blue,
+      primaryColor: const Color(0xFF93C5FD),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF60A5FA),
+        secondary: Color(0xFF34D399),
+        surface: Color(0xFF0F172A),
+        error: Color(0xFFF87171),
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: Color(0xFFE5E7EB),
+        onError: Colors.black,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF0B1220),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF111827),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF111827),
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2563EB),
+          foregroundColor: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+      iconTheme: const IconThemeData(color: Color(0xFFCBD5E1)),
+      hintColor: const Color(0xFF94A3B8),
+      extensions: const <ThemeExtension<dynamic>>[
+        AppTokens.dark,
+      ],
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(color: Color(0xFFE5E7EB)),
+        displayMedium: TextStyle(color: Color(0xFFE5E7EB)),
+        displaySmall: TextStyle(color: Color(0xFFE5E7EB)),
+        headlineLarge: TextStyle(color: Color(0xFFE5E7EB)),
+        headlineMedium: TextStyle(color: Color(0xFFE5E7EB)),
+        headlineSmall: TextStyle(color: Color(0xFFE5E7EB)),
+        titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        titleSmall: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(color: Color(0xFFE5E7EB)),
+        bodyMedium: TextStyle(color: Color(0xFFE5E7EB)),
+        bodySmall: TextStyle(color: Color(0xFFCBD5E1)),
+        labelLarge: TextStyle(color: Colors.white),
+        labelMedium: TextStyle(color: Color(0xFFE5E7EB)),
+        labelSmall: TextStyle(color: Color(0xFFE5E7EB)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        labelStyle: const TextStyle(color: Color(0xFFE5E7EB)),
+        filled: true,
+        fillColor: const Color(0xFF0F172A),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF334155)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF334155)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF60A5FA), width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFF87171)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        prefixIconColor: const Color(0xFF94A3B8),
+        suffixIconColor: const Color(0xFF94A3B8),
+      ),
+      listTileTheme: const ListTileThemeData(
+        iconColor: Color(0xFFCBD5E1),
+        textColor: Color(0xFFE5E7EB),
+        subtitleTextStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
       ),
     );
   }
@@ -224,6 +325,9 @@ class MyApp extends StatelessWidget {
 
       // Update Checker
       GetPage(name: '/update-checker', page: () => const UpdateCheckerPage()),
+
+      // Settings
+      GetPage(name: '/settings', page: () => const SettingsPage()),
     ];
   }
 }

@@ -244,7 +244,7 @@ class PdfEksepsiController extends GetxController {
                       final alasanEksepsi =
                           tanggalData['alasan_eksepsi'] ?? '-';
 
-                      if (tanggalEksepsi.isEmpty)
+                      if (tanggalEksepsi.isEmpty) {
                         return pw.TableRow(
                           children: [
                             pw.SizedBox(),
@@ -253,6 +253,7 @@ class PdfEksepsiController extends GetxController {
                             pw.SizedBox(),
                           ],
                         );
+                      }
 
                       String formattedTanggal = tanggalEksepsi;
                       try {

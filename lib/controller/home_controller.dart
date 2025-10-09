@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'login_controller.dart';
+import '../theme/app_spacing.dart';
 
 class HomeController extends GetxController {
   final LoginController authController = Get.find<LoginController>();
@@ -22,7 +23,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/data-management'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
     }
     if (authController.hasPermissionCuti) {
       menus.add(
@@ -35,7 +36,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/cuti'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
       menus.add(
         menuCardBuilder(
           context: context,
@@ -46,7 +47,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/calendar-cuti'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
       menus.add(
         menuCardBuilder(
           context: context,
@@ -57,7 +58,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/eksepsi'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
     }
     if (authController.hasPermissionAllCuti) {
       menus.add(
@@ -70,7 +71,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/all-cuti'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
     }
     if (authController.hasPermissionAllEksepsi) {
       menus.add(
@@ -83,7 +84,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/all-eksepsi'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
     }
     if (authController.hasPermissionInsentif) {
       menus.add(
@@ -96,7 +97,7 @@ class HomeController extends GetxController {
           onTap: () => Get.toNamed('/insentif'),
         ),
       );
-      menus.add(const SizedBox(height: 8));
+      menus.add(const SizedBox(height: AppSpacing.md));
     }
     if (authController.hasPermissionSuratKeluar) {
       menus.add(
@@ -121,7 +122,7 @@ class HomeController extends GetxController {
         onTap: () => Get.toNamed('/update-checker'),
       ),
     );
-    menus.add(const SizedBox(height: 8));
+    menus.add(const SizedBox(height: AppSpacing.md));
     return menus;
   }
 }

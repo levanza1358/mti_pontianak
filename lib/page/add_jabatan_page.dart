@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/add_jabatan_controller.dart';
+import '../theme/app_tokens.dart';
+import '../theme/app_spacing.dart';
 
 class AddJabatanPage extends StatelessWidget {
   const AddJabatanPage({super.key});
@@ -8,20 +10,22 @@ class AddJabatanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AddJabatanController controller = Get.put(AddJabatanController());
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
+    final accentGradient = t.homeGradient;
+    final accent = accentGradient.first;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.shade50,
-              Colors.indigo.shade50,
-              Colors.purple.shade50,
-            ],
-            stops: const [0.0, 0.5, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: accentGradient
+                .map((c) => c.withOpacity(isDark ? 0.08 : 0.14))
+                .toList(),
           ),
         ),
         child: SafeArea(
@@ -38,15 +42,12 @@ class AddJabatanPage extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          const Color(0xFF667eea),
-                          const Color(0xFF764ba2),
-                        ],
+                        colors: accentGradient,
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF667eea).withOpacity(0.4),
+                          color: t.shadowColor,
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                           spreadRadius: 2,
@@ -63,10 +64,10 @@ class AddJabatanPage extends StatelessWidget {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: theme.colorScheme.onPrimary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+                              color: theme.colorScheme.onPrimary.withOpacity(0.3),
                               width: 1,
                             ),
                           ),
@@ -79,7 +80,7 @@ class AddJabatanPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: AppSpacing.lg),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +90,7 @@ class AddJabatanPage extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 26,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onPrimary,
                                   shadows: [
                                     Shadow(
                                       offset: const Offset(0, 2),
@@ -99,12 +100,12 @@ class AddJabatanPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: AppSpacing.sm),
                               Text(
                                 'Tambahkan jabatan baru ke sistem',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: theme.colorScheme.onPrimary.withOpacity(0.9),
                                   fontWeight: FontWeight.w500,
                                   shadows: [
                                     Shadow(
@@ -122,31 +123,24 @@ class AddJabatanPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Form Card
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(28),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: t.card,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.15),
+                          color: t.shadowColor,
                           blurRadius: 24,
                           offset: const Offset(0, 8),
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                          spreadRadius: -2,
                         ),
                       ],
                       border: Border.all(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: t.borderSubtle,
                         width: 1,
                       ),
                     ),
@@ -165,45 +159,45 @@ class AddJabatanPage extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade700,
+                                  color: t.textPrimary,
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: AppSpacing.md),
                               TextFormField(
                                 controller: controller.namaJabatanController,
                                 validator: controller.validateNamaJabatan,
                                 decoration: InputDecoration(
                                   hintText: 'Masukkan nama jabatan',
                                   hintStyle: TextStyle(
-                                    color: Colors.grey.shade500,
+                                    color: t.textSecondary,
                                     fontSize: 16,
                                   ),
                                   filled: true,
-                                  fillColor: Colors.grey.shade50,
+                                  fillColor: theme.inputDecorationTheme.fillColor,
                                   prefixIcon: Icon(
                                     Icons.work_outline_rounded,
-                                    color: const Color(0xFF667eea),
+                                    color: accent,
                                     size: 22,
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
-                                      color: Colors.grey.shade200,
+                                      color: t.borderSubtle,
                                       width: 1.5,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
-                                      color: Colors.grey.shade200,
+                                      color: t.borderSubtle,
                                       width: 1.5,
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFF667eea),
+                                    borderSide: BorderSide(
+                                      color: accent,
                                       width: 2.5,
                                     ),
                                   ),
@@ -222,7 +216,7 @@ class AddJabatanPage extends StatelessWidget {
                                 textInputAction: TextInputAction.done,
                               ),
 
-                              const SizedBox(height: 24),
+                              const SizedBox(height: AppSpacing.section),
 
                               // Permissions Section
                               Text(
@@ -230,20 +224,20 @@ class AddJabatanPage extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade700,
+                                  color: t.textPrimary,
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Simple Permissions Container
                               Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
+                                  color: t.surface,
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: Colors.grey.shade200,
+                                    color: t.borderSubtle,
                                     width: 1.5,
                                   ),
                                 ),
@@ -255,14 +249,16 @@ class AddJabatanPage extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Colors.grey.shade600,
+                                        color: t.textSecondary,
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: AppSpacing.lg),
 
                                     // Simple checkbox rows
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Cuti',
                                         controller.permissionCuti.value,
                                         (value) =>
@@ -273,6 +269,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Eksepsi',
                                         controller.permissionEksepsi.value,
                                         (value) =>
@@ -283,6 +281,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Semua Cuti',
                                         controller.permissionAllCuti.value,
                                         (value) =>
@@ -293,6 +293,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Semua Eksepsi',
                                         controller.permissionAllEksepsi.value,
                                         (value) => controller
@@ -303,6 +305,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Insentif',
                                         controller.permissionInsentif.value,
                                         (value) =>
@@ -313,6 +317,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Semua Insentif',
                                         controller.permissionAllInsentif.value,
                                         (value) => controller
@@ -323,6 +329,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission ATK',
                                         controller.permissionAtk.value,
                                         (value) =>
@@ -333,6 +341,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Surat Keluar',
                                         controller.permissionSuratKeluar.value,
                                         (value) => controller
@@ -344,6 +354,8 @@ class AddJabatanPage extends StatelessWidget {
                                     ),
                                     Obx(
                                       () => _buildSimpleCheckbox(
+                                        t,
+                                        accent,
                                         'Permission Management Data',
                                         controller.permissionManagementData.value,
                                         (value) => controller
@@ -356,7 +368,7 @@ class AddJabatanPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: AppSpacing.section),
 
                               // Submit Button
                               Obx(
@@ -373,11 +385,8 @@ class AddJabatanPage extends StatelessWidget {
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           )
-                                        : const LinearGradient(
-                                            colors: [
-                                              Color(0xFF667eea),
-                                              Color(0xFF764ba2),
-                                            ],
+                                        : LinearGradient(
+                                            colors: accentGradient,
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
                                           ),
@@ -385,26 +394,20 @@ class AddJabatanPage extends StatelessWidget {
                                     boxShadow: controller.isLoading.value
                                         ? [
                                             BoxShadow(
-                                              color: Colors.grey.withOpacity(
-                                                0.3,
-                                              ),
+                                              color: t.textSecondary.withOpacity(0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
                                             ),
                                           ]
                                         : [
                                             BoxShadow(
-                                              color: const Color(
-                                                0xFF667eea,
-                                              ).withOpacity(0.4),
+                                              color: t.shadowColor,
                                               blurRadius: 16,
                                               offset: const Offset(0, 8),
                                               spreadRadius: 2,
                                             ),
                                             BoxShadow(
-                                              color: Colors.white.withOpacity(
-                                                0.1,
-                                              ),
+                                              color: Colors.white.withOpacity(0.08),
                                               blurRadius: 2,
                                               offset: const Offset(0, -2),
                                             ),
@@ -416,7 +419,7 @@ class AddJabatanPage extends StatelessWidget {
                                         : controller.submitJabatanForm,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
-                                      foregroundColor: Colors.white,
+                                      foregroundColor: theme.colorScheme.onPrimary,
                                       shadowColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
@@ -434,18 +437,18 @@ class AddJabatanPage extends StatelessWidget {
                                                 child: CircularProgressIndicator(
                                                   strokeWidth: 2,
                                                   valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                        Color
-                                                      >(Colors.grey.shade600),
+                                                      AlwaysStoppedAnimation<Color>(
+                                                    t.textSecondary,
+                                                  ),
                                                 ),
                                               ),
-                                              const SizedBox(width: 12),
+                                              const SizedBox(width: AppSpacing.md),
                                               Text(
                                                 'Menyimpan...',
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
-                                                  color: Colors.grey.shade600,
+                                                  color: t.textSecondary,
                                                 ),
                                               ),
                                             ],
@@ -459,7 +462,7 @@ class AddJabatanPage extends StatelessWidget {
                                                 color: Colors.white,
                                                 size: 22,
                                               ),
-                                              const SizedBox(width: 12),
+                                              const SizedBox(width: AppSpacing.md),
                                               Text(
                                                 'TAMBAH JABATAN',
                                                 style: TextStyle(
@@ -500,32 +503,34 @@ class AddJabatanPage extends StatelessWidget {
   }
 
   Widget _buildSimpleCheckbox(
+    AppTokens t,
+    Color accent,
     String title,
     bool value,
     ValueChanged<bool?> onChanged, {
     bool isLast = false,
   }) {
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : AppSpacing.md),
       child: Row(
         children: [
           Checkbox(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF667eea),
+            activeColor: accent,
             checkColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
               title,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
+                color: t.textPrimary,
               ),
             ),
           ),

@@ -29,6 +29,17 @@ class AddPegawaiController extends GetxController {
   final statusOptions = ['Operasional', 'Non Operasional'];
   final statusGroupOptions = ['Atasan', 'Bawahan'];
 
+  // Placeholder for future profile image picking
+  void pickProfileImage() {
+    Get.snackbar(
+      'Info',
+      'Fitur upload foto belum tersedia.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.blueAccent,
+      colorText: Colors.white,
+    );
+  }
+
   @override
   void onInit() {
     super.onInit();

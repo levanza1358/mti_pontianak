@@ -90,7 +90,6 @@ class PdfCutiController extends GetxController {
 
       return response;
     } catch (e) {
-      print('Error fetching supervisor: $e');
       return null;
     }
   }

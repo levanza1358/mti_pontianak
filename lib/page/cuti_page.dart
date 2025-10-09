@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../controller/cuti_controller.dart';
+import '../theme/app_tokens.dart';
+import '../theme/app_spacing.dart';
 import 'pdf_cuti_page.dart';
 
 class CutiPage extends StatelessWidget {
@@ -10,155 +12,175 @@ class CutiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CutiController controller = Get.put(CutiController());
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 214, 214, 214),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Modern Header Section
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF4facfe).withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: t.cutiAllGradient
+                  .map((c) => c.withOpacity(isDark ? 0.08 : 0.14))
+                  .toList(),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Modern Header Section
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: t.cutiAllGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Back Button
-                      Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          onPressed: () => Get.back(),
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                        ),
-                      ),
-                      // Title Section
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Pengajuan Cuti',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Kelola pengajuan dan riwayat cuti',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withOpacity(0.8),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Tab Bar
-                  Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: t.shadowColor,
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                    child: TabBar(
-                      controller: controller.tabController,
-                      indicator: BoxDecoration(
-                        color: Colors.white,
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        // Back Button
+                        Container(
+                          margin: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: IconButton(
+                            onPressed: () => Get.back(),
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            padding: const EdgeInsets.all(12),
+                          ),
+                        ),
+                        // Title Section
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Pengajuan Cuti',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                'Kelola pengajuan dan riwayat cuti',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Tab Bar
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      labelColor: const Color(0xFF4facfe),
-                      unselectedLabelColor: Colors.white.withOpacity(0.8),
-                      labelStyle: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
-                      tabs: const [
-                        Tab(text: 'Pengajuan'),
-                        Tab(text: 'Riwayat'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Content
-            Expanded(
-              child: Obx(() {
-                // Show error if user data failed to load
-                if (controller.currentUser.value == null &&
-                    !controller.isLoadingUser.value) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline, size: 64, color: Colors.red),
-                        SizedBox(height: 16),
-                        Text(
-                          'Gagal memuat data pengguna',
-                          style: TextStyle(fontSize: 18, color: Colors.red),
+                      child: TabBar(
+                        controller: controller.tabController,
+                        indicator: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        dividerColor: Colors.transparent,
+                        labelColor: t.cutiAllGradient.first,
+                        unselectedLabelColor: Colors.white.withOpacity(0.8),
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                        tabs: const [
+                          Tab(text: 'Pengajuan'),
+                          Tab(text: 'Riwayat'),
+                        ],
+                      ),
                     ),
-                  );
-                }
-
-                // Show loading while fetching user data
-                if (controller.isLoadingUser.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF4facfe)),
-                  );
-                }
-
-                return TabBarView(
-                  controller: controller.tabController,
-                  children: [
-                    _buildPengajuanTab(controller, colorScheme),
-                    _buildHistoryTab(controller),
                   ],
-                );
-              }),
-            ),
-          ],
+                ),
+              ),
+              // Content
+              Expanded(
+                child: Obx(() {
+                  // Show error if user data failed to load
+                  if (controller.currentUser.value == null &&
+                      !controller.isLoadingUser.value) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red,
+                          ),
+                          SizedBox(height: AppSpacing.lg),
+                          Text(
+                            'Gagal memuat data pengguna',
+                            style: TextStyle(fontSize: 18, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Show loading while fetching user data
+                  if (controller.isLoadingUser.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF4facfe),
+                      ),
+                    );
+                  }
+
+                  return TabBarView(
+                    controller: controller.tabController,
+                    children: [
+                      _buildPengajuanTab(context, controller, colorScheme),
+                      _buildHistoryTab(context, controller),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -166,9 +188,12 @@ class CutiPage extends StatelessWidget {
 
   // Tab 1: Pengajuan Cuti
   Widget _buildPengajuanTab(
+    BuildContext context,
     CutiController controller,
     ColorScheme colorScheme,
   ) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Form(
@@ -181,11 +206,11 @@ class CutiPage extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: t.card,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: t.shadowColor,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -196,7 +221,7 @@ class CutiPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4facfe).withOpacity(0.1),
+                      color: t.cutiAllGradient.first.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -206,10 +231,10 @@ class CutiPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Pilih tanggal cuti yang diinginkan dengan teliti',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      style: TextStyle(fontSize: 14, color: t.textSecondary),
                     ),
                   ),
                 ],
@@ -219,11 +244,11 @@ class CutiPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: t.card,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: t.shadowColor,
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -255,20 +280,20 @@ class CutiPage extends StatelessWidget {
                               () => Text(
                                 controller.currentUser.value?['name'] ??
                                     'Loading...',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: t.textPrimary,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.xs),
                             Obx(
                               () => Text(
                                 'NRP: ${controller.currentUser.value?['nrp'] ?? '-'}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: t.textSecondary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -278,14 +303,14 @@ class CutiPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFF4facfe).withOpacity(0.1),
-                          const Color(0xFF4facfe).withOpacity(0.05),
+                          t.cutiAllGradient.first.withOpacity(0.10),
+                          t.cutiAllGradient.first.withOpacity(0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -293,12 +318,12 @@ class CutiPage extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Sisa Cuti:',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: t.textPrimary,
                           ),
                         ),
                         Container(
@@ -307,7 +332,7 @@ class CutiPage extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF4facfe),
+                            color: t.cutiAllGradient.first,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Obx(
@@ -333,11 +358,11 @@ class CutiPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: t.card,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: t.shadowColor,
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -361,13 +386,13 @@ class CutiPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Pilih Tanggal Cuti',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: t.textPrimary,
                           ),
                         ),
                       ),
@@ -377,13 +402,13 @@ class CutiPage extends StatelessWidget {
                                   CalendarFormat.month
                               ? Icons.calendar_view_week
                               : Icons.calendar_view_month,
-                          color: const Color(0xFF4facfe),
+                          color: t.cutiAllGradient.first,
                         ),
                         onPressed: controller.changeCalendarFormat,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
                   Obx(
                     () => TableCalendar<String>(
@@ -398,39 +423,37 @@ class CutiPage extends StatelessWidget {
                         outsideDaysVisible: false,
                         weekendTextStyle: const TextStyle(color: Colors.red),
                         holidayTextStyle: const TextStyle(color: Colors.red),
-                        selectedDecoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-                          ),
+                        selectedDecoration: BoxDecoration(
+                          gradient: LinearGradient(colors: t.cutiAllGradient),
                           shape: BoxShape.circle,
                         ),
                         todayDecoration: BoxDecoration(
-                          color: const Color(0xFF4facfe).withOpacity(0.3),
+                          color: t.cutiAllGradient.first.withOpacity(0.3),
                           shape: BoxShape.circle,
                         ),
-                        markerDecoration: const BoxDecoration(
-                          color: Color(0xFF4facfe),
+                        markerDecoration: BoxDecoration(
+                          color: t.cutiAllGradient.first,
                           shape: BoxShape.circle,
                         ),
                       ),
 
                       // Header style
-                      headerStyle: const HeaderStyle(
+                      headerStyle: HeaderStyle(
                         formatButtonVisible: false,
                         titleCentered: true,
                         titleTextStyle: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: t.textPrimary,
                         ),
                         leftChevronIcon: Icon(
                           Icons.chevron_left,
-                          color: Color(0xFF4facfe),
+                          color: t.cutiAllGradient.first,
                           size: 28,
                         ),
                         rightChevronIcon: Icon(
                           Icons.chevron_right,
-                          color: Color(0xFF4facfe),
+                          color: t.cutiAllGradient.first,
                           size: 28,
                         ),
                       ),
@@ -444,7 +467,7 @@ class CutiPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Selected dates info
                   Obx(() {
@@ -452,20 +475,21 @@ class CutiPage extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
+                          color:
+                              theme.inputDecorationTheme.fillColor ?? t.surface,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(
                               Icons.info_outline,
-                              color: Colors.grey,
+                              color: t.textSecondary,
                               size: 16,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.sm),
                             Text(
                               'Belum ada tanggal yang dipilih',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(color: t.textSecondary),
                             ),
                           ],
                         ),
@@ -486,9 +510,9 @@ class CutiPage extends StatelessWidget {
                             children: [
                               Text(
                                 'Tanggal dipilih: ${controller.selectedDates.length} hari',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF4facfe),
+                                  color: t.cutiAllGradient.first,
                                 ),
                               ),
                               TextButton(
@@ -497,7 +521,7 @@ class CutiPage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.sm),
                           Wrap(
                             spacing: 6,
                             runSpacing: 4,
@@ -508,7 +532,7 @@ class CutiPage extends StatelessWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF4facfe),
+                                  color: t.cutiAllGradient.first,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -528,89 +552,46 @@ class CutiPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
 
-            // Reason Card
+            // Reason (single unified box)
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: t.card,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: t.shadowColor,
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4facfe).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.description_outlined,
-                          color: Color(0xFF4facfe),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Alasan Cuti',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
+              child: TextFormField(
+                controller: controller.alasanController,
+                validator: controller.validateAlasan,
+                maxLines: 5,
+                style: TextStyle(color: t.textPrimary),
+                decoration: InputDecoration(
+                  labelText: 'Alasan Cuti',
+                  hintText: 'Masukkan alasan pengajuan cuti...',
+                  prefixIcon: const Icon(
+                    Icons.description_outlined,
+                    color: Color(0xFF4facfe),
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: controller.alasanController,
-                    validator: controller.validateAlasan,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Masukkan alasan pengajuan cuti...',
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.only(bottom: 60),
-                        child: Icon(
-                          Icons.description_outlined,
-                          color: Color(0xFF4facfe),
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF4facfe),
-                          width: 2,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
-                      contentPadding: const EdgeInsets.all(16),
-                    ),
-                    textInputAction: TextInputAction.done,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 16,
                   ),
-                ],
+                ),
+                textInputAction: TextInputAction.done,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.section),
 
             // Submit Button
             Obx(
@@ -618,13 +599,11 @@ class CutiPage extends StatelessWidget {
                 width: double.infinity,
                 height: 56,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-                  ),
+                  gradient: LinearGradient(colors: t.cutiAllGradient),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4facfe).withOpacity(0.3),
+                      color: t.shadowColor,
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -683,12 +662,14 @@ class CutiPage extends StatelessWidget {
   }
 
   // Tab 2: History Cuti
-  Widget _buildHistoryTab(CutiController controller) {
+  Widget _buildHistoryTab(BuildContext context, CutiController controller) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
     return Obx(() {
       if (controller.isLoadingHistory.value) {
-        return const Center(
+        return Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4facfe)),
+            valueColor: AlwaysStoppedAnimation<Color>(t.cutiAllGradient.first),
           ),
         );
       }
@@ -702,28 +683,28 @@ class CutiPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4facfe).withOpacity(0.1),
+                  color: t.cutiAllGradient.first.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.history,
                   size: 48,
-                  color: Color(0xFF4facfe),
+                  color: t.cutiAllGradient.first,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Belum ada riwayat cuti',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: t.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
               Text(
                 'Pengajuan cuti Anda akan muncul di sini',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 14, color: t.textSecondary),
               ),
             ],
           ),
@@ -745,11 +726,11 @@ class CutiPage extends StatelessWidget {
           return Container(
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: t.card,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: t.shadowColor,
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -770,13 +751,13 @@ class CutiPage extends StatelessWidget {
                           children: [
                             Text(
                               'Cuti ${dates.length} Hari',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: t.textPrimary,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.xs),
                             // Lock status indicator only
                             if (item['kunci_cuti'] ?? false)
                               Container(
@@ -785,10 +766,10 @@ class CutiPage extends StatelessWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.1),
+                                  color: t.warningBg,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.orange.withOpacity(0.3),
+                                    color: t.warningFg.withOpacity(0.3),
                                   ),
                                 ),
                                 child: Row(
@@ -797,7 +778,7 @@ class CutiPage extends StatelessWidget {
                                     Icon(
                                       Icons.lock,
                                       size: 12,
-                                      color: Colors.orange.shade700,
+                                      color: t.warningFg,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
@@ -805,7 +786,7 @@ class CutiPage extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.orange.shade700,
+                                        color: t.warningFg,
                                       ),
                                     ),
                                   ],
@@ -826,17 +807,17 @@ class CutiPage extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.blue.withOpacity(0.1),
+                                color: t.chipBg,
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.picture_as_pdf,
                                 size: 20,
-                                color: Colors.blue,
+                                color: t.chipFg,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.sm),
                           // Lock/Unlock button
                           InkWell(
                             onTap: () {
@@ -847,8 +828,8 @@ class CutiPage extends StatelessWidget {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: (item['kunci_cuti'] ?? false)
-                                    ? Colors.orange.withOpacity(0.1)
-                                    : Colors.green.withOpacity(0.1),
+                                    ? t.warningBg
+                                    : t.successBg,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Icon(
@@ -857,12 +838,12 @@ class CutiPage extends StatelessWidget {
                                     : Icons.lock_open,
                                 size: 20,
                                 color: (item['kunci_cuti'] ?? false)
-                                    ? Colors.orange
-                                    : Colors.green,
+                                    ? t.warningFg
+                                    : t.successFg,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.sm),
                           // Delete button (only show if not locked)
                           if (!(item['kunci_cuti'] ?? false))
                             InkWell(
@@ -873,13 +854,13 @@ class CutiPage extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.1),
+                                  color: t.dangerBg,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.delete_outline,
                                   size: 20,
-                                  color: Colors.red,
+                                  color: t.dangerFg,
                                 ),
                               ),
                             ),
@@ -887,7 +868,7 @@ class CutiPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Duration info
                   if (dates.isNotEmpty && dates.length > 1)
@@ -896,8 +877,8 @@ class CutiPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFF4facfe).withOpacity(0.1),
-                            const Color(0xFF4facfe).withOpacity(0.05),
+                            t.cutiAllGradient.first.withOpacity(0.1),
+                            t.cutiAllGradient.first.withOpacity(0.05),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -907,12 +888,12 @@ class CutiPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4facfe).withOpacity(0.2),
+                              color: t.cutiAllGradient.first.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.date_range,
-                              color: Color(0xFF4facfe),
+                              color: t.cutiAllGradient.first,
                               size: 16,
                             ),
                           ),
@@ -921,21 +902,21 @@ class CutiPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Periode Cuti:',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,
+                                    color: t.textSecondary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${dates.first} - ${dates.last}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
+                                    color: t.textPrimary,
                                   ),
                                 ),
                               ],
@@ -944,13 +925,13 @@ class CutiPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Info rows
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: theme.inputDecorationTheme.fillColor ?? t.surface,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -961,21 +942,21 @@ class CutiPage extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF4facfe).withOpacity(0.1),
+                                color: t.cutiAllGradient.first.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.schedule,
-                                color: Color(0xFF4facfe),
+                                color: t.cutiAllGradient.first,
                                 size: 14,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const Text(
+                            const SizedBox(width: AppSpacing.sm),
+                            Text(
                               'Tanggal Pengajuan:',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color: t.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -986,15 +967,15 @@ class CutiPage extends StatelessWidget {
                                       item['tanggal_pengajuan'],
                                     ).toString().split(' ')[0]
                                   : '-',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: t.textPrimary,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.lg),
                         // Reason
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1011,23 +992,23 @@ class CutiPage extends StatelessWidget {
                                 size: 14,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const Text(
+                            const SizedBox(width: AppSpacing.sm),
+                            Text(
                               'Alasan:',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color: t.textSecondary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
                                 item['alasan_cuti'] ?? '-',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                  color: t.textPrimary,
                                 ),
                                 textAlign: TextAlign.right,
                               ),
@@ -1040,16 +1021,16 @@ class CutiPage extends StatelessWidget {
 
                   // Individual dates
                   if (dates.length > 1) ...[
-                    const SizedBox(height: 12),
-                    const Text(
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
                       'Detail Tanggal:',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        color: t.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.sm),
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
@@ -1060,15 +1041,15 @@ class CutiPage extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF4facfe).withOpacity(0.1),
+                            color: t.cutiAllGradient.first.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             date,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF4facfe),
+                              color: t.cutiAllGradient.first,
                             ),
                           ),
                         );
@@ -1078,28 +1059,28 @@ class CutiPage extends StatelessWidget {
 
                   // Remaining leave days after this application
                   if (item['remaining_days'] != null) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.md),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4facfe).withOpacity(0.1),
+                        color: t.cutiAllGradient.first.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.info_outline,
                             size: 14,
-                            color: Color(0xFF4facfe),
+                            color: t.cutiAllGradient.first,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             'Sisa cuti setelah pengajuan: ${item['remaining_days']} hari',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF4facfe),
+                              color: t.cutiAllGradient.first,
                             ),
                           ),
                         ],

@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build APK + Web to docs (push)",
+      "label": "🚀 Build All (Android + Web) + Push",
       "type": "shell",
       "command": "powershell",
       "args": [
@@ -12,10 +12,78 @@
         "-Push"
       ],
       "group": { "kind": "build", "isDefault": true },
-      "problemMatcher": []
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
     },
     {
-      "label": "Build APK + Web to docs (no push)",
+      "label": "📱 Build Android APK Only",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tool\\build_android.ps1"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🌐 Build Web to docs Only",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tool\\build_web.ps1"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🧹 Build All (Clean + Push)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tool\\build_all.ps1",
+        "-BaseHref", "/mti_pontianak/",
+        "-Clean",
+        "-Push"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "📦 Build All (No Push)",
       "type": "shell",
       "command": "powershell",
       "args": [
@@ -24,7 +92,95 @@
         "-BaseHref", "/mti_pontianak/"
       ],
       "group": "build",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🚀 [BAT] Build All + Push",
+      "type": "shell",
+      "command": "${workspaceFolder}\\tool\\build_all.bat",
+      "args": ["--push"],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "📱 [BAT] Build Android Only",
+      "type": "shell",
+      "command": "${workspaceFolder}\\tool\\build_android.bat",
+      "args": [],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🌐 [BAT] Build Web Only",
+      "type": "shell",
+      "command": "${workspaceFolder}\\tool\\build_web.bat",
+      "args": [],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🧹 [BAT] Build All (Clean + Push)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\tool\\build_all.bat",
+      "args": ["--clean", "--push"],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "📦 [BAT] Build All (No Push)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\tool\\build_all.bat",
+      "args": [],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
     }
   ]
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -543,6 +544,18 @@ class PdfEksepsiController extends GetxController {
 
   Future<void> savePdfToDevice(Uint8List pdfBytes, String fileName) async {
     try {
+      // Di web, path_provider tidak didukung. Gunakan Printing.sharePdf
+      if (kIsWeb) {
+        await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
+        Get.snackbar(
+          'Berhasil',
+          'PDF diunduh melalui browser',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);
@@ -550,7 +563,7 @@ class PdfEksepsiController extends GetxController {
 
       Get.snackbar(
         'Berhasil',
-        'PDF berhasil disimpan di ${file.path}',
+        'PDF tersimpan di ${file.path}',
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
@@ -566,6 +579,12 @@ class PdfEksepsiController extends GetxController {
 
   Future<void> sharePdf(Uint8List pdfBytes, String fileName) async {
     try {
+      // Di web, langsung trigger download/share via Printing
+      if (kIsWeb) {
+        await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
+        return;
+      }
+
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);

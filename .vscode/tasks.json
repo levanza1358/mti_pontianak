@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build APK + Web to docs (push)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tool\\build_all.ps1",
+        "-BaseHref", "/mti_pontianak/",
+        "-Push"
+      ],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build APK + Web to docs (no push)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tool\\build_all.ps1",
+        "-BaseHref", "/mti_pontianak/"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}

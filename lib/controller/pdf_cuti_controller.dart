@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -188,7 +189,9 @@ class PdfCutiController extends GetxController {
       pw.ImageProvider? ttdImageProvider;
       final String recordTtdUrl = (cutiData['url_ttd'] ?? '').toString();
       final String controllerTtdUrl = cutiController.signatureUrl.value;
-      final String ttdUrl = recordTtdUrl.isNotEmpty ? recordTtdUrl : controllerTtdUrl;
+      final String ttdUrl = recordTtdUrl.isNotEmpty
+          ? recordTtdUrl
+          : controllerTtdUrl;
       final Uint8List? ttdBytes = cutiController.signatureData.value;
       if (ttdUrl.isNotEmpty) {
         try {
@@ -648,6 +651,18 @@ class PdfCutiController extends GetxController {
 
   Future<void> savePdfToDevice(Uint8List pdfBytes, String fileName) async {
     try {
+      // Di web, path_provider tidak tersedia. Gunakan Printing.sharePdf
+      if (kIsWeb) {
+        await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
+        Get.snackbar(
+          'Berhasil',
+          'PDF diunduh melalui browser',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);
@@ -655,7 +670,7 @@ class PdfCutiController extends GetxController {
 
       Get.snackbar(
         'Berhasil',
-        'PDF berhasil disimpan di ${file.path}',
+        'PDF tersimpan di ${file.path}',
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
@@ -671,6 +686,12 @@ class PdfCutiController extends GetxController {
 
   Future<void> sharePdf(Uint8List pdfBytes, String fileName) async {
     try {
+      // Di web, langsung gunakan Printing.sharePdf untuk memicu download/share
+      if (kIsWeb) {
+        await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
+        return;
+      }
+
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$fileName');
       await file.writeAsBytes(pdfBytes);

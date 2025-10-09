@@ -6,26 +6,41 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deploy even if no changes'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.4'
+        flutter-version: '3.24.5'
         channel: 'stable'
+        cache: true
         
     - name: Get Flutter dependencies
       run: flutter pub get
       
     - name: Analyze Flutter code
-      run: flutter analyze
+      run: flutter analyze --fatal-infos
       
     - name: Run Flutter tests
       run: flutter test
@@ -35,8 +50,12 @@ jobs:
       
     - name: Deploy to docs folder
       run: |
-        # Remove existing docs content (except .git related files)
-        find docs -mindepth 1 -not -path 'docs/.git*' -delete 2>/dev/null || true
+        # Create docs directory if it doesn't exist
+        mkdir -p docs
+        
+        # Remove existing docs content (cross-platform compatible)
+        rm -rf docs/*
+        rm -rf docs/.[!.]*
         
         # Copy build output to docs
         cp -r build/web/* docs/
@@ -45,15 +64,23 @@ jobs:
         touch docs/.nojekyll
         
     - name: Commit and push changes
+      env:
+        FORCE_DEPLOY: ${{ github.event.inputs.force_deploy }}
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        # Add all changes in docs folder
         git add docs/
         
-        # Check if there are changes to commit
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
+        # Check if there are changes to commit or force deploy is enabled
+        if git diff --staged --quiet && [ "$FORCE_DEPLOY" != "true" ]; then
+          echo "No changes to commit and force deploy is disabled"
         else
-          git commit -m "Auto-deploy: Update web build $(date +'%Y-%m-%d %H:%M:%S')"
-          git push
+          if [ "$FORCE_DEPLOY" = "true" ]; then
+            git commit -m "🚀 Force deploy: Update web build $(date +'%Y-%m-%d %H:%M:%S UTC')" || echo "Nothing to commit"
+          else
+            git commit -m "🚀 Auto-deploy: Update web build $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          fi
+          git push origin ${{ github.ref_name }}
         fi

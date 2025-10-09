@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mti_pontianak/theme/app_spacing.dart';
 import '../controller/login_controller.dart';
-import '../controller/update_checker_controller.dart';
 import '../controller/home_controller.dart';
 import 'settings_page.dart';
 import '../theme/app_tokens.dart';
@@ -135,12 +134,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LoginController authController = Get.find<LoginController>();
-    // Auto-check update once when Home is shown
-    try {
-      final update = Get.put(UpdateCheckerController(), permanent: true);
-      // Schedule microtask to avoid setState during build warnings
-      Future.microtask(() => update.checkOnHomeOnce());
-    } catch (_) {}
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
     final isDark = theme.brightness == Brightness.dark;
@@ -256,113 +249,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
 
-                // Settings and Logout Section
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.cardColor,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.shadowColor.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Logout ListTile
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.logout_rounded,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                        ),
-                        title: const Text(
-                          'Logout',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.red,
-                          ),
-                        ),
-                        subtitle: Text(
-                          'Keluar dari aplikasi',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: theme.textTheme.bodyMedium?.color,
-                          ),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 16,
-                          color: theme.textTheme.bodyMedium?.color?.withOpacity(
-                            0.6,
-                          ),
-                        ),
-                        onTap: () {
-                          Get.dialog(
-                            AlertDialog(
-                              backgroundColor: theme.dialogBackgroundColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              title: Text(
-                                'Logout',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.textTheme.titleLarge?.color,
-                                ),
-                              ),
-                              content: Text(
-                                'Apakah Anda yakin ingin logout?',
-                                style: TextStyle(
-                                  color: theme.textTheme.bodyMedium?.color,
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Get.back(),
-                                  child: Text(
-                                    'Batal',
-                                    style: TextStyle(
-                                      color: theme.textTheme.bodyMedium?.color
-                                          ?.withOpacity(0.7),
-                                    ),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Get.back();
-                                    authController.logout();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: const Text('Logout'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                // Logout removed from Home; accessible via Settings
 
                 // Dashboard Section
                 Padding(

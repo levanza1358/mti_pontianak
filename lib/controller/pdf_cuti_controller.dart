@@ -184,6 +184,22 @@ class PdfCutiController extends GetxController {
           ? listTanggalCuti.split(',').map((e) => e.trim()).toList()
           : <String>[];
 
+      // Prepare signature image (prefer URL stored on record, fallback to current controller state)
+      pw.ImageProvider? ttdImageProvider;
+      final String recordTtdUrl = (cutiData['url_ttd'] ?? '').toString();
+      final String controllerTtdUrl = cutiController.signatureUrl.value;
+      final String ttdUrl = recordTtdUrl.isNotEmpty ? recordTtdUrl : controllerTtdUrl;
+      final Uint8List? ttdBytes = cutiController.signatureData.value;
+      if (ttdUrl.isNotEmpty) {
+        try {
+          ttdImageProvider = await networkImage(ttdUrl);
+        } catch (_) {
+          ttdImageProvider = null;
+        }
+      } else if (ttdBytes != null) {
+        ttdImageProvider = pw.MemoryImage(ttdBytes);
+      }
+
       // Create PDF content
       pdf.addPage(
         pw.Page(
@@ -407,7 +423,17 @@ class PdfCutiController extends GetxController {
                           'Hormat Saya,',
                           style: pw.TextStyle(fontSize: 11),
                         ),
-                        pw.SizedBox(height: 50),
+                        pw.SizedBox(height: 8),
+                        if (ttdImageProvider != null)
+                          pw.Image(
+                            ttdImageProvider,
+                            width: 120,
+                            height: 60,
+                            fit: pw.BoxFit.contain,
+                          )
+                        else
+                          pw.SizedBox(height: 42),
+                        pw.SizedBox(height: 8),
                         pw.Column(
                           children: [
                             pw.Text(

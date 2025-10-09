@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:signature/signature.dart';
+import 'dart:typed_data';
 import 'package:table_calendar/table_calendar.dart';
 import '../services/supabase_service.dart';
 import 'login_controller.dart';
@@ -14,6 +16,12 @@ class CutiController extends GetxController
   // Controllers
   final alasanController = TextEditingController();
   late TabController tabController;
+
+  // Signature
+  late SignatureController signatureController;
+  final signatureData = Rx<Uint8List?>(null);
+  final signatureUrl = RxString('');
+  final hasSignature = false.obs;
 
   // Observable state variables
   final isLoading = false.obs;
@@ -37,6 +45,11 @@ class CutiController extends GetxController
   void onInit() {
     super.onInit();
     tabController = TabController(length: 2, vsync: this);
+    signatureController = SignatureController(
+      penStrokeWidth: 2,
+      penColor: Colors.black,
+      exportBackgroundColor: Colors.white,
+    );
     _initializeData();
   }
 
@@ -48,6 +61,7 @@ class CutiController extends GetxController
   @override
   void onClose() {
     alasanController.dispose();
+    signatureController.dispose();
     tabController.dispose();
     super.onClose();
   }
@@ -114,6 +128,17 @@ class CutiController extends GetxController
       return;
     }
 
+    if (!hasSignature.value || signatureUrl.isEmpty) {
+      Get.snackbar(
+        'Peringatan',
+        'Mohon buat tanda tangan terlebih dahulu',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
     final lamaCuti = selectedDates.length;
     if (lamaCuti > sisaCuti.value) {
       Get.snackbar(
@@ -143,6 +168,7 @@ class CutiController extends GetxController
         'alasan_cuti': alasanController.text.trim(),
         'lama_cuti': lamaCuti,
         'list_tanggal_cuti': tanggalCutiList,
+        'url_ttd': signatureUrl.value,
         'sisa_cuti': sisaCuti.value - lamaCuti,
         'tanggal_pengajuan': DateTime.now().toIso8601String(),
       };
@@ -185,6 +211,158 @@ class CutiController extends GetxController
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Signature helpers
+  void clearSignature() {
+    signatureController.clear();
+    signatureData.value = null;
+    hasSignature.value = false;
+    signatureUrl.value = '';
+  }
+
+  Future<void> saveSignature() async {
+    if (signatureController.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Tanda tangan masih kosong',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      final signature = await signatureController.toPngBytes();
+      if (signature != null) {
+        signatureData.value = signature;
+        hasSignature.value = true;
+        await uploadSignature();
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal menyimpan tanda tangan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> uploadSignature() async {
+    if (signatureData.value == null) return;
+
+    try {
+      isLoading.value = true;
+      final fileName = 'signature_${DateTime.now().millisecondsSinceEpoch}.png';
+      final bytes = signatureData.value!;
+
+      final response = await SupabaseService.instance.client.storage
+          .from('ttd_cuti')
+          .uploadBinary(fileName, bytes);
+
+      if (response.isNotEmpty) {
+        final String publicUrl = SupabaseService.instance.client.storage
+            .from('ttd_cuti')
+            .getPublicUrl(fileName);
+
+        signatureUrl.value = publicUrl;
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal upload tanda tangan: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void showSignatureDialog() {
+    Get.dialog(
+      Dialog(
+        insetPadding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.maxFinite,
+          height: Get.height * 0.7,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Tanda Tangan Digital',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Silakan buat tanda tangan Anda di area di bawah ini:',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Signature(
+                    controller: signatureController,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        clearSignature();
+                      },
+                      icon: const Icon(Icons.clear),
+                      label: const Text('Hapus'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (signatureController.isEmpty) {
+                          Get.snackbar(
+                            'Error',
+                            'Mohon buat tanda tangan terlebih dahulu',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                          return;
+                        }
+                        saveSignature();
+                        Get.back();
+                      },
+                      icon: const Icon(Icons.save),
+                      label: const Text('Simpan'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // Load cuti history for current user

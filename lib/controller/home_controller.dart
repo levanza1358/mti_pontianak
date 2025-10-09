@@ -112,17 +112,7 @@ class HomeController extends GetxController {
       );
       menus.add(const SizedBox(height: 8));
     }
-    menus.add(
-      menuCardBuilder(
-        context: context,
-        title: 'Update Aplikasi',
-        subtitle: 'Cek versi terbaru dan pasang update',
-        icon: Icons.system_update_rounded,
-        color: const Color(0xFF8360c3),
-        onTap: () => Get.toNamed('/update-checker'),
-      ),
-    );
-    menus.add(const SizedBox(height: AppSpacing.md));
+    // Update Checker dipindah ke Pengaturan; tidak ditampilkan di Home
     return menus;
   }
 }

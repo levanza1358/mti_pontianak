@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/surat_keluar_controller.dart';
 import 'package:intl/intl.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_tokens.dart';
 
 class SuratKeluarPage extends StatelessWidget {
   const SuratKeluarPage({super.key});
@@ -10,30 +12,28 @@ class SuratKeluarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final SuratKeluarController controller = Get.put(SuratKeluarController());
     final theme = Theme.of(context);
+    final tokens = theme.extension<AppTokens>()!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: tokens.bg,
       body: SafeArea(
         child: Column(
           children: [
             // Modern Header Section
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppSpacing.lg),
                 gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF60a5fa),
-                    const Color(0xFF60a5fa).withOpacity(0.8),
-                  ],
+                  colors: tokens.eksepsiGradient,
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF60a5fa).withOpacity(0.3),
+                    color: tokens.shadowColor,
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -49,7 +49,7 @@ class SuratKeluarPage extends StatelessWidget {
                         margin: const EdgeInsets.only(right: 16),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppSpacing.md),
                         ),
                         child: IconButton(
                           onPressed: () => Get.back(),
@@ -58,7 +58,7 @@ class SuratKeluarPage extends StatelessWidget {
                             color: Colors.white,
                             size: 20,
                           ),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(AppSpacing.md),
                         ),
                       ),
                       // Title Section
@@ -74,7 +74,7 @@ class SuratKeluarPage extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.xs),
                             Text(
                               'Kelola surat keluar perusahaan',
                               style: TextStyle(
@@ -88,10 +88,10 @@ class SuratKeluarPage extends StatelessWidget {
                       ),
                       // Mail Icon
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppSpacing.md),
                         ),
                         child: const Icon(
                           Icons.mail_rounded,
@@ -101,20 +101,20 @@ class SuratKeluarPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   // Tab Selection
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppSpacing.md),
                     ),
                     child: TabBar(
                       controller: controller.tabController,
                       indicator: BoxDecoration(
                         color: Colors.white.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppSpacing.md - 2),
                       ),
-                      indicatorPadding: const EdgeInsets.all(4),
+                      indicatorPadding: const EdgeInsets.all(AppSpacing.xs),
                       indicatorSize: TabBarIndicatorSize.tab,
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white.withOpacity(0.7),
@@ -158,7 +158,7 @@ class SuratKeluarPage extends StatelessWidget {
 
   Widget _buildFormTab(SuratKeluarController controller, ThemeData theme) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Form(
         key: controller.formKey,
         child: Column(
@@ -166,14 +166,14 @@ class SuratKeluarPage extends StatelessWidget {
           children: [
             // Form Info Card
             Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: theme.extension<AppTokens>()!.card,
+                borderRadius: BorderRadius.circular(AppSpacing.md),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: theme.extension<AppTokens>()!.shadowColor,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -182,22 +182,25 @@ class SuratKeluarPage extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF60a5fa).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: theme.extension<AppTokens>()!.chipBg,
+                      borderRadius: BorderRadius.circular(AppSpacing.sm),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.info_outline,
-                      color: Color(0xFF60a5fa),
+                      color: theme.extension<AppTokens>()!.chipFg,
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Expanded(
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
                     child: Text(
                       'Lengkapi semua informasi surat keluar dengan benar',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: theme.extension<AppTokens>()!.textSecondary,
+                      ),
                     ),
                   ),
                 ],
@@ -205,13 +208,13 @@ class SuratKeluarPage extends StatelessWidget {
             ),
             // Main Form Card
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                color: theme.extension<AppTokens>()!.card,
+                borderRadius: BorderRadius.circular(AppSpacing.lg),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: theme.extension<AppTokens>()!.shadowColor,
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -227,7 +230,7 @@ class SuratKeluarPage extends StatelessWidget {
                     validator: (value) =>
                         controller.validateRequired(value, 'Nama Perusahaan'),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   _buildModernTextField(
                     controller: controller.judulSuratController,
                     label: 'Judul Surat',
@@ -235,7 +238,7 @@ class SuratKeluarPage extends StatelessWidget {
                     validator: (value) =>
                         controller.validateRequired(value, 'Judul Surat'),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   _buildModernTextField(
                     controller: controller.deskripsiSuratController,
                     label: 'Deskripsi Surat',
@@ -244,13 +247,13 @@ class SuratKeluarPage extends StatelessWidget {
                     validator: (value) =>
                         controller.validateRequired(value, 'Deskripsi Surat'),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   _buildModernTextField(
                     controller: controller.nomorSuratController,
                     label: 'Nomor Surat (Optional)',
                     icon: Icons.numbers,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   _buildModernTextField(
                     controller: controller.tanggalKirimController,
                     label: 'Tanggal Kirim Surat',
@@ -276,20 +279,17 @@ class SuratKeluarPage extends StatelessWidget {
                       'Tanggal Kirim Surat',
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.section),
                   // Modern Signature Section
                   _buildSignatureSection(controller),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.section),
                   Obx(
                     () => Container(
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         gradient: LinearGradient(
-                          colors: [
-                            const Color(0xFF60a5fa),
-                            const Color(0xFF60a5fa).withOpacity(0.8),
-                          ],
+                          colors: theme.extension<AppTokens>()!.eksepsiGradient,
                         ),
                       ),
                       child: ElevatedButton(
@@ -300,7 +300,7 @@ class SuratKeluarPage extends StatelessWidget {
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppSpacing.md),
                           ),
                         ),
                         child: controller.isLoading.value
@@ -316,7 +316,7 @@ class SuratKeluarPage extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.save, color: Colors.white),
-                                  SizedBox(width: 8),
+                                  SizedBox(width: AppSpacing.sm),
                                   Text(
                                     'Simpan Surat',
                                     style: TextStyle(
@@ -342,8 +342,8 @@ class SuratKeluarPage extends StatelessWidget {
   Widget _buildHistoryTab(SuratKeluarController controller, ThemeData theme) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(
-          child: CircularProgressIndicator(color: Color(0xFF60a5fa)),
+        return Center(
+          child: CircularProgressIndicator(color: theme.colorScheme.primary),
         );
       }
 
@@ -355,13 +355,13 @@ class SuratKeluarPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: theme.extension<AppTokens>()!.surface,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   Icons.mail_outline,
                   size: 64,
-                  color: Colors.grey.shade400,
+                  color: theme.extension<AppTokens>()!.textMuted,
                 ),
               ),
               const SizedBox(height: 16),
@@ -369,14 +369,17 @@ class SuratKeluarPage extends StatelessWidget {
                 'Tidak ada data surat keluar',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey.shade600,
+                  color: theme.extension<AppTokens>()!.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Buat surat keluar pertama Anda',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: theme.extension<AppTokens>()!.textMuted,
+                ),
               ),
             ],
           ),
@@ -384,18 +387,18 @@ class SuratKeluarPage extends StatelessWidget {
       }
 
       return ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         itemCount: controller.suratKeluarList.length,
         itemBuilder: (context, index) {
           final surat = controller.suratKeluarList[index];
           return Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: AppSpacing.md),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              color: theme.extension<AppTokens>()!.card,
+              borderRadius: BorderRadius.circular(AppSpacing.lg),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: theme.extension<AppTokens>()!.shadowColor,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -405,61 +408,61 @@ class SuratKeluarPage extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => _showDetailDialog(context, surat, theme),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppSpacing.lg),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF60a5fa).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: theme.extension<AppTokens>()!.chipBg,
+                          borderRadius: BorderRadius.circular(AppSpacing.md),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.business,
-                          color: Color(0xFF60a5fa),
+                          color: theme.extension<AppTokens>()!.chipFg,
                           size: 24,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               surat['nama_perusahaan'] ?? '',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: theme.extension<AppTokens>()!.textPrimary,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.xs),
                             Text(
                               surat['judul_surat'] ?? '',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey[600],
+                                color: theme.extension<AppTokens>()!.textSecondary,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppSpacing.sm),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xs,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF60a5fa).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                color: theme.extension<AppTokens>()!.chipBg,
+                                borderRadius: BorderRadius.circular(AppSpacing.sm),
                               ),
                               child: Text(
                                 DateFormat(
                                   'dd/MM/yyyy',
                                 ).format(DateTime.parse(surat['created_at'])),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF60a5fa),
+                                  color: theme.extension<AppTokens>()!.chipFg,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -490,13 +493,17 @@ class SuratKeluarPage extends StatelessWidget {
   ) {
     Get.dialog(
       Dialog(
-        insetPadding: const EdgeInsets.all(16),
+        backgroundColor: theme.dialogBackgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.lg),
+        ),
+        insetPadding: const EdgeInsets.all(AppSpacing.lg),
         child: Container(
           width: double.maxFinite,
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -508,16 +515,20 @@ class SuratKeluarPage extends StatelessWidget {
                     'Detail Surat Keluar',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: theme.extension<AppTokens>()!.textPrimary,
                     ),
                   ),
                   IconButton(
                     onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(
+                      Icons.close,
+                      color: theme.extension<AppTokens>()!.textPrimary,
+                    ),
                   ),
                 ],
               ),
-              const Divider(),
-              const SizedBox(height: 16),
+              Divider(color: theme.extension<AppTokens>()!.borderSubtle),
+              const SizedBox(height: AppSpacing.lg),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -598,7 +609,7 @@ class SuratKeluarPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               ElevatedButton(
                 onPressed: () => Get.back(),
                 child: const Text('Tutup'),
@@ -618,17 +629,17 @@ class SuratKeluarPage extends StatelessWidget {
           label,
           style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.grey[700],
+            color: theme.extension<AppTokens>()!.textSecondary,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade200),
+            color: theme.extension<AppTokens>()!.card,
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            border: Border.all(color: theme.extension<AppTokens>()!.borderSubtle),
           ),
           child: Text(value, style: theme.textTheme.bodyMedium),
         ),
@@ -650,13 +661,13 @@ class SuratKeluarPage extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: Theme.of(Get.context!).extension<AppTokens>()!.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.sm),
         TextFormField(
           controller: controller,
           validator: validator,
@@ -664,24 +675,24 @@ class SuratKeluarPage extends StatelessWidget {
           readOnly: readOnly,
           onTap: onTap,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: const Color(0xFF60a5fa)),
+            prefixIcon: Icon(icon, color: Theme.of(Get.context!).colorScheme.primary),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: Theme.of(Get.context!).extension<AppTokens>()!.card,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade200),
+              borderRadius: BorderRadius.circular(AppSpacing.md),
+              borderSide: BorderSide(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade200),
+              borderRadius: BorderRadius.circular(AppSpacing.md),
+              borderSide: BorderSide(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF60a5fa), width: 2),
+              borderRadius: BorderRadius.circular(AppSpacing.md),
+              borderSide: BorderSide(color: Theme.of(Get.context!).colorScheme.primary, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.lg,
             ),
           ),
         ),
@@ -691,11 +702,11 @@ class SuratKeluarPage extends StatelessWidget {
 
   Widget _buildSignatureSection(SuratKeluarController controller) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        color: Theme.of(Get.context!).extension<AppTokens>()!.card,
+        borderRadius: BorderRadius.circular(AppSpacing.lg),
+        border: Border.all(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -706,24 +717,24 @@ class SuratKeluarPage extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF60a5fa).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: Theme.of(Get.context!).colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppSpacing.sm),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.gesture,
-                      color: Color(0xFF60a5fa),
+                      color: Theme.of(Get.context!).colorScheme.primary,
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
+                  const SizedBox(width: AppSpacing.md),
+                  Text(
                     'Tanda Tangan Digital',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Theme.of(Get.context!).extension<AppTokens>()!.textPrimary,
                     ),
                   ),
                 ],
@@ -732,26 +743,26 @@ class SuratKeluarPage extends StatelessWidget {
                 () => controller.hasSignature.value
                     ? Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(Get.context!).extension<AppTokens>()!.successBg,
+                          borderRadius: BorderRadius.circular(AppSpacing.sm),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.check_circle,
-                              color: Colors.green,
+                              color: Theme.of(Get.context!).extension<AppTokens>()!.successFg,
                               size: 16,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: AppSpacing.xs),
                             Text(
                               'Tersedia',
                               style: TextStyle(
-                                color: Colors.green,
+                                color: Theme.of(Get.context!).extension<AppTokens>()!.successFg,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -761,22 +772,26 @@ class SuratKeluarPage extends StatelessWidget {
                       )
                     : Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(Get.context!).extension<AppTokens>()!.warningBg,
+                          borderRadius: BorderRadius.circular(AppSpacing.sm),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.pending, color: Colors.orange, size: 16),
-                            SizedBox(width: 4),
+                            Icon(
+                              Icons.pending,
+                              color: Theme.of(Get.context!).extension<AppTokens>()!.warningFg,
+                              size: 16,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
                             Text(
                               'Belum ada',
                               style: TextStyle(
-                                color: Colors.orange,
+                                color: Theme.of(Get.context!).extension<AppTokens>()!.warningFg,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -787,18 +802,18 @@ class SuratKeluarPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Obx(() {
             if (controller.signatureData.value != null) {
               return Container(
                 height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(Get.context!).extension<AppTokens>()!.card,
+                  border: Border.all(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+                  borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSpacing.md),
                   child: Image.memory(
                     controller.signatureData.value!,
                     fit: BoxFit.contain,
@@ -809,19 +824,26 @@ class SuratKeluarPage extends StatelessWidget {
               return Container(
                 height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(Get.context!).extension<AppTokens>()!.card,
+                  border: Border.all(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+                  borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.touch_app, size: 48, color: Colors.grey),
-                      SizedBox(height: 8),
+                      Icon(
+                        Icons.touch_app,
+                        size: 48,
+                        color: Theme.of(Get.context!).extension<AppTokens>()!.textSecondary,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Belum ada tanda tangan',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                        style: TextStyle(
+                          color: Theme.of(Get.context!).extension<AppTokens>()!.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -829,7 +851,7 @@ class SuratKeluarPage extends StatelessWidget {
               );
             }
           }),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
               Expanded(
@@ -838,25 +860,25 @@ class SuratKeluarPage extends StatelessWidget {
                   icon: const Icon(Icons.clear),
                   label: const Text('Hapus'),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppSpacing.md),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: controller.showSignatureDialog,
                   icon: const Icon(Icons.edit),
                   label: const Text('Buat TTD'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF60a5fa),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Theme.of(Get.context!).colorScheme.primary,
+                    foregroundColor: Theme.of(Get.context!).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(AppSpacing.md),
                     ),
                   ),
                 ),

@@ -593,6 +593,210 @@ class CutiPage extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.section),
 
+            // Signature Section
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: t.card,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: t.shadowColor,
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4facfe).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.gesture,
+                              color: Color(0xFF4facfe),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            'Tanda Tangan Digital',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: t.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Obx(
+                        () => controller.hasSignature.value
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: t.successBg,
+                                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: t.successFg,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    Text(
+                                      'Tersedia',
+                                      style: TextStyle(
+                                        color: t.successFg,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: t.warningBg,
+                                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.pending,
+                                      color: t.warningFg,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    Text(
+                                      'Belum ada',
+                                      style: TextStyle(
+                                        color: t.warningFg,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Obx(() {
+                    final data = controller.signatureData.value;
+                    if (data != null) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: t.card,
+                          borderRadius: BorderRadius.circular(AppSpacing.sm),
+                          border: Border.all(color: t.borderSubtle),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.memory(
+                              data,
+                              height: 120,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              'Preview tanda tangan',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: t.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: t.card,
+                        borderRadius: BorderRadius.circular(AppSpacing.sm),
+                        border: Border.all(color: t.borderSubtle),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.border_color,
+                            color: t.textSecondary,
+                            size: 28,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            'Belum ada tanda tangan',
+                            style: TextStyle(
+                              color: t.textSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: controller.clearSignature,
+                          icon: const Icon(Icons.clear),
+                          label: const Text('Hapus'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.md),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: controller.showSignatureDialog,
+                          icon: const Icon(Icons.edit),
+                          label: const Text('Buat TTD'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.md),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
             // Submit Button
             Obx(
               () => Container(
@@ -800,7 +1004,40 @@ class CutiPage extends StatelessWidget {
                         children: [
                           // PDF button
                           InkWell(
-                            onTap: () {
+                            onTap: () async {
+                              final isLocked = item['kunci_cuti'] ?? false;
+
+                              // Jika sudah terkunci, langsung buka PDF tanpa dialog
+                              if (isLocked) {
+                                Get.to(() => PdfCutiPage(cutiData: item));
+                                return;
+                              }
+
+                              // Jika belum terkunci, tampilkan konfirmasi
+                              final confirmed = await Get.dialog<bool>(
+                                    AlertDialog(
+                                      title: const Text('Konfirmasi'),
+                                      content: const Text(
+                                        'Apakah pengajuan cuti ini sudah benar?\nSetelah dikunci, data tidak dapat dihapus.',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Get.back(result: false),
+                                          child: const Text('Batal'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () => Get.back(result: true),
+                                          child: const Text('Ya, lanjut'),
+                                        ),
+                                      ],
+                                    ),
+                                  ) ??
+                                  false;
+
+                              if (!confirmed) return;
+
+                              await controller.toggleKunciCuti(item);
+
                               Get.to(() => PdfCutiPage(cutiData: item));
                             },
                             borderRadius: BorderRadius.circular(20),
@@ -818,31 +1055,6 @@ class CutiPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: AppSpacing.sm),
-                          // Lock/Unlock button
-                          InkWell(
-                            onTap: () {
-                              controller.showLockConfirmation(item);
-                            },
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: (item['kunci_cuti'] ?? false)
-                                    ? t.warningBg
-                                    : t.successBg,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Icon(
-                                (item['kunci_cuti'] ?? false)
-                                    ? Icons.lock
-                                    : Icons.lock_open,
-                                size: 20,
-                                color: (item['kunci_cuti'] ?? false)
-                                    ? t.warningFg
-                                    : t.successFg,
-                              ),
-                            ),
-                          ),
                           const SizedBox(width: AppSpacing.sm),
                           // Delete button (only show if not locked)
                           if (!(item['kunci_cuti'] ?? false))

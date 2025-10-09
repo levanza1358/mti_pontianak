@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import '../theme/app_palette.dart';
+import '../theme/app_tokens.dart';
 import '../controller/update_checker_controller.dart';
 
 class UpdateCheckerPage extends StatelessWidget {
@@ -10,12 +10,14 @@ class UpdateCheckerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.put(UpdateCheckerController());
-    const primaryGradient = AppPalette.updateGradient;
-    const softText = Color(0xFF718096);
-    const strongText = Color(0xFF2D3748);
+    final theme = Theme.of(context);
+    final tokens = theme.extension<AppTokens>()!;
+    final primaryGradient = tokens.updateGradient;
+    final softText = tokens.textSecondary;
+    final strongText = tokens.textPrimary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: tokens.bg,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -31,14 +33,14 @@ class UpdateCheckerPage extends StatelessWidget {
                 // Header gradient card (match examples)
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: primaryGradient,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    boxShadow: [
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    boxShadow: const [
                       BoxShadow(
                         color: Color(0x33000000),
                         blurRadius: 12,
@@ -101,7 +103,7 @@ class UpdateCheckerPage extends StatelessWidget {
                       children: [
                         _infoCard(
                           icon: Icons.phone_android_rounded,
-                          iconColor: const Color(0xFF3182CE),
+                          iconColor: theme.colorScheme.primary,
                           title: 'Versi Saat Ini',
                           value: c.currentVersion.value,
                           softText: softText,
@@ -110,7 +112,7 @@ class UpdateCheckerPage extends StatelessWidget {
                         const SizedBox(height: 12),
                         _infoCard(
                           icon: Icons.cloud_download_rounded,
-                          iconColor: const Color(0xFF38A169),
+                          iconColor: tokens.successFg,
                           title: 'Versi Terbaru',
                           value: c.latestVersion.value.isEmpty
                               ? '-'
@@ -122,13 +124,13 @@ class UpdateCheckerPage extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFDEF7EC),
+                                    color: tokens.successBg,
                                     borderRadius: BorderRadius.circular(999),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Tersedia',
                                     style: TextStyle(
-                                      color: Color(0xFF046C4E),
+                                      color: tokens.successFg,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 12,
                                     ),
@@ -196,7 +198,6 @@ class UpdateCheckerPage extends StatelessWidget {
                                       : 'Unduh & Pasang',
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF22c55e),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -220,7 +221,7 @@ class UpdateCheckerPage extends StatelessWidget {
                                       const SizedBox(height: 6),
                                       Text(
                                         'Progress: ${c.progressText.value}',
-                                        style: const TextStyle(fontSize: 12),
+                                        style: TextStyle(fontSize: 12, color: softText),
                                       ),
                                     ],
                                   ),
@@ -232,7 +233,7 @@ class UpdateCheckerPage extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 12),
                             child: Text(
                               'Error: ${c.errorText.value}',
-                              style: const TextStyle(color: Colors.red),
+                              style: TextStyle(color: tokens.dangerFg),
                             ),
                           ),
                       ],
@@ -258,7 +259,7 @@ class UpdateCheckerPage extends StatelessWidget {
   }) {
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(Get.context!).extension<AppTokens>()!.card,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -312,7 +313,7 @@ class UpdateCheckerPage extends StatelessWidget {
   }) {
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(Get.context!).extension<AppTokens>()!.card,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -325,24 +326,24 @@ class UpdateCheckerPage extends StatelessWidget {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEEBC8),
+                    color: Theme.of(Get.context!).extension<AppTokens>()!.warningBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child:
-                      const Icon(Icons.new_releases_rounded, color: Color(0xFFDD6B20)),
+                  child: Icon(Icons.new_releases_rounded,
+                      color: Theme.of(Get.context!).extension<AppTokens>()!.warningFg),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Rilis Terbaru',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF718096)),
+                    style: TextStyle(fontSize: 13, color: softText),
                   ),
                 ),
                 if (onOpenRelease != null)
                   TextButton.icon(
                     onPressed: onOpenRelease,
                     style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFF3182CE),
+                      foregroundColor: Theme.of(Get.context!).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     ),
                     icon: const Icon(Icons.open_in_new_rounded, size: 18),
@@ -363,13 +364,13 @@ class UpdateCheckerPage extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFFF7FAFC),
+                color: Theme.of(Get.context!).extension<AppTokens>()!.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(12),
               child: SelectableText(
                 notes.isEmpty ? 'Belum ada catatan rilis.' : notes,
-                style: const TextStyle(fontSize: 13, color: Color(0xFF4A5568), height: 1.35),
+                style: TextStyle(fontSize: 13, color: softText, height: 1.35),
               ),
             ),
           ],

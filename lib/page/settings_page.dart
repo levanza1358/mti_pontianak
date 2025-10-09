@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/theme_controller.dart';
-import '../theme/app_palette.dart';
+import '../theme/app_tokens.dart';
 import '../theme/app_spacing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../controller/login_controller.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -34,82 +35,85 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryGradient = AppPalette.homeGradient;
     final themeC = Get.find<ThemeController>();
+    final LoginController authController = Get.find<LoginController>();
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // Header gradient card
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: primaryGradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            // Header in Card style (no AppBar)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Card(
+                elevation: isDark ? 0 : 8,
+                shadowColor:
+                    isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: t.borderSubtle),
                 ),
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 12,
-                    offset: Offset(0, 6),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: isDark ? t.insentifGradient : t.homeGradient,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.25),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.md,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.onPrimary.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: theme.colorScheme.onPrimary.withOpacity(0.25),
+                          ),
+                        ),
+                        child: IconButton(
+                          onPressed: () => Get.back(),
+                          icon: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: theme.colorScheme.onPrimary,
+                          ),
                         ),
                       ),
-                      child: IconButton(
-                        onPressed: () => Get.back(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new,
-                          color: Colors.white,
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Pengaturan',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Tema & Pembaruan Aplikasi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.colorScheme.onPrimary.withOpacity(0.85),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Pengaturan',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 3),
-                          Text(
-                            'Tema & Pembaruan Aplikasi',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    CircleAvatar(
-                      backgroundColor: Colors.white54,
-                      radius: 18,
-                      child: const Icon(Icons.settings, color: Colors.white),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -121,16 +125,42 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Theme section
+                    // Theme section (Card style)
                     Card(
+                      elevation: isDark ? 0 : 3,
+                      shadowColor:
+                          isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
+                      color: t.card,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: t.borderSubtle),
+                      ),
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 6, bottom: 6),
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                         child: Obx(() {
                           final selected = themeC.mode.value;
+                          final accent = t.insentifGradient.first;
                           return Column(
                             children: [
                               ListTile(
-                                leading: const Icon(Icons.brightness_6_rounded),
+                                leading: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        t.insentifGradient.first.withOpacity(0.15),
+                                        t.insentifGradient.last.withOpacity(0.15),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.brightness_6_rounded,
+                                    color: accent,
+                                  ),
+                                ),
                                 title: const Text('Tema'),
                                 subtitle: Text(
                                   _labelForMode(selected),
@@ -139,28 +169,66 @@ class _SettingsPageState extends State<SettingsPage> {
                                   ).listTileTheme.subtitleTextStyle,
                                 ),
                               ),
-                              const Divider(height: 1),
-                              RadioListTile<ThemeMode>(
-                                value: ThemeMode.system,
-                                groupValue: selected,
-                                onChanged: (v) =>
-                                    themeC.setMode(v ?? ThemeMode.system),
-                                title: const Text('Ikuti Sistem'),
+                              Divider(height: 1, color: t.borderSubtle),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  ChoiceChip(
+                                    label: const Text('Ikuti Sistem'),
+                                    selected: selected == ThemeMode.system,
+                                    onSelected: (_) =>
+                                        themeC.setMode(ThemeMode.system),
+                                    selectedColor: accent,
+                                    labelStyle: TextStyle(
+                                      color: selected == ThemeMode.system
+                                          ? Colors.white
+                                          : theme.textTheme.bodyMedium?.color,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    backgroundColor: isDark ? t.surface : t.card,
+                                    shape: StadiumBorder(
+                                      side: BorderSide(color: t.borderSubtle),
+                                    ),
+                                  ),
+                                  ChoiceChip(
+                                    label: const Text('Terang'),
+                                    selected: selected == ThemeMode.light,
+                                    onSelected: (_) =>
+                                        themeC.setMode(ThemeMode.light),
+                                    selectedColor: accent,
+                                    labelStyle: TextStyle(
+                                      color: selected == ThemeMode.light
+                                          ? Colors.white
+                                          : theme.textTheme.bodyMedium?.color,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    backgroundColor: isDark ? t.surface : t.card,
+                                    shape: StadiumBorder(
+                                      side: BorderSide(color: t.borderSubtle),
+                                    ),
+                                  ),
+                                  ChoiceChip(
+                                    label: const Text('Gelap'),
+                                    selected: selected == ThemeMode.dark,
+                                    onSelected: (_) =>
+                                        themeC.setMode(ThemeMode.dark),
+                                    selectedColor: accent,
+                                    labelStyle: TextStyle(
+                                      color: selected == ThemeMode.dark
+                                          ? Colors.white
+                                          : theme.textTheme.bodyMedium?.color,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    backgroundColor: isDark ? t.surface : t.card,
+                                    shape: StadiumBorder(
+                                      side: BorderSide(color: t.borderSubtle),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              RadioListTile<ThemeMode>(
-                                value: ThemeMode.light,
-                                groupValue: selected,
-                                onChanged: (v) =>
-                                    themeC.setMode(v ?? ThemeMode.light),
-                                title: const Text('Terang'),
-                              ),
-                              RadioListTile<ThemeMode>(
-                                value: ThemeMode.dark,
-                                groupValue: selected,
-                                onChanged: (v) =>
-                                    themeC.setMode(v ?? ThemeMode.dark),
-                                title: const Text('Gelap'),
-                              ),
+                              const SizedBox(height: 8),
                             ],
                           );
                         }),
@@ -169,12 +237,39 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     const SizedBox(height: AppSpacing.lg),
 
-                    // App section
+                    // App & Account section (Card style)
                     Card(
+                      elevation: isDark ? 0 : 3,
+                      shadowColor:
+                          isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
+                      color: t.card,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: t.borderSubtle),
+                      ),
                       child: Column(
                         children: [
                           ListTile(
-                            leading: const Icon(Icons.system_update_rounded),
+                            leading: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    t.updateGradient.first.withOpacity(0.15),
+                                    t.updateGradient.last.withOpacity(0.15),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: t.borderSubtle),
+                              ),
+                              child: Icon(
+                                Icons.system_update_rounded,
+                                color: t.updateGradient.first,
+                                size: 20,
+                              ),
+                            ),
                             title: const Text('Update Aplikasi'),
                             subtitle: const Text(
                               'Cek versi terbaru dan pasang pembaruan',
@@ -187,23 +282,105 @@ class _SettingsPageState extends State<SettingsPage> {
                                       vertical: 6,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary.withOpacity(0.1),
+                                      color: t.updateGradient.first
+                                          .withOpacity(0.12),
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     child: Text(
                                       'v$_version',
                                       style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
+                                        color: t.updateGradient.first,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12,
                                       ),
                                     ),
                                   ),
                             onTap: () => Get.toNamed('/update-checker'),
+                          ),
+                          Divider(height: 1, color: t.borderSubtle),
+                          ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: t.borderSubtle),
+                              ),
+                              child: const Icon(
+                                Icons.logout_rounded,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                            ),
+                            title: const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Keluar dari aplikasi',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.textTheme.bodyMedium?.color,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 16,
+                              color:
+                                  theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                            ),
+                            onTap: () {
+                              Get.dialog(
+                                AlertDialog(
+                                  backgroundColor: theme.dialogBackgroundColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: Text(
+                                    'Logout',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.textTheme.titleLarge?.color,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    'Apakah Anda yakin ingin logout?',
+                                    style: TextStyle(
+                                      color: theme.textTheme.bodyMedium?.color,
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Get.back(),
+                                      child: Text(
+                                        'Batal',
+                                        style: TextStyle(
+                                          color: theme.textTheme.bodyMedium?.color
+                                              ?.withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Get.back();
+                                        authController.logout();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text('Logout'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

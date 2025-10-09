@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/semua_data_eksepsi_controller.dart';
-import '../theme/app_palette.dart';
+import '../theme/app_tokens.dart';
 
 class SemuaDataEksepsiPage extends StatelessWidget {
   const SemuaDataEksepsiPage({super.key});
@@ -9,15 +9,19 @@ class SemuaDataEksepsiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SemuaDataEksepsiController());
-
-    const primaryGradient = AppPalette.eksepsiAllGradient;
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
+    final accentGradient = t.eksepsiGradient;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: primaryGradient.map((c) => c.withOpacity(0.08)).toList(),
+            colors: accentGradient
+                .map((c) => c.withOpacity(isDark ? 0.08 : 0.14))
+                .toList(),
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -28,18 +32,18 @@ class SemuaDataEksepsiPage extends StatelessWidget {
               // Header as gradient card (like Home)
               Container(
                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: primaryGradient,
+                    colors: accentGradient,
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0x40667eea),
+                      color: t.shadowColor,
                       blurRadius: 12,
-                      offset: Offset(0, 6),
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
@@ -97,8 +101,10 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Obx(() {
                     if (controller.isLoadingList.value) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: Color(0xFF667eea)),
+                      return Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(accentGradient.first),
+                        ),
                       );
                     }
 
@@ -106,28 +112,28 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.all(28),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: t.card,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: t.shadowColor,
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.schedule, color: Color(0xFF667eea), size: 48),
-                              SizedBox(height: 12),
+                              Icon(Icons.schedule, color: accentGradient.first, size: 48),
+                              const SizedBox(height: 12),
                               Text(
                                 'Belum ada data eksepsi',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: t.textPrimary),
                               ),
-                              SizedBox(height: 6),
-                              Text('Data eksepsi akan tampil di sini'),
+                              const SizedBox(height: 6),
+                              Text('Data eksepsi akan tampil di sini', style: TextStyle(color: t.textSecondary)),
                             ],
                           ),
                         ),
@@ -156,11 +162,11 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: t.card,
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
+                                  color: t.shadowColor,
                                   blurRadius: 20,
                                   offset: const Offset(0, 4),
                                 ),
@@ -172,8 +178,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                               leading: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: primaryGradient,
+                                  gradient: LinearGradient(
+                                    colors: accentGradient,
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
@@ -183,10 +189,10 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                               ),
                               title: Text(
                                 titleText,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF2D3748),
+                                  color: t.textPrimary,
                                 ),
                               ),
                               subtitle: Column(
@@ -195,12 +201,12 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   const SizedBox(height: 6),
                                   Row(
                                     children: [
-                                      const Icon(Icons.badge, size: 14, color: Color(0xFF718096)),
+                                      Icon(Icons.badge, size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           jenis,
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
+                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
                                         ),
                                       ),
                                     ],
@@ -208,12 +214,12 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.schedule_outlined, size: 14, color: Color(0xFF718096)),
+                                      Icon(Icons.schedule_outlined, size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           tanggalPengajuan.toString(),
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
+                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
                                         ),
                                       ),
                                     ],
@@ -222,12 +228,12 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.calendar_today, size: 14, color: Color(0xFF718096)),
+                                      Icon(Icons.calendar_today, size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           tanggalList.isEmpty ? '-' : tanggalList.replaceAll(',', ', '),
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
+                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
                                         ),
                                       ),
                                     ],
@@ -235,11 +241,11 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.timelapse, size: 14, color: Color(0xFF718096)),
+                                      Icon(Icons.timelapse, size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Text(
                                         '$jumlahHari hari',
-                                        style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
+                                        style: TextStyle(fontSize: 12, color: t.textSecondary),
                                       ),
                                     ],
                                   ),
@@ -247,12 +253,12 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.notes, size: 14, color: Color(0xFF718096)),
+                                      Icon(Icons.notes, size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           alasan.isEmpty ? '-' : alasan,
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
+                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
                                         ),
                                       ),
                                     ],

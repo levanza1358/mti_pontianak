@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/app_tokens.dart';
 
 class UpdateCheckerController extends GetxController {
   final isChecking = false.obs;
@@ -96,21 +97,23 @@ class UpdateCheckerController extends GetxController {
       );
 
       if (!isUpdateAvailable.value) {
+        final tokens = Get.theme.extension<AppTokens>()!;
         Get.snackbar(
           'Up to date',
           'Aplikasi sudah versi terbaru',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+          backgroundColor: tokens.successBg,
+          colorText: tokens.successFg,
           snackPosition: SnackPosition.TOP,
         );
       }
     } catch (e) {
       errorText.value = e.toString();
+      final tokens = Get.theme.extension<AppTokens>()!;
       Get.snackbar(
         'Error',
         'Gagal memeriksa pembaruan: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: tokens.dangerBg,
+        colorText: tokens.dangerFg,
         snackPosition: SnackPosition.TOP,
       );
     } finally {
@@ -139,12 +142,12 @@ class UpdateCheckerController extends GetxController {
             Text('Versi saat ini: ${currentVersion.value.isEmpty ? '-' : currentVersion.value}'),
             Text('Versi terbaru: ${latestVersion.value.isEmpty ? '-' : latestVersion.value}'),
             const SizedBox(height: 8),
-            const Text('Catatan rilis:'),
+            Text('Catatan rilis:', style: TextStyle(color: Get.theme.extension<AppTokens>()!.textSecondary)),
             const SizedBox(height: 4),
             SingleChildScrollView(
               child: Text(
                 releaseNotes.value.isEmpty ? '-' : releaseNotes.value,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF4A5568)),
+                style: TextStyle(fontSize: 12, color: Get.theme.extension<AppTokens>()!.textSecondary),
               ),
             ),
           ],
@@ -275,11 +278,12 @@ class UpdateCheckerController extends GetxController {
       }
     } catch (e) {
       errorText.value = e.toString();
+      final tokens = Get.theme.extension<AppTokens>()!;
       Get.snackbar(
         'Error',
         'Gagal mengunduh/memasang pembaruan: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: tokens.dangerBg,
+        colorText: tokens.dangerFg,
         snackPosition: SnackPosition.TOP,
       );
     } finally {

@@ -122,77 +122,89 @@ class _SlotDemoPageState extends State<SlotDemoPage>
                 ),
                 const SizedBox(height: 16),
 
-                // Grid Slot
-                SizedBox(
-                  height: 360,
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: SlotDemoController.cols,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                    ),
-                    itemCount:
-                        SlotDemoController.rows * SlotDemoController.cols,
-                    itemBuilder: (context, index) {
-                      final r = index ~/ SlotDemoController.cols;
-                      final c = index % SlotDemoController.cols;
+                // Grid Slot - Dibuat tetap 6 kolom dan terpusat
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 450),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            SlotDemoController.cols, // FIX: Selalu 6 kolom
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 1.0, // Membuat item menjadi kotak
+                      ),
+                      itemCount:
+                          SlotDemoController.rows * SlotDemoController.cols,
+                      itemBuilder: (context, index) {
+                        final r = index ~/ SlotDemoController.cols;
+                        final c = index % SlotDemoController.cols;
 
-                      // Mengakses state grid dari controller
-                      final sym = _c.grid.value[r][c];
-                      // Mengakses state matched dari controller
-                      final isMatch = !isSpinning && _c.matched.value[r][c];
+                        // Mengakses state grid dari controller
+                        final sym = _c.grid.value[r][c];
+                        // Mengakses state matched dari controller
+                        final isMatch = !isSpinning && _c.matched.value[r][c];
 
-                      final bgColor = isMatch
-                          ? Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.18)
-                          : (isDark ? t.surface : t.elevatedCard);
-                      final borderColor = isMatch
-                          ? Theme.of(context).colorScheme.primary
-                          : t.borderSubtle;
+                        final bgColor = isMatch
+                            ? Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.18)
+                            : (isDark ? t.surface : t.elevatedCard);
+                        final borderColor = isMatch
+                            ? Theme.of(context).colorScheme.primary
+                            : t.borderSubtle;
 
-                      return AnimatedScale(
-                        duration: const Duration(milliseconds: 150),
-                        scale: isMatch ? 1.06 : 1.0,
-                        curve: Curves.easeOut,
-                        child: AnimatedContainer(
+                        return AnimatedScale(
                           duration: const Duration(milliseconds: 150),
+                          scale: isMatch ? 1.06 : 1.0,
                           curve: Curves.easeOut,
-                          decoration: BoxDecoration(
-                            color: bgColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                                color: borderColor, width: isMatch ? 2 : 1),
-                            boxShadow: [
-                              BoxShadow(
-                                color: t.shadowColor.withOpacity(0.08),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            curve: Curves.easeOut,
+                            decoration: BoxDecoration(
+                              color: bgColor,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: borderColor, width: isMatch ? 2 : 1),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: t.shadowColor.withOpacity(0.08),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              sym,
+                              style: const TextStyle(fontSize: 28),
+                            ),
                           ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            sym,
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
                 // Spin Button
-                ElevatedButton.icon(
-                  // Memanggil metode spin dari controller (butuh minimal 2 koin)
-                  onPressed: (isSpinning || coins < 2) ? null : _c.spin,
-                  icon: const Icon(Icons.casino_rounded),
-                  label: Text(isSpinning ? 'Memutar...' : 'Putar'),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 300),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                      ),
+                      // Memanggil metode spin dari controller (butuh minimal 2 koin)
+                      onPressed: (isSpinning || coins < 2) ? null : _c.spin,
+                      icon: const Icon(Icons.casino_rounded),
+                      label: Text(isSpinning ? 'Memutar...' : 'Putar'),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -426,7 +438,7 @@ class _SlotDemoPageState extends State<SlotDemoPage>
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Column(
                   children: [
                     // Tab pindah ke header; hapus segmented Tab container agar tampilan lebih ramping

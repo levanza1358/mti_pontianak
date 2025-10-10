@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 import '../services/supabase_service.dart';
 import '../controller/login_controller.dart';
-import 'package:flutter/material.dart'; // Untuk Snackbar Colors
+// Untuk Snackbar Colors
 
 class SlotDemoController extends GetxController {
   // Dependencies
@@ -15,8 +15,16 @@ class SlotDemoController extends GetxController {
 
   // 10 simbol (7 simbol + 3 angka agar lebih sulit)
   final List<String> symbols = [
-    '🍒', '🍋', '🍇', '🔔', '⭐', '💎', '7️⃣',
-    '1', '5', '8',
+    '🍒',
+    '🍋',
+    '🍇',
+    '🔔',
+    '⭐',
+    '💎',
+    '7️⃣',
+    '1',
+    '5',
+    '8',
   ];
 
   // Bobot & nilai simbol (base)
@@ -63,7 +71,8 @@ class SlotDemoController extends GetxController {
   final isLoadingLeaderboard = false.obs;
   final leaderboard = <Map<String, dynamic>>[].obs;
   // Hasil terakhir (untuk label Menang/Kalah di UI)
-  final lastOutcomeLabel = ''.obs; // contoh: "Menang +3" atau "Kalah" atau "Koin habis"
+  final lastOutcomeLabel =
+      ''.obs; // contoh: "Menang +3" atau "Kalah" atau "Koin habis"
   final lastOutcomeIsWin = false.obs;
 
   @override

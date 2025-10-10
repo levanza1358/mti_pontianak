@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../theme/app_tokens.dart';
@@ -87,15 +89,13 @@ class _SlotDemoPageState extends State<SlotDemoPage>
                                   .withOpacity(0.12),
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color:
-                                    outcomeIsWin ? Colors.green : Colors.red,
+                                color: outcomeIsWin ? Colors.green : Colors.red,
                               ),
                             ),
                             child: Text(
                               outcomeText,
                               style: TextStyle(
-                                color:
-                                    outcomeIsWin ? Colors.green : Colors.red,
+                                color: outcomeIsWin ? Colors.green : Colors.red,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -338,11 +338,12 @@ class _SlotDemoPageState extends State<SlotDemoPage>
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.onPrimary.withOpacity(0.18),
+                              color:
+                                  theme.colorScheme.onPrimary.withOpacity(0.18),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color:
-                                    theme.colorScheme.onPrimary.withOpacity(0.25),
+                                color: theme.colorScheme.onPrimary
+                                    .withOpacity(0.25),
                               ),
                             ),
                             child: IconButton(
@@ -387,7 +388,8 @@ class _SlotDemoPageState extends State<SlotDemoPage>
                           color: theme.colorScheme.onPrimary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: theme.colorScheme.onPrimary.withOpacity(0.15),
+                            color:
+                                theme.colorScheme.onPrimary.withOpacity(0.15),
                           ),
                         ),
                         child: TabBar(

@@ -38,6 +38,11 @@ jobs:
         
     - name: Get Flutter dependencies
       run: flutter pub get
+    
+    - name: Sync web/version.json from pubspec
+      run: |
+        dart --version
+        dart run tool/sync_version.dart
       
     - name: Analyze Flutter code
       run: flutter analyze --no-fatal-infos

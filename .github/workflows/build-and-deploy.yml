@@ -2,9 +2,12 @@ name: Build and Deploy Flutter Web
 
 on:
   push:
-    branches: [ main, master ]
+    # Jalankan di semua branch; hindari loop saat hanya mengubah folder docs
+    paths-ignore:
+      - 'docs/**'
   pull_request:
-    branches: [ main, master ]
+    # Jalankan di semua PR
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       force_deploy:

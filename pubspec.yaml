@@ -63,6 +63,8 @@ dependencies:
   dio: ^5.7.0
   open_filex: ^4.4.0
   intl: ^0.20.2
+  file_picker: ^8.0.0
+  excel: ^2.0.0
 
 
 dev_dependencies:

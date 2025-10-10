@@ -1,13 +1,87 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'edit_jabatan_page.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_spacing.dart';
+import '../services/supabase_service.dart';
 
 class DataManagementPage extends StatelessWidget {
   const DataManagementPage({super.key});
+
+  Future<void> _confirmAndResetAllCuti(BuildContext context) async {
+    final theme = Theme.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi Reset Sisa Cuti'),
+        content: const Text(
+          'Tindakan ini akan mengubah sisa cuti SEMUA pegawai menjadi 14 hari.\n\nApakah Anda yakin ingin melanjutkan?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => navigator.pop(false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
+            onPressed: () => navigator.pop(true),
+            child: const Text('Reset Semua ke 14'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final client = SupabaseService.instance.client;
+      final idsRes = await client.from('users').select('id');
+      final ids = List<Map<String, dynamic>>.from(idsRes)
+          .map((e) => e['id'])
+          .whereType<String>()
+          .toList();
+
+      if (ids.isEmpty) {
+        navigator.pop();
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Tidak ada pegawai untuk di-reset')),
+        );
+        return;
+      }
+
+      await client.from('users').update({'sisa_cuti': 14}).inFilter('id', ids);
+
+      navigator.pop();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Text('Berhasil reset sisa cuti semua pegawai ke 14'),
+          backgroundColor: theme.colorScheme.primary,
+        ),
+      );
+    } catch (e) {
+      navigator.pop();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Gagal reset sisa cuti: $e'),
+          backgroundColor: theme.colorScheme.error,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,6 +318,45 @@ class DataManagementPage extends StatelessWidget {
                                     Get.toNamed('/supervisor-management'),
                               ),
                               const SizedBox(height: 16),
+                              const SizedBox(height: AppSpacing.xl),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.lg),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Theme.of(context).colorScheme.error,
+                                        foregroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .onError,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: AppSpacing.md),
+                                      ),
+                                      onPressed: () =>
+                                          _confirmAndResetAllCuti(context),
+                                      icon: const Icon(Icons.restore),
+                                      label: const Text(
+                                          'Reset Sisa Cuti ke 14 (Semua Pegawai)'),
+                                    ),
+                                    const SizedBox(height: AppSpacing.sm),
+                                    Text(
+                                      'Tombol admin: gunakan saat awal tahun untuk mengatur ulang sisa cuti seluruh pegawai.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .extension<AppTokens>()!
+                                            .textSecondary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xl),
                             ],
                           ),
                         ),

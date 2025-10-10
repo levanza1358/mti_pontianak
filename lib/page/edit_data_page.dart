@@ -654,6 +654,23 @@ class _EditForm extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _LabeledField(
+                    label: 'Sisa Cuti (hari)',
+                    tokens: tokens,
+                    child: TextFormField(
+                      controller: controller.sisaCutiController,
+                      validator: controller.validateSisaCuti,
+                      keyboardType: TextInputType.number,
+                      decoration: _inputDecoration(
+                        tokens: tokens,
+                        theme: theme,
+                        accent: accent,
+                        hintText: 'Masukkan sisa cuti (hari)',
+                        icon: Icons.timelapse_rounded,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _LabeledField(
                     label: 'Password Baru (Opsional)',
                     subtitle: 'Kosongkan jika tidak ingin mengubah password',
                     tokens: tokens,

@@ -6,6 +6,8 @@ import '../controller/theme_controller.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_spacing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/supabase_service.dart';
 import '../controller/login_controller.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -309,6 +311,42 @@ class _SettingsPageState extends State<SettingsPage> {
                             onTap: () => Get.toNamed('/update-checker'),
                           ),
                           Divider(height: 1, color: t.borderSubtle),
+                          // Change Password
+                          ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    t.insentifGradient.first.withOpacity(0.15),
+                                    t.insentifGradient.last.withOpacity(0.15),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: t.borderSubtle),
+                              ),
+                              child: Icon(
+                                Icons.lock_reset_rounded,
+                                color: t.insentifGradient.first,
+                                size: 20,
+                              ),
+                            ),
+                            title: const Text('Ubah Password'),
+                            subtitle: const Text('Ganti kata sandi akun Anda'),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 16,
+                              color: theme.textTheme.bodyMedium?.color
+                                  ?.withOpacity(0.6),
+                            ),
+                            onTap: _showChangePasswordDialog,
+                          ),
+                          Divider(height: 1, color: t.borderSubtle),
+                          // Slot Demo entry
+
+                          Divider(height: 1, color: t.borderSubtle),
                           ListTile(
                             leading: Container(
                               padding: const EdgeInsets.all(8),
@@ -417,5 +455,191 @@ class _SettingsPageState extends State<SettingsPage> {
       case ThemeMode.system:
         return 'Ikuti Sistem';
     }
+  }
+
+  void _showChangePasswordDialog() {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final LoginController authController = Get.find<LoginController>();
+    final isDark = theme.brightness == Brightness.dark;
+
+    final formKey = GlobalKey<FormState>();
+    final newPassController = TextEditingController();
+    final confirmPassController = TextEditingController();
+    bool isLoading = false;
+
+    Get.dialog(
+      StatefulBuilder(builder: (context, setState) {
+        return AlertDialog(
+          backgroundColor: theme.dialogBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          title: Text(
+            'Ubah Password',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: theme.textTheme.titleLarge?.color,
+              fontSize: 20,
+            ),
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: newPassController,
+                  obscureText: false,
+                  decoration: InputDecoration(
+                    labelText: 'Password Baru',
+                    hintText: 'Masukkan password baru',
+                    prefixIcon: const Icon(Icons.lock_open_rounded),
+                    filled: true,
+                    fillColor: isDark ? t.surface : t.card,
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 14),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: t.borderSubtle),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.colorScheme.primary),
+                    ),
+                  ),
+                  validator: (value) {
+                    final v = value?.trim() ?? '';
+                    if (v.isEmpty) return 'Password tidak boleh kosong';
+                    if (v.length < 6) return 'Minimal 6 karakter';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: confirmPassController,
+                  obscureText: false,
+                  decoration: InputDecoration(
+                    labelText: 'Konfirmasi Password Baru',
+                    hintText: 'Ulangi password baru',
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
+                    filled: true,
+                    fillColor: isDark ? t.surface : t.card,
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 14),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: t.borderSubtle),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.colorScheme.primary),
+                    ),
+                  ),
+                  validator: (value) {
+                    final v = value?.trim() ?? '';
+                    if (v.isEmpty) return 'Konfirmasi tidak boleh kosong';
+                    if (v != newPassController.text.trim()) {
+                      return 'Password tidak cocok';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text(
+                'Batal',
+                style: TextStyle(
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (formKey.currentState?.validate() != true) return;
+                      setState(() => isLoading = true);
+                      final userId = authController.currentUser.value?['id'];
+                      if (userId == null) {
+                        Get.snackbar(
+                          'Error',
+                          'Pengguna tidak terdeteksi. Silakan login ulang.',
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                          snackPosition: SnackPosition.TOP,
+                        );
+                        setState(() => isLoading = false);
+                        return;
+                      }
+
+                      try {
+                        // Update password di tabel users
+                        await SupabaseService.instance.client
+                            .from('users')
+                            .update({
+                          'password': newPassController.text.trim(),
+                        }).eq('id', userId);
+
+                        // Sinkronkan password tersimpan bila Remember Me aktif
+                        if (authController.rememberMe.value) {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString(
+                            'saved_password',
+                            newPassController.text.trim(),
+                          );
+                        }
+
+                        Get.back();
+                        Get.snackbar(
+                          'Berhasil',
+                          'Password berhasil diubah.',
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                          snackPosition: SnackPosition.TOP,
+                          duration: const Duration(seconds: 3),
+                        );
+                      } catch (e) {
+                        Get.snackbar(
+                          'Error',
+                          'Gagal mengubah password: $e',
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                          snackPosition: SnackPosition.TOP,
+                        );
+                      } finally {
+                        setState(() => isLoading = false);
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
+                  : const Text('Simpan'),
+            ),
+          ],
+        );
+      }),
+      barrierDismissible: false,
+    );
   }
 }

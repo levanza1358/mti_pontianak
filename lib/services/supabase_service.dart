@@ -204,12 +204,13 @@ class SupabaseService {
   }
 
   // Insentif methods
-  Future<List<Map<String, dynamic>>> getInsentifPremi() async {
+  Future<List<Map<String, dynamic>>> getInsentifPremi({String? userId}) async {
     try {
-      final response = await client
-          .from('insentif_premi')
-          .select()
-          .order('created_at');
+      var query = client.from('insentif_premi').select();
+      if (userId != null && userId.isNotEmpty) {
+        query = query.eq('users_id', userId);
+      }
+      final response = await query.order('created_at');
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
@@ -217,12 +218,13 @@ class SupabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getInsentifLembur() async {
+  Future<List<Map<String, dynamic>>> getInsentifLembur({String? userId}) async {
     try {
-      final response = await client
-          .from('insentif_lembur')
-          .select()
-          .order('created_at');
+      var query = client.from('insentif_lembur').select();
+      if (userId != null && userId.isNotEmpty) {
+        query = query.eq('users_id', userId);
+      }
+      final response = await query.order('created_at');
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {

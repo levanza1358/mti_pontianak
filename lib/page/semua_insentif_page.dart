@@ -2,17 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mti_pontianak/controller/insentif_controller.dart';
+import 'package:mti_pontianak/controller/semua_insentif_controller.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_spacing.dart';
 import 'package:intl/intl.dart';
 
-class InsentifPage extends GetView<InsentifController> {
-  const InsentifPage({super.key});
+class SemuaInsentifPage extends GetView<SemuaInsentifController> {
+  const SemuaInsentifPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Get.put(InsentifController());
+    Get.put(SemuaInsentifController());
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
     final isDark = theme.brightness == Brightness.dark;
@@ -33,7 +33,7 @@ class InsentifPage extends GetView<InsentifController> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header as gradient card like Home
+              // Header dengan gradient
               Container(
                 margin: const EdgeInsets.fromLTRB(
                     AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
@@ -53,7 +53,7 @@ class InsentifPage extends GetView<InsentifController> {
                 ),
                 child: Stack(
                   children: [
-                    // Decorative bubbles
+                    // Dekorasi bubble
                     Positioned(
                       right: -20,
                       top: -10,
@@ -78,7 +78,7 @@ class InsentifPage extends GetView<InsentifController> {
                         ),
                       ),
                     ),
-                    // Content
+                    // Konten
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
@@ -104,7 +104,7 @@ class InsentifPage extends GetView<InsentifController> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: const [
                                     Text(
-                                      'Data Insentif',
+                                      'Semua Data Insentif',
                                       style: TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class InsentifPage extends GetView<InsentifController> {
                                     ),
                                     SizedBox(height: AppSpacing.sm),
                                     Text(
-                                      'Data Insentif Premi & Lembur',
+                                      'Insentif Premi & Lembur (Tanpa Filter)',
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -147,10 +147,12 @@ class InsentifPage extends GetView<InsentifController> {
                                         child: DropdownButton<int>(
                                           value: controller.selectedYear.value,
                                           dropdownColor: t.card,
-                                          icon: const Icon(Icons.arrow_drop_down,
+                                          icon: const Icon(
+                                              Icons.arrow_drop_down,
                                               color: Colors.white),
                                           style: const TextStyle(
-                                              color: Colors.white, fontSize: 14),
+                                              color: Colors.white,
+                                              fontSize: 14),
                                           items: years
                                               .map((y) => DropdownMenuItem<int>(
                                                   value: y, child: Text('$y')))
@@ -164,10 +166,25 @@ class InsentifPage extends GetView<InsentifController> {
                                   ),
                                 );
                               }),
+                              const SizedBox(width: AppSpacing.md),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.18),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: Colors.white.withOpacity(0.25)),
+                                ),
+                                child: IconButton(
+                                  tooltip: 'Upload Excel',
+                                  onPressed: () => _showUploadSheet(context),
+                                  icon: const Icon(Icons.add,
+                                      color: Colors.white),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: AppSpacing.lg),
-                          // TabBar like CutiPage inside header card
+                          // TabBar
                           Container(
                             height: 50,
                             decoration: BoxDecoration(
@@ -199,7 +216,6 @@ class InsentifPage extends GetView<InsentifController> {
                   ],
                 ),
               ),
-              // TabBarView follows header TabBar
               const SizedBox(height: AppSpacing.sm),
               Expanded(
                 child: TabBarView(
@@ -211,6 +227,138 @@ class InsentifPage extends GetView<InsentifController> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showUploadSheet(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+    final months = List<int>.generate(12, (i) => i + 1);
+    String jenis = 'Premi';
+    int tahun = controller.selectedYear.value;
+    int bulan = DateTime.now().month;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: t.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(builder: (ctx, setState) {
+          final years = controller.availableYears.toList()
+            ..sort((a, b) => b.compareTo(a));
+          if (!years.contains(tahun)) years.insert(0, tahun);
+          return Padding(
+            padding: EdgeInsets.only(
+              left: AppSpacing.lg,
+              right: AppSpacing.lg,
+              top: AppSpacing.lg,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.lg,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    Icon(Icons.upload_file),
+                    SizedBox(width: AppSpacing.sm),
+                    Text(
+                      'Upload Data Insentif dari Excel',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                // Jenis
+                Row(
+                  children: [
+                    const Text('Jenis'),
+                    const SizedBox(width: AppSpacing.md),
+                    DropdownButton<String>(
+                      value: jenis,
+                      items: const [
+                        DropdownMenuItem(value: 'Premi', child: Text('Premi')),
+                        DropdownMenuItem(
+                            value: 'Lembur', child: Text('Lembur')),
+                      ],
+                      onChanged: (v) => setState(() => jenis = v ?? 'Premi'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                // Tahun
+                Row(
+                  children: [
+                    const Text('Tahun'),
+                    const SizedBox(width: AppSpacing.md),
+                    DropdownButton<int>(
+                      value: tahun,
+                      items: years
+                          .map((y) => DropdownMenuItem<int>(
+                                value: y,
+                                child: Text('$y'),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() => tahun = v ?? tahun),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                // Bulan
+                Row(
+                  children: [
+                    const Text('Bulan'),
+                    const SizedBox(width: AppSpacing.md),
+                    DropdownButton<int>(
+                      value: bulan,
+                      items: months
+                          .map((m) => DropdownMenuItem<int>(
+                                value: m,
+                                child: Text(DateFormat('MMMM', 'id_ID')
+                                    .format(DateTime(2000, m, 1))),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() => bulan = v ?? bulan),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: t.insentifGradient.first,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                        horizontal: AppSpacing.lg,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      await controller.pickAndImportExcel(
+                        jenis: jenis,
+                        tahun: tahun,
+                        bulan: bulan,
+                        context: ctx,
+                      );
+                      if (ctx.mounted) Navigator.of(ctx).pop();
+                    },
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Pilih File & Upload'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+      },
     );
   }
 
@@ -227,7 +375,7 @@ class InsentifPage extends GetView<InsentifController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Statistics
+            // Statistik
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppSpacing.xl),
@@ -283,7 +431,7 @@ class InsentifPage extends GetView<InsentifController> {
             ),
             const SizedBox(height: AppSpacing.xl),
 
-            // List Insentif
+            // List Insentif Premi
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -319,7 +467,7 @@ class InsentifPage extends GetView<InsentifController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Statistics
+            // Statistik
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppSpacing.xl),
@@ -375,7 +523,7 @@ class InsentifPage extends GetView<InsentifController> {
             ),
             const SizedBox(height: AppSpacing.xl),
 
-            // List Insentif
+            // List Insentif Lembur
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -418,6 +566,21 @@ class InsentifPage extends GetView<InsentifController> {
       }
       return '${index + 1}';
     })();
+
+    // Label tanggal dari field bulan
+    final String monthLabel = (() {
+      final v = insentif['bulan'];
+      if (v is String && v.isNotEmpty) {
+        try {
+          final dt = DateTime.parse(v);
+          return DateFormat('MMMM yyyy').format(dt);
+        } catch (_) {}
+      }
+      return '-';
+    })();
+
+    final int nominal = (insentif['nominal'] ?? 0) as int;
+
     return Card(
       elevation: 0,
       color: t.card,
@@ -505,56 +668,86 @@ class InsentifPage extends GetView<InsentifController> {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                      horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        accent.withOpacity(0.12),
-                        accentAlt.withOpacity(0.12)
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
+                    color: accent.withOpacity(0.12),
+                    border: Border.all(color: accent.withOpacity(0.3)),
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: accent.withOpacity(0.25)),
                   ),
                   child: Text(
-                    controller.formatCurrency(insentif['nominal']),
-                    style:
-                        TextStyle(color: accent, fontWeight: FontWeight.bold),
+                    controller.formatCurrency(nominal),
+                    style: TextStyle(
+                      color: accent,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                IconButton(
+                  tooltip: 'Hapus data',
+                  icon: Icon(Icons.delete_outline_rounded,
+                      color: t.textSecondary),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: Get.context!,
+                      builder: (ctx) {
+                        return AlertDialog(
+                          title: const Text('Konfirmasi Hapus'),
+                          content: const Text(
+                              'Apakah Anda yakin ingin menghapus data ini?'),
+                          actions: [
+                            TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(false),
+                                child: const Text('Batal')),
+                            TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(true),
+                                child: const Text('Hapus')),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirm == true) {
+                      final jenis = typeLabel ?? '';
+                      await Get.find<SemuaInsentifController>()
+                          .deleteInsentifItem(
+                        item: insentif,
+                        jenis: jenis,
+                      );
+                    }
+                  },
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md - 2),
+            const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                   decoration: BoxDecoration(
-                    color: theme.inputDecorationTheme.fillColor ?? t.surface,
-                    borderRadius: BorderRadius.circular(12),
+                    color: t.chipBg,
+                    borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: t.borderSubtle),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today,
-                          size: 14, color: t.textSecondary),
+                      const Icon(Icons.calendar_month, size: 14),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        insentif['bulan'] != null
-                            ? DateFormat('MMMM yyyy')
-                                .format(DateTime.parse(insentif['bulan']))
-                            : '-',
-                        style: TextStyle(color: t.textSecondary),
+                        monthLabel,
+                        style: TextStyle(
+                          color: t.chipFg,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
+            )
           ],
         ),
       ),

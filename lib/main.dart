@@ -19,6 +19,7 @@ import 'page/cuti_page.dart';
 import 'page/eksepsi_page.dart';
 import 'page/calendar_cuti_page.dart';
 import 'page/insentif_page.dart';
+import 'page/semua_insentif_page.dart';
 import 'page/surat_keluar_page.dart';
 import 'page/edit_jabatan_page.dart';
 import 'page/group_management_page.dart';
@@ -27,11 +28,18 @@ import 'page/semua_data_cuti_page.dart';
 import 'page/semua_data_eksepsi_page.dart';
 import 'page/update_checker_page.dart';
 import 'page/settings_page.dart';
+import 'page/slot_demo_page.dart';
 import 'controller/theme_controller.dart';
 import 'theme/app_tokens.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize locale for Intl (Android/Web)
+  await initializeDateFormatting('id_ID');
+  Intl.defaultLocale = 'id_ID';
 
   // Initialize Supabase
   await SupabaseService.initialize();
@@ -79,6 +87,9 @@ class MyApp extends StatelessWidget {
       appBarTheme: _buildAppBarTheme(),
       cardTheme: _buildCardTheme(),
       elevatedButtonTheme: _buildElevatedButtonTheme(),
+      textButtonTheme: _buildTextButtonTheme(),
+      outlinedButtonTheme: _buildOutlinedButtonTheme(),
+      filledButtonTheme: _buildFilledButtonTheme(),
       iconTheme: const IconThemeData(color: Color(0xFF64748B)),
       hintColor: const Color(0xFF6B7280),
       extensions: const <ThemeExtension<dynamic>>[
@@ -168,8 +179,41 @@ class MyApp extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF2563EB),
           foregroundColor: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFF60A5FA),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF60A5FA),
+          side: const BorderSide(color: Color(0xFF60A5FA), width: 1.2),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: const Color(0xFF60A5FA),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
       iconTheme: const IconThemeData(color: Color(0xFFCBD5E1)),
@@ -268,8 +312,54 @@ class MyApp extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF2563EB),
         foregroundColor: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0,
+        shadowColor: const Color(0x1A000000),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  /// Build TextButton theme
+  TextButtonThemeData _buildTextButtonTheme() {
+    return TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: const Color(0xFF2563EB),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  /// Build OutlinedButton theme
+  OutlinedButtonThemeData _buildOutlinedButtonTheme() {
+    return OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF2563EB),
+        side: const BorderSide(color: Color(0xFF2563EB), width: 1.2),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  /// Build FilledButton theme (Material 3)
+  FilledButtonThemeData _buildFilledButtonTheme() {
+    return FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: const Color(0xFF2563EB),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -310,6 +400,7 @@ class MyApp extends StatelessWidget {
 
       // Insentif Management
       GetPage(name: '/insentif', page: () => const InsentifPage()),
+      GetPage(name: '/all-insentif', page: () => const SemuaInsentifPage()),
 
       // Surat Keluar Management
       GetPage(name: '/surat-keluar', page: () => const SuratKeluarPage()),
@@ -331,6 +422,9 @@ class MyApp extends StatelessWidget {
 
       // Settings
       GetPage(name: '/settings', page: () => const SettingsPage()),
+
+      // Fun Demo
+      GetPage(name: '/slot-demo', page: () => const SlotDemoPage()),
     ];
   }
 }

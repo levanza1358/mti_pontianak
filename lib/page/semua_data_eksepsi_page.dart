@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/semua_data_eksepsi_controller.dart';
@@ -48,7 +50,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
                       Container(
@@ -58,7 +61,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                         ),
                         child: IconButton(
                           onPressed: () => Get.back(),
-                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                          icon: const Icon(Icons.arrow_back_ios_new,
+                              color: Colors.white),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -77,7 +81,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                             SizedBox(height: 3),
                             Text(
                               'Daftar seluruh pengajuan eksepsi',
-                              style: TextStyle(fontSize: 13, color: Colors.white70),
+                              style: TextStyle(
+                                  fontSize: 13, color: Colors.white70),
                             ),
                           ],
                         ),
@@ -87,7 +92,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                         radius: 18,
                         child: IconButton(
                           onPressed: controller.refreshData,
-                          icon: const Icon(Icons.refresh, color: Colors.white, size: 18),
+                          icon: const Icon(Icons.refresh,
+                              color: Colors.white, size: 18),
                         ),
                       ),
                     ],
@@ -103,7 +109,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                     if (controller.isLoadingList.value) {
                       return Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(accentGradient.first),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              accentGradient.first),
                         ),
                       );
                     }
@@ -126,14 +133,19 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.schedule, color: accentGradient.first, size: 48),
+                              Icon(Icons.schedule,
+                                  color: accentGradient.first, size: 48),
                               const SizedBox(height: 12),
                               Text(
                                 'Belum ada data eksepsi',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: t.textPrimary),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: t.textPrimary),
                               ),
                               const SizedBox(height: 6),
-                              Text('Data eksepsi akan tampil di sini', style: TextStyle(color: t.textSecondary)),
+                              Text('Data eksepsi akan tampil di sini',
+                                  style: TextStyle(color: t.textSecondary)),
                             ],
                           ),
                         ),
@@ -149,15 +161,22 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                           final userName = (item['user_name'] ?? '') as String;
                           final userNrp = (item['user_nrp'] ?? '') as String;
                           final userId = (item['user_id'] ?? '') as String;
-                          final jenis = (item['jenis_eksepsi'] ?? '-') as String;
-                          final tanggalPengajuan = (item['tanggal_pengajuan'] ?? '') as String;
-                          final tanggalList = (item['list_tanggal_eksepsi'] ?? '') as String;
-                          final jumlahHari = item['jumlah_hari']?.toString() ?? '-';
-                          final alasan = (item['alasan_eksepsi'] ?? '-') as String;
+                          final jenis =
+                              (item['jenis_eksepsi'] ?? '-') as String;
+                          final tanggalPengajuan =
+                              (item['tanggal_pengajuan'] ?? '') as String;
+                          final tanggalList =
+                              (item['list_tanggal_eksepsi'] ?? '') as String;
+                          final jumlahHari =
+                              item['jumlah_hari']?.toString() ?? '-';
+                          final alasan =
+                              (item['alasan_eksepsi'] ?? '-') as String;
 
                           final titleText = userName.isNotEmpty
                               ? userName
-                              : (userNrp.isNotEmpty ? userNrp : (userId.isNotEmpty ? userId : '-'));
+                              : (userNrp.isNotEmpty
+                                  ? userNrp
+                                  : (userId.isNotEmpty ? userId : '-'));
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -185,7 +204,8 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(Icons.schedule, color: Colors.white, size: 20),
+                                child: const Icon(Icons.schedule,
+                                    color: Colors.white, size: 20),
                               ),
                               title: Text(
                                 titleText,
@@ -201,12 +221,15 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   const SizedBox(height: 6),
                                   Row(
                                     children: [
-                                      Icon(Icons.badge, size: 14, color: t.textSecondary),
+                                      Icon(Icons.badge,
+                                          size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           jenis,
-                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: t.textSecondary),
                                         ),
                                       ),
                                     ],
@@ -214,26 +237,36 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.schedule_outlined, size: 14, color: t.textSecondary),
+                                      Icon(Icons.schedule_outlined,
+                                          size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           tanggalPengajuan.toString(),
-                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: t.textSecondary),
                                         ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Icon(Icons.calendar_today, size: 14, color: t.textSecondary),
+                                      Icon(Icons.calendar_today,
+                                          size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
-                                          tanggalList.isEmpty ? '-' : tanggalList.replaceAll(',', ', '),
-                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
+                                          tanggalList.isEmpty
+                                              ? '-'
+                                              : tanggalList.replaceAll(
+                                                  ',', ', '),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: t.textSecondary),
                                         ),
                                       ),
                                     ],
@@ -241,24 +274,31 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(Icons.timelapse, size: 14, color: t.textSecondary),
+                                      Icon(Icons.timelapse,
+                                          size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Text(
                                         '$jumlahHari hari',
-                                        style: TextStyle(fontSize: 12, color: t.textSecondary),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: t.textSecondary),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Icon(Icons.notes, size: 14, color: t.textSecondary),
+                                      Icon(Icons.notes,
+                                          size: 14, color: t.textSecondary),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           alasan.isEmpty ? '-' : alasan,
-                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: t.textSecondary),
                                         ),
                                       ),
                                     ],

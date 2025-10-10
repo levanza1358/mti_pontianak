@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/supervisor_management_controller.dart';
@@ -721,9 +723,8 @@ class SupervisorManagementPage extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         Obx(() {
-          final value = selectedValue.value.isEmpty
-              ? null
-              : selectedValue.value;
+          final value =
+              selectedValue.value.isEmpty ? null : selectedValue.value;
           return DropdownButtonFormField<String>(
             value: value,
             decoration: _inputDecoration(

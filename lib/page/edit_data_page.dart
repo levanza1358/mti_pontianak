@@ -531,7 +531,7 @@ class _EditForm extends StatelessWidget {
                           )
                           .length;
                       return DropdownButtonFormField<String>(
-                        value: matches == 1 ? selected : null,
+                        initialValue: matches == 1 ? selected : null,
                         validator: controller.validateJabatan,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -566,7 +566,7 @@ class _EditForm extends StatelessWidget {
                     tokens: tokens,
                     child: Obx(
                       () => DropdownButtonFormField<String>(
-                        value: controller.selectedStatus.value,
+                        initialValue: controller.selectedStatus.value,
                         validator: controller.validateStatus,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -596,7 +596,7 @@ class _EditForm extends StatelessWidget {
                     child: Obx(() {
                       final groups = controller.groupList;
                       return DropdownButtonFormField<String>(
-                        value: controller.selectedGroup.value,
+                        initialValue: controller.selectedGroup.value,
                         validator: controller.validateGroup,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -629,7 +629,7 @@ class _EditForm extends StatelessWidget {
                     tokens: tokens,
                     child: Obx(
                       () => DropdownButtonFormField<String>(
-                        value: controller.selectedStatusGroup.value,
+                        initialValue: controller.selectedStatusGroup.value,
                         validator: controller.validateStatusGroup,
                         decoration: _inputDecoration(
                           tokens: tokens,

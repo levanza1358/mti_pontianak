@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/add_jabatan_controller.dart';
@@ -67,7 +69,8 @@ class AddJabatanPage extends StatelessWidget {
                             color: theme.colorScheme.onPrimary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: theme.colorScheme.onPrimary.withOpacity(0.3),
+                              color:
+                                  theme.colorScheme.onPrimary.withOpacity(0.3),
                               width: 1,
                             ),
                           ),
@@ -105,7 +108,8 @@ class AddJabatanPage extends StatelessWidget {
                                 'Tambahkan jabatan baru ke sistem',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: theme.colorScheme.onPrimary.withOpacity(0.9),
+                                  color: theme.colorScheme.onPrimary
+                                      .withOpacity(0.9),
                                   fontWeight: FontWeight.w500,
                                   shadows: [
                                     Shadow(
@@ -174,7 +178,8 @@ class AddJabatanPage extends StatelessWidget {
                                     fontSize: 16,
                                   ),
                                   filled: true,
-                                  fillColor: theme.inputDecorationTheme.fillColor,
+                                  fillColor:
+                                      theme.inputDecorationTheme.fillColor,
                                   prefixIcon: Icon(
                                     Icons.work_outline_rounded,
                                     color: accent,
@@ -263,8 +268,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionCuti.value,
                                         (value) =>
                                             controller.togglePermissionCuti(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -275,8 +280,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionEksepsi.value,
                                         (value) =>
                                             controller.togglePermissionEksepsi(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -287,8 +292,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionAllCuti.value,
                                         (value) =>
                                             controller.togglePermissionAllCuti(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -299,8 +304,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionAllEksepsi.value,
                                         (value) => controller
                                             .togglePermissionAllEksepsi(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -311,8 +316,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionInsentif.value,
                                         (value) =>
                                             controller.togglePermissionInsentif(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -323,8 +328,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionAllInsentif.value,
                                         (value) => controller
                                             .togglePermissionAllInsentif(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -335,8 +340,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionAtk.value,
                                         (value) =>
                                             controller.togglePermissionAtk(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                       ),
                                     ),
                                     Obx(
@@ -347,8 +352,8 @@ class AddJabatanPage extends StatelessWidget {
                                         controller.permissionSuratKeluar.value,
                                         (value) => controller
                                             .togglePermissionSuratKeluar(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                         isLast: false,
                                       ),
                                     ),
@@ -357,11 +362,12 @@ class AddJabatanPage extends StatelessWidget {
                                         t,
                                         accent,
                                         'Permission Management Data',
-                                        controller.permissionManagementData.value,
+                                        controller
+                                            .permissionManagementData.value,
                                         (value) => controller
                                             .togglePermissionManagementData(
-                                              value ?? false,
-                                            ),
+                                          value ?? false,
+                                        ),
                                         isLast: true,
                                       ),
                                     ),
@@ -394,7 +400,8 @@ class AddJabatanPage extends StatelessWidget {
                                     boxShadow: controller.isLoading.value
                                         ? [
                                             BoxShadow(
-                                              color: t.textSecondary.withOpacity(0.3),
+                                              color: t.textSecondary
+                                                  .withOpacity(0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
                                             ),
@@ -407,7 +414,8 @@ class AddJabatanPage extends StatelessWidget {
                                               spreadRadius: 2,
                                             ),
                                             BoxShadow(
-                                              color: Colors.white.withOpacity(0.08),
+                                              color: Colors.white
+                                                  .withOpacity(0.08),
                                               blurRadius: 2,
                                               offset: const Offset(0, -2),
                                             ),
@@ -419,7 +427,8 @@ class AddJabatanPage extends StatelessWidget {
                                         : controller.submitJabatanForm,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
-                                      foregroundColor: theme.colorScheme.onPrimary,
+                                      foregroundColor:
+                                          theme.colorScheme.onPrimary,
                                       shadowColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
@@ -434,15 +443,18 @@ class AddJabatanPage extends StatelessWidget {
                                               SizedBox(
                                                 width: 20,
                                                 height: 20,
-                                                child: CircularProgressIndicator(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   strokeWidth: 2,
                                                   valueColor:
-                                                      AlwaysStoppedAnimation<Color>(
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
                                                     t.textSecondary,
                                                   ),
                                                 ),
                                               ),
-                                              const SizedBox(width: AppSpacing.md),
+                                              const SizedBox(
+                                                  width: AppSpacing.md),
                                               Text(
                                                 'Menyimpan...',
                                                 style: TextStyle(
@@ -462,7 +474,8 @@ class AddJabatanPage extends StatelessWidget {
                                                 color: Colors.white,
                                                 size: 22,
                                               ),
-                                              const SizedBox(width: AppSpacing.md),
+                                              const SizedBox(
+                                                  width: AppSpacing.md),
                                               Text(
                                                 'TAMBAH JABATAN',
                                                 style: TextStyle(

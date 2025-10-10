@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
@@ -40,13 +42,13 @@ class LoginPage extends StatelessWidget {
                   children: [
                     // Logo Perusahaan
                     Container(
-                  width: 240,
-                  height: 240,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.primaryColor.withOpacity(0.15),
+                      width: 240,
+                      height: 240,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.primaryColor.withOpacity(0.15),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -62,7 +64,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
                     // Login Form dengan efek blur (frosted glass)
                     ClipRRect(
@@ -134,8 +136,7 @@ class LoginPage extends StatelessWidget {
                                       validator:
                                           loginController.validatePassword,
                                       obscureText: loginController
-                                          .isPasswordHidden
-                                          .value,
+                                          .isPasswordHidden.value,
                                       decoration: InputDecoration(
                                         labelText: 'Password',
                                         hintText: 'Masukkan password Anda',
@@ -147,14 +148,11 @@ class LoginPage extends StatelessWidget {
                                         suffixIcon: IconButton(
                                           icon: Icon(
                                             loginController
-                                                    .isPasswordHidden
-                                                    .value
+                                                    .isPasswordHidden.value
                                                 ? Icons.visibility_off
                                                 : Icons.visibility,
                                             color: theme
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.color,
+                                                .textTheme.bodyMedium?.color,
                                           ),
                                           onPressed: loginController
                                               .togglePasswordVisibility,
@@ -206,8 +204,7 @@ class LoginPage extends StatelessWidget {
                                         children: [
                                           Checkbox(
                                             value: loginController
-                                                .rememberMe
-                                                .value,
+                                                .rememberMe.value,
                                             onChanged: (_) {
                                               loginController
                                                   .toggleRememberMe();
@@ -221,10 +218,8 @@ class LoginPage extends StatelessWidget {
                                               'Ingat Saya',
                                               style: TextStyle(
                                                 fontSize: 14,
-                                                color: theme
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.color,
+                                                color: theme.textTheme
+                                                    .bodyMedium?.color,
                                               ),
                                             ),
                                           ),
@@ -241,58 +236,74 @@ class LoginPage extends StatelessWidget {
                                           ? null
                                           : loginController.login,
                                       style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.resolveWith<Color>(
+                                        backgroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
                                           (states) {
-                                            if (states.contains(MaterialState.disabled)) {
+                                            if (states.contains(
+                                                MaterialState.disabled)) {
                                               return theme.colorScheme.onSurface
                                                   .withOpacity(0.12);
                                             }
-                                            if (states.contains(MaterialState.pressed)) {
+                                            if (states.contains(
+                                                MaterialState.pressed)) {
                                               return theme.colorScheme.primary
                                                   .withOpacity(0.85);
                                             }
-                                            if (states.contains(MaterialState.hovered) ||
-                                                states.contains(MaterialState.focused)) {
-                                              return theme.colorScheme.primaryContainer;
+                                            if (states.contains(
+                                                    MaterialState.hovered) ||
+                                                states.contains(
+                                                    MaterialState.focused)) {
+                                              return theme
+                                                  .colorScheme.primaryContainer;
                                             }
                                             return theme.colorScheme.primary;
                                           },
                                         ),
-                                        foregroundColor:
-                                            MaterialStateProperty.resolveWith<Color>(
+                                        foregroundColor: MaterialStateProperty
+                                            .resolveWith<Color>(
                                           (states) {
-                                            if (states.contains(MaterialState.disabled)) {
+                                            if (states.contains(
+                                                MaterialState.disabled)) {
                                               return theme.colorScheme.onSurface
                                                   .withOpacity(0.38);
                                             }
                                             return theme.colorScheme.onPrimary;
                                           },
                                         ),
-                                        overlayColor: MaterialStateProperty.all<Color>(
-                                          theme.colorScheme.onPrimary.withOpacity(0.08),
+                                        overlayColor:
+                                            MaterialStateProperty.all<Color>(
+                                          theme.colorScheme.onPrimary
+                                              .withOpacity(0.08),
                                         ),
-                                        shadowColor: MaterialStateProperty.all<Color>(
-                                          theme.colorScheme.primary.withOpacity(0.35),
+                                        shadowColor:
+                                            MaterialStateProperty.all<Color>(
+                                          theme.colorScheme.primary
+                                              .withOpacity(0.35),
                                         ),
-                                        elevation:
-                                            MaterialStateProperty.resolveWith<double>(
+                                        elevation: MaterialStateProperty
+                                            .resolveWith<double>(
                                           (states) {
-                                            if (states.contains(MaterialState.disabled)) {
+                                            if (states.contains(
+                                                MaterialState.disabled)) {
                                               return 0;
                                             }
-                                            if (states.contains(MaterialState.pressed)) {
+                                            if (states.contains(
+                                                MaterialState.pressed)) {
                                               return 6;
                                             }
                                             return 3;
                                           },
                                         ),
-                                        padding: MaterialStateProperty.all<EdgeInsets>(
-                                          const EdgeInsets.symmetric(vertical: 16),
+                                        padding: MaterialStateProperty.all<
+                                            EdgeInsets>(
+                                          const EdgeInsets.symmetric(
+                                              vertical: 16),
                                         ),
-                                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                                        shape: MaterialStateProperty.all<
+                                            OutlinedBorder>(
                                           RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
                                         ),
                                       ),
@@ -304,12 +315,13 @@ class LoginPage extends StatelessWidget {
                                                 SizedBox(
                                                   width: 20,
                                                   height: 20,
-                                                  child: CircularProgressIndicator(
+                                                  child:
+                                                      CircularProgressIndicator(
                                                     strokeWidth: 2,
                                                     valueColor:
                                                         AlwaysStoppedAnimation<
-                                                          Color
-                                                        >(Colors.white),
+                                                                Color>(
+                                                            Colors.white),
                                                   ),
                                                 ),
                                                 SizedBox(width: 12),
@@ -347,7 +359,8 @@ class LoginPage extends StatelessWidget {
                             'Versi ${snapshot.data!.version}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.6),
                               fontWeight: FontWeight.w400,
                             ),
                           );

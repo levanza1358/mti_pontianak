@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/surat_keluar_controller.dart';
@@ -22,7 +24,8 @@ class SuratKeluarPage extends StatelessWidget {
             // Modern Header Section
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+              margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
               padding: const EdgeInsets.all(AppSpacing.xl),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppSpacing.lg),
@@ -435,7 +438,8 @@ class SuratKeluarPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: theme.extension<AppTokens>()!.textPrimary,
+                                color:
+                                    theme.extension<AppTokens>()!.textPrimary,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.xs),
@@ -443,7 +447,8 @@ class SuratKeluarPage extends StatelessWidget {
                               surat['judul_surat'] ?? '',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: theme.extension<AppTokens>()!.textSecondary,
+                                color:
+                                    theme.extension<AppTokens>()!.textSecondary,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.sm),
@@ -454,7 +459,8 @@ class SuratKeluarPage extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: theme.extension<AppTokens>()!.chipBg,
-                                borderRadius: BorderRadius.circular(AppSpacing.sm),
+                                borderRadius:
+                                    BorderRadius.circular(AppSpacing.sm),
                               ),
                               child: Text(
                                 DateFormat(
@@ -639,7 +645,8 @@ class SuratKeluarPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.extension<AppTokens>()!.card,
             borderRadius: BorderRadius.circular(AppSpacing.sm),
-            border: Border.all(color: theme.extension<AppTokens>()!.borderSubtle),
+            border:
+                Border.all(color: theme.extension<AppTokens>()!.borderSubtle),
           ),
           child: Text(value, style: theme.textTheme.bodyMedium),
         ),
@@ -675,20 +682,28 @@ class SuratKeluarPage extends StatelessWidget {
           readOnly: readOnly,
           onTap: onTap,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Theme.of(Get.context!).colorScheme.primary),
+            prefixIcon:
+                Icon(icon, color: Theme.of(Get.context!).colorScheme.primary),
             filled: true,
             fillColor: Theme.of(Get.context!).extension<AppTokens>()!.card,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSpacing.md),
-              borderSide: BorderSide(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+              borderSide: BorderSide(
+                  color: Theme.of(Get.context!)
+                      .extension<AppTokens>()!
+                      .borderSubtle),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSpacing.md),
-              borderSide: BorderSide(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+              borderSide: BorderSide(
+                  color: Theme.of(Get.context!)
+                      .extension<AppTokens>()!
+                      .borderSubtle),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSpacing.md),
-              borderSide: BorderSide(color: Theme.of(Get.context!).colorScheme.primary, width: 2),
+              borderSide: BorderSide(
+                  color: Theme.of(Get.context!).colorScheme.primary, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.lg,
@@ -706,7 +721,8 @@ class SuratKeluarPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(Get.context!).extension<AppTokens>()!.card,
         borderRadius: BorderRadius.circular(AppSpacing.lg),
-        border: Border.all(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+        border: Border.all(
+            color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -719,7 +735,10 @@ class SuratKeluarPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(Get.context!)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(AppSpacing.sm),
                     ),
                     child: Icon(
@@ -734,7 +753,9 @@ class SuratKeluarPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(Get.context!).extension<AppTokens>()!.textPrimary,
+                      color: Theme.of(Get.context!)
+                          .extension<AppTokens>()!
+                          .textPrimary,
                     ),
                   ),
                 ],
@@ -747,7 +768,9 @@ class SuratKeluarPage extends StatelessWidget {
                           vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(Get.context!).extension<AppTokens>()!.successBg,
+                          color: Theme.of(Get.context!)
+                              .extension<AppTokens>()!
+                              .successBg,
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                         ),
                         child: Row(
@@ -755,14 +778,18 @@ class SuratKeluarPage extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.check_circle,
-                              color: Theme.of(Get.context!).extension<AppTokens>()!.successFg,
+                              color: Theme.of(Get.context!)
+                                  .extension<AppTokens>()!
+                                  .successFg,
                               size: 16,
                             ),
                             const SizedBox(width: AppSpacing.xs),
                             Text(
                               'Tersedia',
                               style: TextStyle(
-                                color: Theme.of(Get.context!).extension<AppTokens>()!.successFg,
+                                color: Theme.of(Get.context!)
+                                    .extension<AppTokens>()!
+                                    .successFg,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -776,7 +803,9 @@ class SuratKeluarPage extends StatelessWidget {
                           vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(Get.context!).extension<AppTokens>()!.warningBg,
+                          color: Theme.of(Get.context!)
+                              .extension<AppTokens>()!
+                              .warningBg,
                           borderRadius: BorderRadius.circular(AppSpacing.sm),
                         ),
                         child: Row(
@@ -784,14 +813,18 @@ class SuratKeluarPage extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.pending,
-                              color: Theme.of(Get.context!).extension<AppTokens>()!.warningFg,
+                              color: Theme.of(Get.context!)
+                                  .extension<AppTokens>()!
+                                  .warningFg,
                               size: 16,
                             ),
                             const SizedBox(width: AppSpacing.xs),
                             Text(
                               'Belum ada',
                               style: TextStyle(
-                                color: Theme.of(Get.context!).extension<AppTokens>()!.warningFg,
+                                color: Theme.of(Get.context!)
+                                    .extension<AppTokens>()!
+                                    .warningFg,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -809,7 +842,10 @@ class SuratKeluarPage extends StatelessWidget {
                 height: 150,
                 decoration: BoxDecoration(
                   color: Theme.of(Get.context!).extension<AppTokens>()!.card,
-                  border: Border.all(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+                  border: Border.all(
+                      color: Theme.of(Get.context!)
+                          .extension<AppTokens>()!
+                          .borderSubtle),
                   borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
                 child: ClipRRect(
@@ -825,7 +861,10 @@ class SuratKeluarPage extends StatelessWidget {
                 height: 150,
                 decoration: BoxDecoration(
                   color: Theme.of(Get.context!).extension<AppTokens>()!.card,
-                  border: Border.all(color: Theme.of(Get.context!).extension<AppTokens>()!.borderSubtle),
+                  border: Border.all(
+                      color: Theme.of(Get.context!)
+                          .extension<AppTokens>()!
+                          .borderSubtle),
                   borderRadius: BorderRadius.circular(AppSpacing.md),
                 ),
                 child: Center(
@@ -835,13 +874,17 @@ class SuratKeluarPage extends StatelessWidget {
                       Icon(
                         Icons.touch_app,
                         size: 48,
-                        color: Theme.of(Get.context!).extension<AppTokens>()!.textSecondary,
+                        color: Theme.of(Get.context!)
+                            .extension<AppTokens>()!
+                            .textSecondary,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Belum ada tanda tangan',
                         style: TextStyle(
-                          color: Theme.of(Get.context!).extension<AppTokens>()!.textSecondary,
+                          color: Theme.of(Get.context!)
+                              .extension<AppTokens>()!
+                              .textSecondary,
                           fontSize: 14,
                         ),
                       ),
@@ -860,7 +903,8 @@ class SuratKeluarPage extends StatelessWidget {
                   icon: const Icon(Icons.clear),
                   label: const Text('Hapus'),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.md),
                     ),
@@ -875,8 +919,10 @@ class SuratKeluarPage extends StatelessWidget {
                   label: const Text('Buat TTD'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(Get.context!).colorScheme.primary,
-                    foregroundColor: Theme.of(Get.context!).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    foregroundColor:
+                        Theme.of(Get.context!).colorScheme.onPrimary,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.md),
                     ),

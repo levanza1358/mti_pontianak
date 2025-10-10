@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'edit_jabatan_page.dart';
@@ -90,8 +92,8 @@ class DataManagementPage extends StatelessWidget {
                                 'Kelola data sistem dengan mudah',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color:
-                                      theme.colorScheme.onPrimary.withOpacity(0.9),
+                                  color: theme.colorScheme.onPrimary
+                                      .withOpacity(0.9),
                                 ),
                               ),
                             ],
@@ -167,7 +169,6 @@ class DataManagementPage extends StatelessWidget {
                           ],
                         ),
                       ),
-
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(
@@ -182,10 +183,10 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/add-pegawai'),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
-                               // Tambah Jabatan Card
-                               _buildKerenUIMenuCard(
+                              // Tambah Jabatan Card
+                              _buildKerenUIMenuCard(
                                 context: context,
                                 title: 'Tambah Jabatan',
                                 subtitle: 'Menambahkan jabatan baru ke sistem',
@@ -194,7 +195,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/add-jabatan'),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Edit Data Card
                               _buildKerenUIMenuCard(
@@ -206,7 +207,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/edit'),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Edit Data Jabatan Card
                               _buildKerenUIMenuCard(
@@ -218,7 +219,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.to(() => const EditJabatanPage()),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Group Management Card
                               _buildKerenUIMenuCard(
@@ -235,10 +236,12 @@ class DataManagementPage extends StatelessWidget {
                               _buildKerenUIMenuCard(
                                 context: context,
                                 title: 'Manajemen Supervisor',
-                                subtitle: 'Kelola data supervisor Penunjang & Logistik',
+                                subtitle:
+                                    'Kelola data supervisor Penunjang & Logistik',
                                 icon: Icons.supervisor_account_rounded,
                                 color: const Color(0xFF8b5cf6),
-                                onTap: () => Get.toNamed('/supervisor-management'),
+                                onTap: () =>
+                                    Get.toNamed('/supervisor-management'),
                               ),
                               const SizedBox(height: 16),
                             ],

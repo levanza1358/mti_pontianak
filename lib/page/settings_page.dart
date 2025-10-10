@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/theme_controller.dart';
@@ -77,7 +79,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: theme.colorScheme.onPrimary.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: theme.colorScheme.onPrimary.withOpacity(0.25),
+                            color:
+                                theme.colorScheme.onPrimary.withOpacity(0.25),
                           ),
                         ),
                         child: IconButton(
@@ -106,7 +109,8 @@ class _SettingsPageState extends State<SettingsPage> {
                               'Tema & Pembaruan Aplikasi',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: theme.colorScheme.onPrimary.withOpacity(0.85),
+                                color: theme.colorScheme.onPrimary
+                                    .withOpacity(0.85),
                               ),
                             ),
                           ],
@@ -128,8 +132,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     // Theme section (Card style)
                     Card(
                       elevation: isDark ? 0 : 3,
-                      shadowColor:
-                          isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
+                      shadowColor: isDark
+                          ? t.shadowColor
+                          : t.shadowColor.withOpacity(0.25),
                       color: t.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -148,8 +153,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        t.insentifGradient.first.withOpacity(0.15),
-                                        t.insentifGradient.last.withOpacity(0.15),
+                                        t.insentifGradient.first
+                                            .withOpacity(0.15),
+                                        t.insentifGradient.last
+                                            .withOpacity(0.15),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -187,7 +194,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                           : theme.textTheme.bodyMedium?.color,
                                       fontWeight: FontWeight.w600,
                                     ),
-                                    backgroundColor: isDark ? t.surface : t.card,
+                                    backgroundColor:
+                                        isDark ? t.surface : t.card,
                                     shape: StadiumBorder(
                                       side: BorderSide(color: t.borderSubtle),
                                     ),
@@ -204,7 +212,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                           : theme.textTheme.bodyMedium?.color,
                                       fontWeight: FontWeight.w600,
                                     ),
-                                    backgroundColor: isDark ? t.surface : t.card,
+                                    backgroundColor:
+                                        isDark ? t.surface : t.card,
                                     shape: StadiumBorder(
                                       side: BorderSide(color: t.borderSubtle),
                                     ),
@@ -221,7 +230,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                           : theme.textTheme.bodyMedium?.color,
                                       fontWeight: FontWeight.w600,
                                     ),
-                                    backgroundColor: isDark ? t.surface : t.card,
+                                    backgroundColor:
+                                        isDark ? t.surface : t.card,
                                     shape: StadiumBorder(
                                       side: BorderSide(color: t.borderSubtle),
                                     ),
@@ -240,8 +250,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     // App & Account section (Card style)
                     Card(
                       elevation: isDark ? 0 : 3,
-                      shadowColor:
-                          isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
+                      shadowColor: isDark
+                          ? t.shadowColor
+                          : t.shadowColor.withOpacity(0.25),
                       color: t.card,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -329,8 +340,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             trailing: Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 16,
-                              color:
-                                  theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                              color: theme.textTheme.bodyMedium?.color
+                                  ?.withOpacity(0.6),
                             ),
                             onTap: () {
                               Get.dialog(
@@ -358,7 +369,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                       child: Text(
                                         'Batal',
                                         style: TextStyle(
-                                          color: theme.textTheme.bodyMedium?.color
+                                          color: theme
+                                              .textTheme.bodyMedium?.color
                                               ?.withOpacity(0.7),
                                         ),
                                       ),
@@ -372,7 +384,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                         backgroundColor: Colors.red,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       child: const Text('Logout'),

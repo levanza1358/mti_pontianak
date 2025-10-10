@@ -7,24 +7,41 @@ class HomeController extends GetxController {
   final LoginController authController = Get.find<LoginController>();
 
   List<Widget> buildPermissionBasedMenus(
-    BuildContext context,
-    Function menuCardBuilder,
-  ) {
+      BuildContext context, Function menuCardBuilder,
+      {Function? cutiDualCardBuilder}) {
     final List<Widget> menus = [];
 
     if (authController.hasPermissionCuti) {
-      menus.add(
-        menuCardBuilder(
-          context: context,
-          title: 'Pengajuan Cuti',
-          subtitle: 'Ajukan dan kelola permohonan cuti',
-          icon: Icons.event_available_rounded,
-          color: const Color(0xFF4facfe),
-          onTap: () => Get.toNamed('/cuti'),
-        ),
-      );
-      menus.add(const SizedBox(height: AppSpacing.md));
-      // Pindahkan Eksepsi sebelum Kalender agar alur pengajuan berurutan
+      // Gabungkan Pengajuan Cuti dan Kalender Cuti menjadi satu kartu dual-aksi jika builder tersedia
+      if (cutiDualCardBuilder != null) {
+        menus.add(cutiDualCardBuilder(context));
+        menus.add(const SizedBox(height: AppSpacing.md));
+      } else {
+        // Fallback ke dua kartu terpisah bila builder dual tidak disediakan
+        menus.add(
+          menuCardBuilder(
+            context: context,
+            title: 'Pengajuan',
+            subtitle: 'Cuti',
+            icon: Icons.event_available_rounded,
+            color: const Color(0xFF4facfe),
+            onTap: () => Get.toNamed('/cuti'),
+          ),
+        );
+        menus.add(const SizedBox(height: AppSpacing.md));
+        menus.add(
+          menuCardBuilder(
+            context: context,
+            title: 'Kalender',
+            subtitle: 'Cuti',
+            icon: Icons.calendar_month_rounded,
+            color: const Color(0xFF00d2ff),
+            onTap: () => Get.toNamed('/calendar-cuti'),
+          ),
+        );
+        menus.add(const SizedBox(height: AppSpacing.md));
+      }
+      // Pindahkan Eksepsi sebelum kalender (tetap tersedia sebagai kartu tunggal)
       menus.add(
         menuCardBuilder(
           context: context,
@@ -33,17 +50,6 @@ class HomeController extends GetxController {
           icon: Icons.schedule_rounded,
           color: const Color(0xFFf093fb),
           onTap: () => Get.toNamed('/eksepsi'),
-        ),
-      );
-      menus.add(const SizedBox(height: AppSpacing.md));
-      menus.add(
-        menuCardBuilder(
-          context: context,
-          title: 'Kalender Cuti',
-          subtitle: 'Lihat jadwal cuti dalam kalender',
-          icon: Icons.calendar_month_rounded,
-          color: const Color(0xFF00d2ff),
-          onTap: () => Get.toNamed('/calendar-cuti'),
         ),
       );
       menus.add(const SizedBox(height: AppSpacing.md));

@@ -251,8 +251,8 @@ class SlotDemoController extends GetxController {
   /// Memulai proses putaran (spin) slot.
   Future<void> spin() async {
     if (isSpinning.value) return;
-    // Biaya per putaran: 3 koin
-    const int costPerSpin = 3;
+    // Biaya per putaran: 2 koin
+    const int costPerSpin = 2;
     if (coins.value < costPerSpin) {
       // Tampilkan label di UI saat koin tidak cukup
       lastOutcomeLabel.value = 'Koin tidak cukup';
@@ -262,7 +262,7 @@ class SlotDemoController extends GetxController {
 
     // 1. Persiapan Spin
     isSpinning.value = true;
-    coins.value -= costPerSpin; // Biaya putar 3 koin
+    coins.value -= costPerSpin; // Biaya putar 2 koin
     matched.value = List.generate(
         rows, (_) => List.generate(cols, (_) => false)); // Reset highlight
     await _persistCredit(coins.value);

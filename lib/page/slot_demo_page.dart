@@ -189,8 +189,8 @@ class _SlotDemoPageState extends State<SlotDemoPage>
 
                 // Spin Button
                 ElevatedButton.icon(
-                  // Memanggil metode spin dari controller (butuh minimal 3 koin)
-                  onPressed: (isSpinning || coins < 3) ? null : _c.spin,
+                  // Memanggil metode spin dari controller (butuh minimal 2 koin)
+                  onPressed: (isSpinning || coins < 2) ? null : _c.spin,
                   icon: const Icon(Icons.casino_rounded),
                   label: Text(isSpinning ? 'Memutar...' : 'Putar'),
                 ),

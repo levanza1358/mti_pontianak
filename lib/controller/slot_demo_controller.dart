@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../services/supabase_service.dart';
 import '../controller/login_controller.dart';
@@ -8,6 +10,10 @@ class SlotDemoController extends GetxController {
   // Dependencies
   final LoginController _loginController = Get.find<LoginController>();
   final Random _rand = Random();
+
+  // [BARU] Variabel untuk logika reset via tap
+  Timer? _tapResetTimer;
+  int _refreshTapCount = 0;
 
   // Grid constants
   static const int cols = 6;
@@ -88,6 +94,12 @@ class SlotDemoController extends GetxController {
     // Leaderboard akan di-refresh ketika tab-nya diakses
   }
 
+  @override
+  void onClose() {
+    _tapResetTimer?.cancel(); // [BARU] Mencegah memory leak
+    super.onClose();
+  }
+
   /// Menghitung ulang bobot simbol dan skala hadiah berdasarkan difficulty.
   void _recomputeGameParams() {
     _effectiveWeight = Map<String, int>.from(symbolWeight);
@@ -139,6 +151,47 @@ class SlotDemoController extends GetxController {
       // Jika gagal memuat dari DB, gunakan fallback 50 jika koin saat ini 0
       if (coins.value == 0) coins.value = 50;
     }
+  }
+
+  /// [BARU] Menangani tap pada tombol refresh.
+  /// Tap biasa (jika kredit > 0) akan memuat kredit.
+  /// Tap 5x saat kredit 0 akan mereset.
+  Future<void> handleRefreshTap() async {
+    // Jika kredit tidak 0, lakukan refresh biasa dan hentikan proses.
+    if (coins.value > 0) {
+      await loadCredit();
+      return;
+    }
+
+    // Jika kredit 0, mulai hitung tap.
+    _tapResetTimer?.cancel(); // Hentikan timer reset sebelumnya.
+    _refreshTapCount++;
+
+    if (_refreshTapCount >= 5) {
+      // Jika sudah 5x tap, reset kredit.
+      await resetCredit();
+      _refreshTapCount = 0; // Reset hitungan.
+      _tapResetTimer?.cancel(); // Hentikan timer.
+    } else {
+      // Jika belum 5x, mulai timer 2 detik.
+      // Jika tidak ada tap lagi dalam 2 detik, hitungan akan direset.
+      _tapResetTimer = Timer(const Duration(seconds: 2), () {
+        _refreshTapCount = 0;
+      });
+    }
+  }
+
+  /// Mereset kredit pengguna ke 50.
+  Future<void> resetCredit() async {
+    coins.value = 50;
+    await _persistCredit(50);
+    Get.snackbar(
+      'Reset Berhasil',
+      'Kredit Anda telah direset menjadi 50.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
   }
 
   /// Menyimpan saldo koin ke Supabase.

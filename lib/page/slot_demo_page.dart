@@ -73,10 +73,12 @@ class _SlotDemoPageState extends State<SlotDemoPage>
                       children: [
                         Text('Credit Slot', style: theme.textTheme.titleMedium),
                         const SizedBox(width: 8),
+                        // [DIUBAH] Menggunakan IconButton sederhana yang memanggil handleRefreshTap
                         IconButton(
-                          tooltip: 'Refresh credit',
-                          // Memanggil metode controller
-                          onPressed: isSpinning ? null : _c.loadCredit,
+                          tooltip:
+                              'Refresh credit (tap 5x saat kredit 0 untuk reset)',
+                          // Memanggil metode controller yang baru
+                          onPressed: isSpinning ? null : _c.handleRefreshTap,
                           icon: const Icon(Icons.refresh_rounded, size: 18),
                         ),
                         if (outcomeText.isNotEmpty) ...[

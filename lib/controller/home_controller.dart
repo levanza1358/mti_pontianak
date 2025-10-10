@@ -86,6 +86,9 @@ class HomeController extends GetxController {
       );
       menus.add(const SizedBox(height: AppSpacing.md));
     }
+
+    // Tampilkan menu gabungan "Semua Data" hanya jika dua-duanya punya permission
+    // Fitur "Semua Data" dihapus sesuai permintaan
     if (authController.hasPermissionInsentif) {
       menus.add(
         menuCardBuilder(

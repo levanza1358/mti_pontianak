@@ -115,200 +115,290 @@ class SemuaDataEksepsiPage extends StatelessWidget {
                       );
                     }
 
-                    if (controller.eksepsiList.isEmpty) {
-                      return Container(
-                        padding: const EdgeInsets.all(28),
-                        decoration: BoxDecoration(
-                          color: t.card,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: t.shadowColor,
-                              blurRadius: 20,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.schedule,
-                                  color: accentGradient.first, size: 48),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Belum ada data eksepsi',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: t.textPrimary),
+                    // Navigasi bulan dan daftar terfilter selalu tampil
+                    final filtered = controller.eksepsiForSelectedMonth;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: t.card,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: t.shadowColor,
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
                               ),
-                              const SizedBox(height: 6),
-                              Text('Data eksepsi akan tampil di sini',
-                                  style: TextStyle(color: t.textSecondary)),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: controller.prevMonth,
+                                icon: const Icon(Icons.chevron_left),
+                                color: t.textPrimary,
+                                tooltip: 'Bulan sebelumnya',
+                              ),
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    controller.monthLabel(),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: t.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: controller.nextMonth,
+                                icon: const Icon(Icons.chevron_right),
+                                color: t.textPrimary,
+                                tooltip: 'Bulan berikutnya',
+                              ),
                             ],
                           ),
                         ),
-                      );
-                    }
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: filtered.isEmpty
+                              ? Container(
+                                  padding: const EdgeInsets.all(28),
+                                  decoration: BoxDecoration(
+                                    color: t.card,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: t.shadowColor,
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.schedule,
+                                            color: accentGradient.first,
+                                            size: 48),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          'Belum ada data eksepsi',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: t.textPrimary),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text('Data eksepsi akan tampil di sini',
+                                            style: TextStyle(
+                                                color: t.textSecondary)),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : RefreshIndicator(
+                                  onRefresh: controller.refreshData,
+                                  child: ListView.builder(
+                                    itemCount: filtered.length,
+                                    itemBuilder: (context, index) {
+                                      final item = filtered[index];
+                                      final userName =
+                                          (item['user_name'] ?? '') as String;
+                                      final userNrp =
+                                          (item['user_nrp'] ?? '') as String;
+                                      final userId =
+                                          (item['user_id'] ?? '') as String;
+                                      final jenis =
+                                          (item['jenis_eksepsi'] ?? '-')
+                                              as String;
+                                      final tanggalPengajuan =
+                                          (item['tanggal_pengajuan'] ?? '')
+                                              as String;
+                                      final tanggalList =
+                                          (item['list_tanggal_eksepsi'] ?? '')
+                                              as String;
+                                      final jumlahHari =
+                                          item['jumlah_hari']?.toString() ??
+                                              '-';
+                                      final alasan =
+                                          (item['alasan_eksepsi'] ?? '-')
+                                              as String;
 
-                    return RefreshIndicator(
-                      onRefresh: controller.refreshData,
-                      child: ListView.builder(
-                        itemCount: controller.eksepsiList.length,
-                        itemBuilder: (context, index) {
-                          final item = controller.eksepsiList[index];
-                          final userName = (item['user_name'] ?? '') as String;
-                          final userNrp = (item['user_nrp'] ?? '') as String;
-                          final userId = (item['user_id'] ?? '') as String;
-                          final jenis =
-                              (item['jenis_eksepsi'] ?? '-') as String;
-                          final tanggalPengajuan =
-                              (item['tanggal_pengajuan'] ?? '') as String;
-                          final tanggalList =
-                              (item['list_tanggal_eksepsi'] ?? '') as String;
-                          final jumlahHari =
-                              item['jumlah_hari']?.toString() ?? '-';
-                          final alasan =
-                              (item['alasan_eksepsi'] ?? '-') as String;
+                                      final titleText = userName.isNotEmpty
+                                          ? userName
+                                          : (userNrp.isNotEmpty
+                                              ? userNrp
+                                              : (userId.isNotEmpty
+                                                  ? userId
+                                                  : '-'));
 
-                          final titleText = userName.isNotEmpty
-                              ? userName
-                              : (userNrp.isNotEmpty
-                                  ? userNrp
-                                  : (userId.isNotEmpty ? userId : '-'));
-
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: t.card,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: t.shadowColor,
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 4),
+                                      return Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 12),
+                                        decoration: BoxDecoration(
+                                          color: t.card,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: t.shadowColor,
+                                              blurRadius: 20,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ListTile(
+                                          contentPadding:
+                                              const EdgeInsets.all(16),
+                                          onTap: () =>
+                                              controller.showDetail(item),
+                                          leading: Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: accentGradient,
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: const Icon(Icons.schedule,
+                                                color: Colors.white,
+                                                size: 20),
+                                          ),
+                                          title: Text(
+                                            titleText,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: t.textPrimary,
+                                            ),
+                                          ),
+                                          subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 6),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.badge,
+                                                      size: 14,
+                                                      color:
+                                                          t.textSecondary),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      jenis,
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              t.textSecondary),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons
+                                                      .schedule_outlined,
+                                                      size: 14,
+                                                      color:
+                                                          t.textSecondary),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      tanggalPengajuan
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              t.textSecondary),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Icon(Icons.calendar_today,
+                                                      size: 14,
+                                                      color:
+                                                          t.textSecondary),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      tanggalList.isEmpty
+                                                          ? '-'
+                                                          : tanggalList
+                                                              .replaceAll(
+                                                                  ',', ', '),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              t.textSecondary),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.timelapse,
+                                                      size: 14,
+                                                      color:
+                                                          t.textSecondary),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    '$jumlahHari hari',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            t.textSecondary),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Icon(Icons.notes,
+                                                      size: 14,
+                                                      color:
+                                                          t.textSecondary),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      alasan.isEmpty
+                                                          ? '-'
+                                                          : alasan,
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              t.textSecondary),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              onTap: () => controller.showDetail(item),
-                              leading: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: accentGradient,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(Icons.schedule,
-                                    color: Colors.white, size: 20),
-                              ),
-                              title: Text(
-                                titleText,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: t.textPrimary,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.badge,
-                                          size: 14, color: t.textSecondary),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          jenis,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: t.textSecondary),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.schedule_outlined,
-                                          size: 14, color: t.textSecondary),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          tanggalPengajuan.toString(),
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: t.textSecondary),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Icon(Icons.calendar_today,
-                                          size: 14, color: t.textSecondary),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          tanggalList.isEmpty
-                                              ? '-'
-                                              : tanggalList.replaceAll(
-                                                  ',', ', '),
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: t.textSecondary),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.timelapse,
-                                          size: 14, color: t.textSecondary),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        '$jumlahHari hari',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: t.textSecondary),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Icon(Icons.notes,
-                                          size: 14, color: t.textSecondary),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          alasan.isEmpty ? '-' : alasan,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: t.textSecondary),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                        ),
+                      ],
                     );
                   }),
                 ),

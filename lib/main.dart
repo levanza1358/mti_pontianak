@@ -6,6 +6,7 @@ import 'services/supabase_service.dart';
 
 // Controllers
 import 'controller/login_controller.dart';
+import 'controller/home_controller.dart';
 
 // Pages
 import 'page/login_page.dart';
@@ -62,6 +63,8 @@ class MyApp extends StatelessWidget {
   /// Initialize all required controllers
   void _initializeControllers() {
     Get.put(LoginController());
+    // Ensure HomeController is available for HomePage
+    Get.put(HomeController());
     Get.put(ThemeController(), permanent: true);
   }
 

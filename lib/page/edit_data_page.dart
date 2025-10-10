@@ -874,13 +874,18 @@ InputDecoration _disabledDecoration(
 BoxDecoration _cardDecoration(AppTokens tokens) {
   return BoxDecoration(
     color: tokens.card,
-    borderRadius: BorderRadius.circular(20),
-    border: Border.all(color: tokens.borderSubtle),
-    boxShadow: [
+    borderRadius: BorderRadius.circular(22),
+    border: Border.all(color: tokens.borderSubtle, width: 1),
+    boxShadow: const [
       BoxShadow(
-        color: tokens.shadowColor,
-        blurRadius: 14,
-        offset: const Offset(0, 6),
+        color: Color(0x1F000000),
+        blurRadius: 18,
+        offset: Offset(0, 8),
+      ),
+      BoxShadow(
+        color: Color(0x12000000),
+        blurRadius: 8,
+        offset: Offset(0, 2),
       ),
     ],
   );

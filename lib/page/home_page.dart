@@ -134,6 +134,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LoginController authController = Get.find<LoginController>();
+    final HomeController homeController = Get.find<HomeController>();
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
     final isDark = theme.brightness == Brightness.dark;
@@ -268,10 +269,12 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: AppSpacing.md),
 
                       // Menu Cards in KERENUI Layout with Permission Check
-                      ...Get.put(HomeController()).buildPermissionBasedMenus(
+                      ...homeController.buildPermissionBasedMenus(
                         context,
                         _buildKerenUIMenuCard,
                       ),
+
+                      // Fitur "Semua Data" dihapus sesuai permintaan pengguna
                       const SizedBox(height: AppSpacing.md),
                       // Settings entry
                       _buildKerenUIMenuCard(

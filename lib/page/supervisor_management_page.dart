@@ -40,15 +40,10 @@ class SupervisorManagementPage extends StatelessWidget {
                   theme: theme,
                   tokens: tokens,
                   accentGradient: accentGradient,
-                  onRefresh: controller.refreshData,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _buildTabSelector(
                   controller: controller,
-                  theme: theme,
-                  tokens: tokens,
                   accent: accent,
                   accentAlt: accentAlt,
+                  onRefresh: controller.refreshData,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Expanded(
@@ -88,6 +83,9 @@ class SupervisorManagementPage extends StatelessWidget {
     required ThemeData theme,
     required AppTokens tokens,
     required List<Color> accentGradient,
+    required SupervisorManagementController controller,
+    required Color accent,
+    required Color accentAlt,
     required VoidCallback onRefresh,
   }) {
     return Container(
@@ -108,65 +106,78 @@ class SupervisorManagementPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.onPrimary.withOpacity(0.28),
-              ),
-            ),
-            child: IconButton(
-              onPressed: () => Get.back(),
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Manajemen Supervisor',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onPrimary.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: theme.colorScheme.onPrimary.withOpacity(0.28),
+                  ),
+                ),
+                child: IconButton(
+                  onPressed: () => Get.back(),
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
                     color: theme.colorScheme.onPrimary,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Tambah dan kelola supervisor dengan mudah.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: theme.colorScheme.onPrimary.withOpacity(0.9),
+              ),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Manajemen Supervisor',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Tambah dan kelola supervisor dengan mudah.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onPrimary.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onPrimary.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: theme.colorScheme.onPrimary.withOpacity(0.28),
                   ),
                 ),
-              ],
-            ),
+                child: IconButton(
+                  onPressed: onRefresh,
+                  icon: Icon(
+                    Icons.refresh_rounded,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                  tooltip: 'Muat ulang data',
+                ),
+              ),
+            ],
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.onPrimary.withOpacity(0.28),
-              ),
-            ),
-            child: IconButton(
-              onPressed: onRefresh,
-              icon: Icon(
-                Icons.refresh_rounded,
-                color: theme.colorScheme.onPrimary,
-              ),
-              tooltip: 'Muat ulang data',
-            ),
+          const SizedBox(height: AppSpacing.section),
+          _buildTabSelector(
+            controller: controller,
+            theme: theme,
+            tokens: tokens,
+            accent: accent,
+            accentAlt: accentAlt,
           ),
         ],
       ),

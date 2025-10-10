@@ -41,11 +41,7 @@ class GroupManagementPage extends StatelessWidget {
                       tokens: tokens,
                       theme: theme,
                       accentGradient: accentGradient,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _TabSelector(
                       controller: controller,
-                      tokens: tokens,
                       accent: accent,
                       accentAlt: accentAlt,
                     ),
@@ -91,11 +87,17 @@ class _HeaderCard extends StatelessWidget {
     required this.tokens,
     required this.theme,
     required this.accentGradient,
+    required this.controller,
+    required this.accent,
+    required this.accentAlt,
   });
 
   final AppTokens tokens;
   final ThemeData theme;
   final List<Color> accentGradient;
+  final GroupManagementController controller;
+  final Color accent;
+  final Color accentAlt;
 
   @override
   Widget build(BuildContext context) {
@@ -117,37 +119,74 @@ class _HeaderCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _GlassIconButton(
-            icon: Icons.arrow_back_rounded,
-            onTap: () => Get.back(),
-            theme: theme,
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Manajemen Group',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Kelola daftar group dan lakukan pembaruan data',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: theme.colorScheme.onPrimary.withAlpha(
-                      (0.88 * 255).round(),
+          Row(
+            children: [
+              _GlassIconButton(
+                icon: Icons.arrow_back_rounded,
+                onTap: () => Get.back(),
+                theme: theme,
+              ),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Manajemen Group',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onPrimary,
+                      ),
                     ),
-                    fontWeight: FontWeight.w500,
-                  ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Kelola daftar group dan lakukan pembaruan data',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.onPrimary.withAlpha(
+                          (0.88 * 255).round(),
+                        ),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.section),
+          Container(
+            height: 50,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.onPrimary.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.onPrimary.withOpacity(0.22),
+              ),
+            ),
+            child: TabBar(
+              controller: controller.tabController,
+              labelColor: accent,
+              unselectedLabelColor:
+                  theme.colorScheme.onPrimary.withOpacity(0.9),
+              labelStyle:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              unselectedLabelStyle:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              indicator: BoxDecoration(
+                color: theme.colorScheme.onPrimary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
+              tabs: const [
+                Tab(text: 'Tambah Group'),
+                Tab(text: 'Edit Group'),
               ],
             ),
           ),
@@ -157,64 +196,7 @@ class _HeaderCard extends StatelessWidget {
   }
 }
 
-class _TabSelector extends StatelessWidget {
-  const _TabSelector({
-    required this.controller,
-    required this.tokens,
-    required this.accent,
-    required this.accentAlt,
-  });
-
-  final GroupManagementController controller;
-  final AppTokens tokens;
-  final Color accent;
-  final Color accentAlt;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: tokens.borderSubtle),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TabBar(
-        controller: controller.tabController,
-        labelColor: Theme.of(context).colorScheme.onPrimary,
-        unselectedLabelColor: tokens.textSecondary,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 15,
-        ),
-        indicator: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [accent, accentAlt],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(
-            icon: Icon(Icons.add_circle_outline_rounded),
-            text: 'Tambah Group',
-          ),
-          Tab(icon: Icon(Icons.edit_outlined), text: 'Edit Group'),
-        ],
-      ),
-    );
-  }
-}
+// _TabSelector removed; TabBar now lives inside the header card
 
 class _AddGroupTab extends StatelessWidget {
   const _AddGroupTab({

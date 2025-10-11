@@ -12,8 +12,6 @@
             "program": "lib/main.dart",
             "useFlutterStructuredErrors": true,
             "args": [
-                "--web-renderer",
-                "auto",
                 "--web-port",
                 "9900"
             ]

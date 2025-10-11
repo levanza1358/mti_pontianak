@@ -4,10 +4,11 @@ import 'package:table_calendar/table_calendar.dart';
 import '../services/supabase_service.dart';
 import 'login_controller.dart';
 
-class CalendarCutiController extends GetxController {
+class CalendarCutiController extends GetxController with GetSingleTickerProviderStateMixin {
   // Observable state variables
   final isLoading = false.obs;
   final isLoadingCalendar = false.obs;
+  final isLoadingDataList = false.obs;
   final currentUser = Rxn<Map<String, dynamic>>();
 
   // Calendar data
@@ -16,18 +17,35 @@ class CalendarCutiController extends GetxController {
   final focusedDay = DateTime.now().obs;
   final calendarFormat = CalendarFormat.month.obs;
 
+  // Data list for leave records
+  // Observable list for employee data (instead of leave data)
+  final employeeList = <Map<String, dynamic>>[].obs;
+  final isLoadingEmployeeList = false.obs;
+
+  // Tab controller
+  late TabController tabController;
+
   // Login controller reference
   final LoginController loginController = Get.find<LoginController>();
 
   @override
   void onInit() {
     super.onInit();
+    // Initialize tab controller with 2 tabs
+    tabController = TabController(length: 2, vsync: this);
     _initializeData();
+  }
+
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
   }
 
   Future<void> _initializeData() async {
     await loadCurrentUser();
     await loadCalendarData();
+    await loadEmployeeList();
   }
 
   // Load current user data
@@ -36,10 +54,10 @@ class CalendarCutiController extends GetxController {
     try {
       final user = loginController.currentUser.value;
       if (user != null) {
-        // Get fresh user data with group and status_group
+        // Get fresh user data with group, status_group, and sisa_cuti
         final result = await SupabaseService.instance.client
             .from('users')
-            .select('*, group, status_group')
+            .select('*, group, status_group, sisa_cuti')
             .eq('id', user['id'])
             .single();
 
@@ -183,6 +201,40 @@ class CalendarCutiController extends GetxController {
     return calendarEvents[normalizedDay] ?? [];
   }
 
+  // Load employee's leave data by employee ID
+  Future<List<Map<String, dynamic>>> loadEmployeeCutiData(String employeeId) async {
+    try {
+      print('🔥 DEBUG: Starting loadEmployeeCutiData for employee ID: $employeeId');
+      
+      final result = await SupabaseService.instance.client
+          .from('cuti')
+          .select('''
+            *,
+            users!inner(id, name, group, status_group)
+          ''')
+          .eq('users_id', employeeId)
+          .order('tanggal_pengajuan', ascending: false);
+
+      print('🔥 DEBUG: Query result: ${result.toString()}');
+      print('🔥 DEBUG: Result length: ${result.length}');
+      
+      final cutiData = List<Map<String, dynamic>>.from(result);
+      print('🔥 DEBUG: Processed cuti data: ${cutiData.toString()}');
+      
+      return cutiData;
+    } catch (e) {
+      print('🔥 DEBUG: Error in loadEmployeeCutiData: $e');
+      Get.snackbar(
+        'Error',
+        'Gagal memuat data cuti pegawai: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      return [];
+    }
+  }
+
   // Check if a day has events
   bool hasEventsOnDay(DateTime day) {
     return getEventsForDay(day).isNotEmpty;
@@ -205,5 +257,55 @@ class CalendarCutiController extends GetxController {
 
   void onPageChanged(DateTime focusedDay) {
     this.focusedDay.value = focusedDay;
+  }
+
+  // Check if user is Atasan (to show/hide tabs)
+  bool get isAtasan => currentUser.value?['status_group'] == 'Atasan';
+
+  // Refresh all data
+  Future<void> refreshAllData() async {
+    await loadCalendarData();
+    await loadEmployeeList();
+  }
+
+  // Load employee list for Atasan to see all employees in same group
+  Future<void> loadEmployeeList() async {
+    isLoadingEmployeeList.value = true;
+
+    try {
+      if (currentUser.value == null) {
+        employeeList.clear();
+        return;
+      }
+
+      final user = currentUser.value!;
+      final userGroup = user['group'];
+      final statusGroup = user['status_group'];
+
+      // Only load employee list for Atasan
+      if (statusGroup != 'Atasan') {
+        employeeList.clear();
+        return;
+      }
+
+      // Get all employees from same group
+      final result = await SupabaseService.instance.client
+          .from('users')
+          .select('id, name, group, status_group, sisa_cuti')
+          .eq('group', userGroup)
+          .order('name', ascending: true);
+
+      employeeList.value = List<Map<String, dynamic>>.from(result);
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal memuat data pegawai: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoadingEmployeeList.value = false;
+    }
   }
 }

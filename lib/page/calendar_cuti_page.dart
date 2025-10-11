@@ -420,10 +420,6 @@ class CalendarCutiPage extends StatelessWidget {
       ),
       child: ListTile(
         onTap: () {
-          print('🔥 DEBUG: Employee card tapped!');
-          print('🔥 DEBUG: Employee data: ${employee.toString()}');
-          print('🔥 DEBUG: Employee ID: ${employee['id']}');
-          print('🔥 DEBUG: Employee Name: ${employee['name']}');
           _showEmployeeCutiDialog(employee, controller);
         },
         contentPadding: const EdgeInsets.symmetric(
@@ -977,9 +973,6 @@ class CalendarCutiPage extends StatelessWidget {
     final employeeId = employee['id'];
     final employeeName = employee['name'] ?? 'Unknown';
 
-    print('🔥 DEBUG: _showEmployeeCutiDialog called');
-    print('🔥 DEBUG: Employee ID: $employeeId');
-    print('🔥 DEBUG: Employee Name: $employeeName');
 
     // Use a single dialog with loading state management
     Get.dialog(
@@ -997,7 +990,7 @@ class CalendarCutiPage extends StatelessWidget {
               
               if (snapshot.connectionState == ConnectionState.waiting) {
                 // Show loading state
-                return Container(
+                return SizedBox(
                   height: 200,
                   child: const Center(
                     child: CircularProgressIndicator(),
@@ -1037,8 +1030,6 @@ class CalendarCutiPage extends StatelessWidget {
               }
               
               final cutiData = snapshot.data ?? [];
-              print('🔥 DEBUG: Received cutiData: ${cutiData.toString()}');
-              print('🔥 DEBUG: cutiData length: ${cutiData.length}');
               
               // Show dialog content with data
               return Column(

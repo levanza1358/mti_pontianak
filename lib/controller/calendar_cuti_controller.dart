@@ -204,7 +204,6 @@ class CalendarCutiController extends GetxController with GetSingleTickerProvider
   // Load employee's leave data by employee ID
   Future<List<Map<String, dynamic>>> loadEmployeeCutiData(String employeeId) async {
     try {
-      print('🔥 DEBUG: Starting loadEmployeeCutiData for employee ID: $employeeId');
       
       final result = await SupabaseService.instance.client
           .from('cuti')
@@ -215,15 +214,11 @@ class CalendarCutiController extends GetxController with GetSingleTickerProvider
           .eq('users_id', employeeId)
           .order('tanggal_pengajuan', ascending: false);
 
-      print('🔥 DEBUG: Query result: ${result.toString()}');
-      print('🔥 DEBUG: Result length: ${result.length}');
       
       final cutiData = List<Map<String, dynamic>>.from(result);
-      print('🔥 DEBUG: Processed cuti data: ${cutiData.toString()}');
       
       return cutiData;
     } catch (e) {
-      print('🔥 DEBUG: Error in loadEmployeeCutiData: $e');
       Get.snackbar(
         'Error',
         'Gagal memuat data cuti pegawai: $e',

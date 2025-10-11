@@ -56,7 +56,8 @@ void main(List<String> args) async {
   if (manifestFile.existsSync()) {
     try {
       final manifestJson = json.decode(await manifestFile.readAsString());
-      if (manifestJson is Map && (manifestJson['name'] ?? '').toString().isNotEmpty) {
+      if (manifestJson is Map &&
+          (manifestJson['name'] ?? '').toString().isNotEmpty) {
         appName = manifestJson['name'].toString();
       }
     } catch (_) {
@@ -75,10 +76,11 @@ void main(List<String> args) async {
 
   final encoder = const JsonEncoder.withIndent('  ');
   await versionJsonFile.create(recursive: true);
-  await versionJsonFile.writeAsString(encoder.convert(data) + '\n');
+  await versionJsonFile.writeAsString('${encoder.convert(data)}\n');
 
   stdout.writeln('Berhasil sync web/version.json -> ${versionJsonFile.path}');
-  stdout.writeln('app_name=$appName, version=$version, build_number=${buildNumber.isEmpty ? '(kosong)' : buildNumber}, package_name=$packageName');
+  stdout.writeln(
+      'app_name=$appName, version=$version, build_number=${buildNumber.isEmpty ? '(kosong)' : buildNumber}, package_name=$packageName');
 }
 
 String _titleCase(String input) {
@@ -89,4 +91,3 @@ String _titleCase(String input) {
       .join(' ')
       .trim();
 }
-

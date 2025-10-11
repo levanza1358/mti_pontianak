@@ -11,6 +11,7 @@ class EditDataController extends GetxController {
   final nameController = TextEditingController();
   final nrpController = TextEditingController();
   final passwordController = TextEditingController();
+  final sisaCutiController = TextEditingController();
 
   // Dropdown data
   final jabatanList = <Map<String, dynamic>>[].obs;
@@ -146,6 +147,7 @@ class EditDataController extends GetxController {
     nameController.dispose();
     nrpController.dispose();
     passwordController.dispose();
+    sisaCutiController.dispose();
     super.onClose();
   }
 
@@ -242,6 +244,7 @@ class EditDataController extends GetxController {
     selectedStatus.value = pegawai['status'];
     selectedGroup.value = pegawai['group'];
     selectedStatusGroup.value = pegawai['status_group'];
+    sisaCutiController.text = (pegawai['sisa_cuti'] ?? 0).toString();
     passwordController.clear(); // Don't show existing password
     isDataFound.value = true;
   }
@@ -263,6 +266,7 @@ class EditDataController extends GetxController {
           'status': selectedStatus.value,
           'group': selectedGroup.value,
           'status_group': selectedStatusGroup.value,
+          'sisa_cuti': int.tryParse(sisaCutiController.text.trim()) ?? 0,
         };
 
         // Only update password if provided
@@ -310,6 +314,7 @@ class EditDataController extends GetxController {
     nameController.clear();
     nrpController.clear();
     passwordController.clear();
+    sisaCutiController.clear();
     selectedJabatan.value = null;
     selectedStatus.value = null;
     selectedGroup.value = null;
@@ -325,6 +330,7 @@ class EditDataController extends GetxController {
     nameController.clear();
     nrpController.clear();
     passwordController.clear();
+    sisaCutiController.clear();
     selectedJabatan.value = null;
     selectedStatus.value = null;
     selectedGroup.value = null;
@@ -378,6 +384,20 @@ class EditDataController extends GetxController {
     // Password optional, but if provided must be >= 6 chars
     if (value != null && value.isNotEmpty && value.length < 6) {
       return 'Password minimal 6 karakter';
+    }
+    return null;
+  }
+
+  String? validateSisaCuti(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Sisa cuti tidak boleh kosong';
+    }
+    final parsed = int.tryParse(value.trim());
+    if (parsed == null) {
+      return 'Sisa cuti harus berupa angka';
+    }
+    if (parsed < 0) {
+      return 'Sisa cuti tidak boleh negatif';
     }
     return null;
   }

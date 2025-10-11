@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mti_pontianak/controller/insentif_controller.dart';
@@ -6,7 +8,7 @@ import '../theme/app_spacing.dart';
 import 'package:intl/intl.dart';
 
 class InsentifPage extends GetView<InsentifController> {
-  const InsentifPage({Key? key}) : super(key: key);
+  const InsentifPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,8 @@ class InsentifPage extends GetView<InsentifController> {
             children: [
               // Header as gradient card like Home
               Container(
-                margin: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+                margin: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: primaryGradient,
@@ -42,7 +45,10 @@ class InsentifPage extends GetView<InsentifController> {
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                   boxShadow: [
-                    BoxShadow(color: t.shadowColor, blurRadius: 12, offset: const Offset(0, 6)),
+                    BoxShadow(
+                        color: t.shadowColor,
+                        blurRadius: 12,
+                        offset: const Offset(0, 6)),
                   ],
                 ),
                 child: Stack(
@@ -75,145 +81,125 @@ class InsentifPage extends GetView<InsentifController> {
                     // Content
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.lg),
-                      child: Row(
+                      child: Column(
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.18),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.white.withOpacity(0.25)),
-                            ),
-                            child: IconButton(
-                              onPressed: () => Get.back(),
-                              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-                            ),
+                          Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.18),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: Colors.white.withOpacity(0.25)),
+                                ),
+                                child: IconButton(
+                                  onPressed: () => Get.back(),
+                                  icon: const Icon(Icons.arrow_back_ios_new,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'Data Insentif',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(height: AppSpacing.sm),
+                                    Text(
+                                      'Data Insentif Premi & Lembur',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Obx(() {
+                                final years = controller.availableYears.toList()
+                                  ..sort((a, b) => b.compareTo(a));
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.md,
+                                      vertical: AppSpacing.xs),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.16),
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                        color: Colors.white.withOpacity(0.25)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.calendar_today,
+                                          color: Colors.white70, size: 16),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      DropdownButtonHideUnderline(
+                                        child: DropdownButton<int>(
+                                          value: controller.selectedYear.value,
+                                          dropdownColor: t.card,
+                                          icon: const Icon(Icons.arrow_drop_down,
+                                              color: Colors.white),
+                                          style: const TextStyle(
+                                              color: Colors.white, fontSize: 14),
+                                          items: years
+                                              .map((y) => DropdownMenuItem<int>(
+                                                  value: y, child: Text('$y')))
+                                              .toList(),
+                                          onChanged: (v) => v != null
+                                              ? controller.changeYear(v)
+                                              : null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  'Data Insentif',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: AppSpacing.sm),
-                                Text(
-                                  'Data Insentif Premi & Lembur',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white70,
-                                  ),
-                                ),
+                          const SizedBox(height: AppSpacing.lg),
+                          // TabBar like CutiPage inside header card
+                          Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: TabBar(
+                              controller: controller.tabController,
+                              indicator: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              dividerColor: Colors.transparent,
+                              labelColor: primaryGradient.first,
+                              unselectedLabelColor:
+                                  Colors.white.withOpacity(0.85),
+                              labelStyle: const TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 14),
+                              tabs: const [
+                                Tab(text: 'Insentif Premi'),
+                                Tab(text: 'Insentif Lembur'),
                               ],
                             ),
                           ),
-                          const SizedBox(width: AppSpacing.md),
-                          Obx(() {
-                            final years = controller.availableYears.toList()..sort((a, b) => b.compareTo(a));
-                            return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.16),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(color: Colors.white.withOpacity(0.25)),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.calendar_today, color: Colors.white70, size: 16),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  DropdownButtonHideUnderline(
-                                    child: DropdownButton<int>(
-                                      value: controller.selectedYear.value,
-                                      dropdownColor: t.card,
-                                      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                                      items: years
-                                          .map((y) => DropdownMenuItem<int>(value: y, child: Text('$y')))
-                                          .toList(),
-                                      onChanged: (v) => v != null ? controller.changeYear(v) : null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
                         ],
                       ),
                     ),
                   ],
                 ),
               ),
-              // Segmented tabs (custom) to replace default TabBar style
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: AnimatedBuilder(
-                  animation: controller.tabController,
-                  builder: (context, _) {
-                    final idx = controller.tabController.index;
-                    Widget buildSeg(String text, IconData icon, int target) {
-                      final selected = idx == target;
-                      return Expanded(
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(14),
-                          onTap: () => controller.tabController.index = target,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.md),
-                            decoration: BoxDecoration(
-                              color: selected ? null : t.card,
-                              gradient: selected
-                                  ? LinearGradient(
-                                      colors: primaryGradient,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    )
-                                  : null,
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                if (!selected)
-                                  BoxShadow(
-                                    color: t.shadowColor,
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 4),
-                                  ),
-                              ],
-                              border: Border.all(color: t.borderSubtle, width: selected ? 0 : 1),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(icon, size: 18, color: selected ? Colors.white : primaryGradient.first),
-                                const SizedBox(width: 8),
-                                Text(
-                                  text,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: selected ? Colors.white : primaryGradient.first,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    return Row(
-                      children: [
-                        buildSeg('Insentif Premi', Icons.stacked_bar_chart, 0),
-                        const SizedBox(width: AppSpacing.md - 2),
-                        buildSeg('Insentif Lembur', Icons.timer, 1),
-                      ],
-                    );
-                  },
-                ),
-              ),
+              // TabBarView follows header TabBar
               const SizedBox(height: AppSpacing.sm),
               Expanded(
                 child: TabBarView(
@@ -224,18 +210,6 @@ class InsentifPage extends GetView<InsentifController> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Implement add new insentif
-          Get.snackbar(
-            'Info',
-            'Fitur tambah insentif akan segera hadir!',
-            backgroundColor: theme.primaryColor,
-            colorText: Colors.white,
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -433,6 +407,17 @@ class InsentifPage extends GetView<InsentifController> {
     String? typeLabel,
   }) {
     final accentAlt = t.insentifGradient.last;
+    // Ambil angka bulan dari field 'bulan'; fallback ke nomor urut jika tidak tersedia
+    final String monthText = (() {
+      final v = insentif['bulan'];
+      if (v is String && v.isNotEmpty) {
+        try {
+          final dt = DateTime.parse(v);
+          return '${dt.month}';
+        } catch (_) {}
+      }
+      return '${index + 1}';
+    })();
     return Card(
       elevation: 0,
       color: t.card,
@@ -442,7 +427,8 @@ class InsentifPage extends GetView<InsentifController> {
         side: BorderSide(color: t.borderSubtle),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md + 2),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg, vertical: AppSpacing.md + 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -454,7 +440,10 @@ class InsentifPage extends GetView<InsentifController> {
                   height: 40,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [accent.withOpacity(0.15), accentAlt.withOpacity(0.15)],
+                      colors: [
+                        accent.withOpacity(0.15),
+                        accentAlt.withOpacity(0.15)
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -463,7 +452,7 @@ class InsentifPage extends GetView<InsentifController> {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    '${index + 1}',
+                    monthText,
                     style: TextStyle(
                       color: accent,
                       fontWeight: FontWeight.w700,
@@ -493,7 +482,9 @@ class InsentifPage extends GetView<InsentifController> {
                           const SizedBox(width: AppSpacing.sm),
                           if (typeLabel != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs),
                               decoration: BoxDecoration(
                                 color: t.chipBg,
                                 borderRadius: BorderRadius.circular(999),
@@ -501,7 +492,10 @@ class InsentifPage extends GetView<InsentifController> {
                               ),
                               child: Text(
                                 typeLabel,
-                                style: TextStyle(color: t.chipFg, fontWeight: FontWeight.w600, fontSize: 12),
+                                style: TextStyle(
+                                    color: t.chipFg,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12),
                               ),
                             ),
                         ],
@@ -510,10 +504,14 @@ class InsentifPage extends GetView<InsentifController> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md, vertical: AppSpacing.xs),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [accent.withOpacity(0.12), accentAlt.withOpacity(0.12)],
+                      colors: [
+                        accent.withOpacity(0.12),
+                        accentAlt.withOpacity(0.12)
+                      ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
@@ -522,7 +520,8 @@ class InsentifPage extends GetView<InsentifController> {
                   ),
                   child: Text(
                     controller.formatCurrency(insentif['nominal']),
-                    style: TextStyle(color: accent, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(color: accent, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -531,7 +530,8 @@ class InsentifPage extends GetView<InsentifController> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                   decoration: BoxDecoration(
                     color: theme.inputDecorationTheme.fillColor ?? t.surface,
                     borderRadius: BorderRadius.circular(12),
@@ -540,11 +540,13 @@ class InsentifPage extends GetView<InsentifController> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today, size: 14, color: t.textSecondary),
+                      Icon(Icons.calendar_today,
+                          size: 14, color: t.textSecondary),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
                         insentif['bulan'] != null
-                            ? DateFormat('MMMM yyyy').format(DateTime.parse(insentif['bulan']))
+                            ? DateFormat('MMMM yyyy')
+                                .format(DateTime.parse(insentif['bulan']))
                             : '-',
                         style: TextStyle(color: t.textSecondary),
                       ),

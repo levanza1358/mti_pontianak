@@ -5,6 +5,9 @@ import '../services/supabase_service.dart';
 class SemuaDataEksepsiController extends GetxController {
   final isLoadingList = false.obs;
   final eksepsiList = <Map<String, dynamic>>[].obs;
+  // State pemilahan per-bulan (default ke bulan berjalan)
+  final selectedMonth =
+      DateTime(DateTime.now().year, DateTime.now().month, 1).obs;
 
   @override
   void onInit() {
@@ -100,6 +103,59 @@ class SemuaDataEksepsiController extends GetxController {
 
   Future<void> refreshData() async {
     await fetchAllEksepsi();
+  }
+
+  // Navigasi bulan
+  void nextMonth() {
+    final current = selectedMonth.value;
+    selectedMonth.value = DateTime(current.year, current.month + 1, 1);
+  }
+
+  void prevMonth() {
+    final current = selectedMonth.value;
+    selectedMonth.value = DateTime(current.year, current.month - 1, 1);
+  }
+
+  String monthLabel() {
+    const bulan = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
+    ];
+    final m = selectedMonth.value.month;
+    final y = selectedMonth.value.year;
+    return '${bulan[m - 1]} $y';
+  }
+
+  // Filter data berdasarkan bulan terpilih
+  List<Map<String, dynamic>> get eksepsiForSelectedMonth {
+    final sm = selectedMonth.value;
+    return eksepsiList.where((item) {
+      DateTime? d;
+      final pengajuan = item['tanggal_pengajuan']?.toString();
+      if (pengajuan != null && pengajuan.isNotEmpty) {
+        d = DateTime.tryParse(pengajuan);
+      }
+      // Fallback: pakai tanggal pertama dari list_tanggal_eksepsi jika ada
+      if (d == null) {
+        final listTanggalStr = item['list_tanggal_eksepsi']?.toString() ?? '';
+        if (listTanggalStr.isNotEmpty) {
+          final firstDateStr = listTanggalStr.split(',').first.trim();
+          d = DateTime.tryParse(firstDateStr);
+        }
+      }
+      if (d == null) return false;
+      return d.year == sm.year && d.month == sm.month;
+    }).toList();
   }
 
   void showDetail(Map<String, dynamic> item) {

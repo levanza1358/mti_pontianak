@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -647,7 +649,8 @@ class CutiPage extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: t.successBg,
-                                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                                  borderRadius:
+                                      BorderRadius.circular(AppSpacing.sm),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -676,7 +679,8 @@ class CutiPage extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: t.warningBg,
-                                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                                  borderRadius:
+                                      BorderRadius.circular(AppSpacing.sm),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -770,9 +774,11 @@ class CutiPage extends StatelessWidget {
                           icon: const Icon(Icons.clear),
                           label: const Text('Hapus'),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.md),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppSpacing.md),
+                              borderRadius:
+                                  BorderRadius.circular(AppSpacing.md),
                             ),
                           ),
                         ),
@@ -784,9 +790,11 @@ class CutiPage extends StatelessWidget {
                           icon: const Icon(Icons.edit),
                           label: const Text('Buat TTD'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.md),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppSpacing.md),
+                              borderRadius:
+                                  BorderRadius.circular(AppSpacing.md),
                             ),
                           ),
                         ),
@@ -905,7 +913,7 @@ class CutiPage extends StatelessWidget {
                   color: t.textPrimary,
                 ),
               ),
-                  const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 'Pengajuan cuti Anda akan muncul di sini',
                 style: TextStyle(fontSize: 14, color: t.textSecondary),
@@ -1022,11 +1030,13 @@ class CutiPage extends StatelessWidget {
                                       ),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Get.back(result: false),
+                                          onPressed: () =>
+                                              Get.back(result: false),
                                           child: const Text('Batal'),
                                         ),
                                         ElevatedButton(
-                                          onPressed: () => Get.back(result: true),
+                                          onPressed: () =>
+                                              Get.back(result: true),
                                           child: const Text('Ya, lanjut'),
                                         ),
                                       ],

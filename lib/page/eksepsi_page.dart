@@ -43,15 +43,11 @@ class EksepsiPage extends StatelessWidget {
                       theme: theme,
                       tokens: tokens,
                       accentGradient: accentGradient,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _buildTabSelector(
                       controller: controller,
-                      theme: theme,
-                      tokens: tokens,
                       accent: accent,
                       accentAlt: accentAlt,
                     ),
+                    const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
               ),
@@ -92,6 +88,9 @@ class EksepsiPage extends StatelessWidget {
     required ThemeData theme,
     required AppTokens tokens,
     required List<Color> accentGradient,
+    required EksepsiController controller,
+    required Color accent,
+    required Color accentAlt,
   }) {
     return Container(
       width: double.infinity,
@@ -111,123 +110,110 @@ class EksepsiPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary.withAlpha(
-                (0.18 * 255).round(),
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.onPrimary.withAlpha(
-                  (0.28 * 255).round(),
-                ),
-              ),
-            ),
-            child: IconButton(
-              onPressed: () => Get.back(),
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Pengajuan Eksepsi',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary,
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onPrimary.withAlpha(
+                    (0.18 * 255).round(),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Ajukan eksepsi jam kerja dan pantau statusnya.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
                     color: theme.colorScheme.onPrimary.withAlpha(
-                      (0.88 * 255).round(),
+                      (0.28 * 255).round(),
                     ),
                   ),
                 ),
+                child: IconButton(
+                  onPressed: () => Get.back(),
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pengajuan Eksepsi',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Ajukan eksepsi jam kerja dan pantau statusnya.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.onPrimary.withAlpha(
+                          (0.88 * 255).round(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onPrimary.withAlpha(
+                    (0.18 * 255).round(),
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: theme.colorScheme.onPrimary.withAlpha(
+                      (0.28 * 255).round(),
+                    ),
+                  ),
+                ),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Icon(
+                  Icons.schedule_rounded,
+                  color: theme.colorScheme.onPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // TabBar di dalam kartu header (meniru gaya Pengajuan Cuti)
+          Container(
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TabBar(
+              controller: controller.tabController,
+              indicator: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
+              labelColor: accent,
+              unselectedLabelColor: Colors.white.withOpacity(0.8),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+              ),
+              tabs: const [
+                Tab(text: 'Pengajuan'),
+                Tab(text: 'Riwayat'),
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary.withAlpha(
-                (0.18 * 255).round(),
-              ),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: theme.colorScheme.onPrimary.withAlpha(
-                  (0.28 * 255).round(),
-                ),
-              ),
-            ),
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Icon(
-              Icons.schedule_rounded,
-              color: theme.colorScheme.onPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabSelector({
-    required EksepsiController controller,
-    required ThemeData theme,
-    required AppTokens tokens,
-    required Color accent,
-    required Color accentAlt,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: tokens.borderSubtle),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TabBar(
-        controller: controller.tabController,
-        labelColor: theme.colorScheme.onPrimary,
-        unselectedLabelColor: tokens.textSecondary,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 15,
-        ),
-        indicator: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [accent, accentAlt],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(
-            icon: Icon(Icons.add_circle_outline_rounded),
-            text: 'Ajukan Eksepsi',
-          ),
-          Tab(icon: Icon(Icons.history_rounded), text: 'Riwayat Saya'),
         ],
       ),
     );
@@ -863,9 +849,8 @@ class EksepsiPage extends StatelessWidget {
     Color accent,
   ) {
     final tanggalList = item['list_tanggal_eksepsi'] ?? '';
-    final List<String> tanggalArray = tanggalList.isEmpty
-        ? []
-        : tanggalList.split(', ');
+    final List<String> tanggalArray =
+        tanggalList.isEmpty ? [] : tanggalList.split(', ');
 
     showDialog(
       context: Get.context!,

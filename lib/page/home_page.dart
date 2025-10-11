@@ -48,6 +48,172 @@ class HomePage extends StatelessWidget {
 
   // Build permission-based menu list dipindahkan ke HomeController
 
+  // Kartu gabungan: kiri Pengajuan Cuti, kanan Kalender Cuti
+  Widget _buildCutiDualAccessCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: t.card,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: t.shadowColor,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: t.borderSubtle, width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              // Kiri: Pengajuan Cuti
+              Expanded(
+                child: InkWell(
+                  onTap: () => Get.toNamed('/cuti'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFF4facfe).withOpacity(0.8),
+                                const Color(0xFF4facfe).withOpacity(0.6),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.event_available_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pengajuan',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Cuti',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.textTheme.bodyMedium?.color
+                                      ?.withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: theme.textTheme.bodyMedium?.color
+                              ?.withOpacity(0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Divider vertikal di tengah
+              Container(
+                width: 1,
+                height: 48,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: t.borderSubtle,
+              ),
+              // Kanan: Kalender Cuti
+              Expanded(
+                child: InkWell(
+                  onTap: () => Get.toNamed('/calendar-cuti'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFF00d2ff).withOpacity(0.8),
+                                const Color(0xFF00d2ff).withOpacity(0.6),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.calendar_month_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Kalender',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Lihat jadwal cuti',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.textTheme.bodyMedium?.color
+                                      ?.withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: theme.textTheme.bodyMedium?.color
+                              ?.withOpacity(0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildKerenUIMenuCard({
     required BuildContext context,
     required String title,
@@ -134,6 +300,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LoginController authController = Get.find<LoginController>();
+    final HomeController homeController = Get.find<HomeController>();
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
     final isDark = theme.brightness == Brightness.dark;
@@ -236,8 +403,7 @@ class HomePage extends StatelessWidget {
                                 child: _buildInfoChip(
                                   Icons.work_rounded,
                                   authController
-                                          .currentUser
-                                          .value!['jabatan'] ??
+                                          .currentUser.value!['jabatan'] ??
                                       '-',
                                 ),
                               ),
@@ -268,20 +434,16 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: AppSpacing.md),
 
                       // Menu Cards in KERENUI Layout with Permission Check
-                      ...Get.put(HomeController()).buildPermissionBasedMenus(
+                      ...homeController.buildPermissionBasedMenus(
                         context,
                         _buildKerenUIMenuCard,
+                        cutiDualCardBuilder: _buildCutiDualAccessCard,
                       ),
+
+                      // Fitur "Semua Data" dihapus sesuai permintaan pengguna
                       const SizedBox(height: AppSpacing.md),
-                      // Settings entry
-                      _buildKerenUIMenuCard(
-                        context: context,
-                        title: 'Pengaturan',
-                        subtitle: 'Tema & pembaruan aplikasi',
-                        icon: Icons.settings,
-                        color: const Color(0xFF06B6D4),
-                        onTap: () => Get.to(const SettingsPage()),
-                      ),
+                      // Settings entry dengan dua aksi (kiri: Simulasi, kanan: Pengaturan)
+                      _buildSettingsDualAccessCard(context),
                       const SizedBox(height: AppSpacing.lg),
                     ],
                   ),
@@ -295,4 +457,169 @@ class HomePage extends StatelessWidget {
   }
 
   // ...existing code...
+
+  Widget _buildSettingsDualAccessCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = theme.extension<AppTokens>()!;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: t.card,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: t.shadowColor,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: t.borderSubtle, width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              // Kiri: Simulasi (Slot Demo)
+              Expanded(
+                child: InkWell(
+                  onTap: () => Get.toNamed('/slot-demo'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFFF59E0B).withOpacity(0.8),
+                                const Color(0xFFF59E0B).withOpacity(0.6),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.casino_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Mni Game',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Judi Slot Palsu',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.textTheme.bodyMedium?.color
+                                      ?.withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: theme.textTheme.bodyMedium?.color
+                              ?.withOpacity(0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Divider vertikal di tengah
+              Container(
+                width: 1,
+                height: 48,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: t.borderSubtle,
+              ),
+              // Kanan: Pengaturan
+              Expanded(
+                child: InkWell(
+                  onTap: () => Get.to(const SettingsPage()),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                const Color(0xFF06B6D4).withOpacity(0.8),
+                                const Color(0xFF06B6D4).withOpacity(0.6),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.settings,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pengaturan',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Aplikasi',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.textTheme.bodyMedium?.color
+                                      ?.withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: theme.textTheme.bodyMedium?.color
+                              ?.withOpacity(0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

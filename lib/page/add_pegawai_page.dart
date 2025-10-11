@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/add_pegawai_controller.dart';
@@ -40,7 +42,8 @@ class AddPegawaiPage extends StatelessWidget {
                   const SizedBox(height: AppSpacing.lg),
                   _buildFormCard(theme, t, accent, controller),
                   const SizedBox(height: AppSpacing.section),
-                  _buildSubmitButton(theme, t, accentGradient, accent, controller),
+                  _buildSubmitButton(
+                      theme, t, accentGradient, accent, controller),
                 ],
               ),
             ),
@@ -287,15 +290,13 @@ class AddPegawaiPage extends StatelessWidget {
               'Jabatan',
               Obx(
                 () {
-                  final items = controller.jabatanList
-                      .map((jabatan) {
-                        final label = (jabatan['nama'] ?? '').toString();
-                        return DropdownMenuItem<String>(
-                          value: label,
-                          child: Text(label.isEmpty ? '-' : label),
-                        );
-                      })
-                      .toList();
+                  final items = controller.jabatanList.map((jabatan) {
+                    final label = (jabatan['nama'] ?? '').toString();
+                    return DropdownMenuItem<String>(
+                      value: label,
+                      child: Text(label.isEmpty ? '-' : label),
+                    );
+                  }).toList();
                   return DropdownButtonFormField<String>(
                     value: controller.selectedJabatan.value,
                     decoration: _inputDecoration(
@@ -307,7 +308,8 @@ class AddPegawaiPage extends StatelessWidget {
                     ),
                     isExpanded: true,
                     items: items,
-                    onChanged: (value) => controller.selectedJabatan.value = value,
+                    onChanged: (value) =>
+                        controller.selectedJabatan.value = value,
                     validator: controller.validateJabatan,
                   );
                 },
@@ -350,15 +352,13 @@ class AddPegawaiPage extends StatelessWidget {
                     'Memuat data group...',
                   );
                 }
-                final items = controller.groupList
-                    .map((group) {
-                      final label = (group['nama'] ?? '').toString();
-                      return DropdownMenuItem<String>(
-                        value: label,
-                        child: Text(label.isEmpty ? '-' : label),
-                      );
-                    })
-                    .toList();
+                final items = controller.groupList.map((group) {
+                  final label = (group['nama'] ?? '').toString();
+                  return DropdownMenuItem<String>(
+                    value: label,
+                    child: Text(label.isEmpty ? '-' : label),
+                  );
+                }).toList();
                 return DropdownButtonFormField<String>(
                   value: controller.selectedGroup.value,
                   decoration: _inputDecoration(
@@ -395,7 +395,8 @@ class AddPegawaiPage extends StatelessWidget {
                           child: Text(statusGroup),
                         ))
                     .toList(),
-                onChanged: (value) => controller.selectedStatusGroup.value = value,
+                onChanged: (value) =>
+                    controller.selectedStatusGroup.value = value,
                 validator: controller.validateStatusGroup,
               ),
             ),
@@ -544,8 +545,7 @@ class AddPegawaiPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
     );
   }
 

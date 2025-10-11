@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -56,11 +58,13 @@ class UpdateCheckerPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.18),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withOpacity(0.25)),
+                            border: Border.all(
+                                color: Colors.white.withOpacity(0.25)),
                           ),
                           child: IconButton(
                             onPressed: () => Get.back(),
-                            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                            icon: const Icon(Icons.arrow_back_ios_new,
+                                color: Colors.white),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -79,7 +83,8 @@ class UpdateCheckerPage extends StatelessWidget {
                               SizedBox(height: 3),
                               Text(
                                 'Periksa versi terbaru dan pasang pembaruan',
-                                style: TextStyle(fontSize: 13, color: Colors.white70),
+                                style: TextStyle(
+                                    fontSize: 13, color: Colors.white70),
                               ),
                             ],
                           ),
@@ -87,7 +92,8 @@ class UpdateCheckerPage extends StatelessWidget {
                         CircleAvatar(
                           backgroundColor: Colors.white54,
                           radius: 18,
-                          child: const Icon(Icons.system_update_rounded, color: Colors.white),
+                          child: const Icon(Icons.system_update_rounded,
+                              color: Colors.white),
                         ),
                       ],
                     ),
@@ -193,8 +199,8 @@ class UpdateCheckerPage extends StatelessWidget {
                                 label: Text(
                                   c.isDownloading.value
                                       ? (c.progressText.value.isNotEmpty
-                                            ? 'Mengunduh ${c.progressText.value}'
-                                            : 'Mengunduh...')
+                                          ? 'Mengunduh ${c.progressText.value}'
+                                          : 'Mengunduh...')
                                       : 'Unduh & Pasang',
                                 ),
                                 style: ElevatedButton.styleFrom(
@@ -221,7 +227,8 @@ class UpdateCheckerPage extends StatelessWidget {
                                       const SizedBox(height: 6),
                                       Text(
                                         'Progress: ${c.progressText.value}',
-                                        style: TextStyle(fontSize: 12, color: softText),
+                                        style: TextStyle(
+                                            fontSize: 12, color: softText),
                                       ),
                                     ],
                                   ),
@@ -326,11 +333,15 @@ class UpdateCheckerPage extends StatelessWidget {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: Theme.of(Get.context!).extension<AppTokens>()!.warningBg,
+                    color: Theme.of(Get.context!)
+                        .extension<AppTokens>()!
+                        .warningBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(Icons.new_releases_rounded,
-                      color: Theme.of(Get.context!).extension<AppTokens>()!.warningFg),
+                      color: Theme.of(Get.context!)
+                          .extension<AppTokens>()!
+                          .warningFg),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -343,8 +354,10 @@ class UpdateCheckerPage extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onOpenRelease,
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(Get.context!).colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      foregroundColor:
+                          Theme.of(Get.context!).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8),
                     ),
                     icon: const Icon(Icons.open_in_new_rounded, size: 18),
                     label: const Text('Lihat'),

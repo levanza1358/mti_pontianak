@@ -2,85 +2,62 @@ name: Build and Deploy Flutter Web
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
   workflow_dispatch:
-    inputs:
-      force_deploy:
-        description: 'Force deploy even if no changes'
-        required: false
-        default: 'false'
-        type: boolean
+
+# Permissions required for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Ensure only one deployment runs at a time
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
-      
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.35.5'
-        channel: 'stable'
-        cache: true
-        
-    - name: Get Flutter dependencies
-      run: flutter pub get
-      
-    - name: Analyze Flutter code
-      run: flutter analyze --no-fatal-infos
-      
-    - name: Run Flutter tests
-      run: flutter test
-      
-    - name: Build Flutter web
-      run: flutter build web --release --base-href "/mti_pontianak/"
-      
-    - name: Deploy to docs folder
-      run: |
-        # Create docs directory if it doesn't exist
-        mkdir -p docs
-        
-        # Remove existing docs content (cross-platform compatible)
-        rm -rf docs/*
-        rm -rf docs/.[!.]*
-        
-        # Copy build output to docs
-        cp -r build/web/* docs/
-        
-        # Create .nojekyll file to bypass Jekyll processing
-        touch docs/.nojekyll
-        
-    - name: Commit and push changes
-      env:
-        FORCE_DEPLOY: ${{ github.event.inputs.force_deploy }}
-      run: |
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        
-        # Add all changes in docs folder
-        git add docs/
-        
-        # Check if there are changes to commit or force deploy is enabled
-        if git diff --staged --quiet && [ "$FORCE_DEPLOY" != "true" ]; then
-          echo "No changes to commit and force deploy is disabled"
-        else
-          if [ "$FORCE_DEPLOY" = "true" ]; then
-            git commit -m "🚀 Force deploy: Update web build $(date +'%Y-%m-%d %H:%M:%S UTC')" || echo "Nothing to commit"
-          else
-            git commit -m "🚀 Auto-deploy: Update web build $(date +'%Y-%m-%d %H:%M:%S UTC')"
-          fi
-          git push origin ${{ github.ref_name }}
-        fi
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Sync web/version.json from pubspec
+        run: dart run tool/sync_version.dart
+
+      - name: Analyze Flutter code
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run Flutter tests
+        run: flutter test
+
+      - name: Build Flutter web
+        run: flutter build web --release --base-href "/mti_pontianak/"
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

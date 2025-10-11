@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/edit_jabatan_controller.dart';
@@ -352,9 +354,8 @@ class _PermissionBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = info.enabled
-        ? accent.withAlpha((0.18 * 255).round())
-        : tokens.surface;
+    final background =
+        info.enabled ? accent.withAlpha((0.18 * 255).round()) : tokens.surface;
     final borderColor = info.enabled
         ? accent.withAlpha((0.38 * 255).round())
         : tokens.borderSubtle;

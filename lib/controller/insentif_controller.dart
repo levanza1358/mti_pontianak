@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mti_pontianak/services/supabase_service.dart';
+import 'package:mti_pontianak/controller/login_controller.dart';
 
 class InsentifController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -10,6 +11,9 @@ class InsentifController extends GetxController
   var insentifPremiList = [].obs;
   var insentifLemburList = [].obs;
   var isLoading = false.obs;
+
+  // Login controller untuk mengetahui user saat ini & permission
+  final loginController = Get.find<LoginController>();
 
   // Tambahkan state untuk tahun
   final selectedYear = DateTime.now().year.obs;
@@ -41,15 +45,23 @@ class InsentifController extends GetxController
     super.onClose();
   }
 
-  Future<void> fetchInsentifPremi() async {
+  
+
+  Future<void> fetchInsentifLembur() async {
     isLoading(true);
     try {
-      final data = await supabaseService.getInsentifPremi();
-      insentifPremiList.value = data;
+      String? userId;
+      final canViewAll = loginController.hasPermissionAllInsentif;
+      final currentUser = loginController.currentUser.value;
+      if (!canViewAll && currentUser != null) {
+        userId = currentUser['id'] as String?;
+      }
+      final data = await supabaseService.getInsentifLembur(userId: userId);
+      insentifLemburList.value = data;
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Gagal mengambil data Insentif Premi',
+        'Gagal mengambil data Insentif Lembur',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -58,15 +70,21 @@ class InsentifController extends GetxController
     }
   }
 
-  Future<void> fetchInsentifLembur() async {
+  Future<void> fetchInsentifPremi() async {
     isLoading(true);
     try {
-      final data = await supabaseService.getInsentifLembur();
-      insentifLemburList.value = data;
+      String? userId;
+      final canViewAll = loginController.hasPermissionAllInsentif;
+      final currentUser = loginController.currentUser.value;
+      if (!canViewAll && currentUser != null) {
+        userId = currentUser['id'] as String?;
+      }
+      final data = await supabaseService.getInsentifPremi(userId: userId);
+      insentifPremiList.value = data;
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Gagal mengambil data Insentif Lembur',
+        'Gagal mengambil data Insentif Premi',
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );

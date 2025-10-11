@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/semua_data_cuti_controller.dart';
@@ -10,10 +12,54 @@ class SemuaDataCutiPage extends StatelessWidget {
   // Helpers untuk pemformatan agar penulisan rapi
   String _monthName(int m) {
     const bulan = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
     ];
     return bulan[(m - 1).clamp(0, 11)];
+  }
+
+  // Parser tanggal yang lebih fleksibel: dukung ISO (yyyy-MM-dd), dd/MM/yyyy, dd-MM-yyyy, yyyy/MM/dd
+  DateTime? _parseFlexibleDate(String input) {
+    final s = input.trim();
+    if (s.isEmpty) return null;
+
+    // Coba ISO first
+    final iso = DateTime.tryParse(s);
+    if (iso != null) return iso;
+
+    // dd/MM/yyyy atau dd-MM-yyyy
+    final ddmmyyyy = RegExp(r'^(\d{2})[/-](\d{2})[/-](\d{4})$').firstMatch(s);
+    if (ddmmyyyy != null) {
+      final day = int.tryParse(ddmmyyyy.group(1)!);
+      final month = int.tryParse(ddmmyyyy.group(2)!);
+      final year = int.tryParse(ddmmyyyy.group(3)!);
+      if (day != null && month != null && year != null) {
+        return DateTime(year, month, day);
+      }
+    }
+
+    // yyyy/MM/dd atau yyyy-MM-dd
+    final yyyymmdd = RegExp(r'^(\d{4})[/-](\d{2})[/-](\d{2})$').firstMatch(s);
+    if (yyyymmdd != null) {
+      final year = int.tryParse(yyyymmdd.group(1)!);
+      final month = int.tryParse(yyyymmdd.group(2)!);
+      final day = int.tryParse(yyyymmdd.group(3)!);
+      if (day != null && month != null && year != null) {
+        return DateTime(year, month, day);
+      }
+    }
+
+    return null;
   }
 
   String _formatDateIso(String iso, {bool includeTime = true}) {
@@ -29,43 +75,45 @@ class SemuaDataCutiPage extends StatelessWidget {
     return '$dd $mm $yy, $hh:$nn';
   }
 
-  String _formatTanggalList(String csv) {
-    if (csv.isEmpty) return '-';
-    final parts = csv.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-    if (parts.isEmpty) return '-';
-    final formatted = parts.map((p) {
-      final d = DateTime.tryParse(p);
-      if (d == null) return p;
-      final dd = d.day.toString().padLeft(2, '0');
-      final mm = _monthName(d.month);
-      final yy = d.year;
-      return '$dd $mm $yy';
-    }).toList();
-    return formatted.join(', ');
-  }
-
   // Bangun tampilan chip untuk daftar tanggal cuti agar lebih menarik
   Widget _buildTanggalChips(String csv, AppTokens t) {
-    final parts = csv
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    final parts =
+        csv.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
     if (parts.isEmpty) {
       return Text('-', style: TextStyle(fontSize: 12, color: t.textSecondary));
     }
 
+    // Pisahkan yang bisa diparse dan tidak, lalu urutkan
+    final parsed = <DateTime>[];
+    final raw = <String>[];
+    for (final p in parts) {
+      final d = _parseFlexibleDate(p);
+      if (d != null) {
+        parsed.add(d);
+      } else {
+        raw.add(p);
+      }
+    }
+    parsed.sort((a, b) => a.compareTo(b));
+
+    final labels = <String>[];
+    final seen = <String>{};
+    for (final d in parsed) {
+      final dd = d.day.toString().padLeft(2, '0');
+      final mm = _monthName(d.month);
+      final yy = d.year;
+      final label = '$dd $mm $yy';
+      if (seen.add(label)) labels.add(label);
+    }
+    for (final r in raw) {
+      if (seen.add(r)) labels.add(r);
+    }
+
     return Wrap(
       spacing: 6,
       runSpacing: 6,
-      children: parts.map((p) {
-        final d = DateTime.tryParse(p);
-        final dd = d?.day.toString().padLeft(2, '0');
-        final mm = d != null ? _monthName(d.month) : null;
-        final yy = d?.year;
-        final label = (dd != null && mm != null && yy != null) ? '$dd $mm $yy' : p;
-
+      children: labels.map((label) {
         return Chip(
           label: Text(label),
           backgroundColor: t.cutiAllGradient.first.withOpacity(0.12),
@@ -129,7 +177,8 @@ class SemuaDataCutiPage extends StatelessWidget {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
                       Container(
@@ -139,7 +188,8 @@ class SemuaDataCutiPage extends StatelessWidget {
                         ),
                         child: IconButton(
                           onPressed: () => Get.back(),
-                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                          icon: const Icon(Icons.arrow_back_ios_new,
+                              color: Colors.white),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -158,7 +208,8 @@ class SemuaDataCutiPage extends StatelessWidget {
                             SizedBox(height: 3),
                             Text(
                               'Daftar pengajuan cuti seluruh karyawan',
-                              style: TextStyle(fontSize: 13, color: Colors.white70),
+                              style: TextStyle(
+                                  fontSize: 13, color: Colors.white70),
                             ),
                           ],
                         ),
@@ -168,7 +219,8 @@ class SemuaDataCutiPage extends StatelessWidget {
                         radius: 18,
                         child: IconButton(
                           onPressed: controller.refreshData,
-                          icon: const Icon(Icons.refresh, color: Colors.white, size: 18),
+                          icon: const Icon(Icons.refresh,
+                              color: Colors.white, size: 18),
                         ),
                       ),
                     ],
@@ -211,7 +263,8 @@ class SemuaDataCutiPage extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.event_busy, color: t.cutiAllGradient.first, size: 48),
+                              Icon(Icons.event_busy,
+                                  color: t.cutiAllGradient.first, size: 48),
                               const SizedBox(height: 12),
                               Text(
                                 'Belum ada data cuti untuk ${controller.monthLabel()}',
@@ -237,143 +290,161 @@ class SemuaDataCutiPage extends StatelessWidget {
                           itemCount: currentList.length,
                           itemBuilder: (context, index) {
                             final item = currentList[index];
-                          final nama = (item['nama'] ?? '') as String;
-                          final alasan = (item['alasan_cuti'] ?? '-') as String;
-                          final lama = item['lama_cuti']?.toString() ?? '-';
-                          final tanggalPengajuan = (item['tanggal_pengajuan'] ?? '') as String;
-                          final tanggalList = (item['list_tanggal_cuti'] ?? '') as String;
-                          final locked = (item['kunci_cuti'] ?? false) as bool;
+                            final nama = (item['nama'] ?? '') as String;
+                            final lama = item['lama_cuti']?.toString() ?? '-';
+                            final tanggalPengajuan =
+                                (item['tanggal_pengajuan'] ?? '') as String;
+                            final tanggalList =
+                                (item['list_tanggal_cuti'] ?? '') as String;
+                            final locked =
+                                (item['kunci_cuti'] ?? false) as bool;
 
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: t.card,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: t.shadowColor,
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              onTap: () => controller.showDetail(item),
-                              leading: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    colors: t.cutiAllGradient,
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: t.shadowColor,
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    (lama.isEmpty || lama == '-') ? '-' : lama,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                nama.isEmpty ? '-' : nama,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: t.textPrimary,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.schedule, size: 14, color: t.textSecondary),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          _formatDateIso(tanggalPengajuan, includeTime: true),
-                                          style: TextStyle(fontSize: 12, color: t.textSecondary),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today, size: 14, color: t.textSecondary),
-                                    const SizedBox(width: 6),
-                                    Expanded(
-                                      child: _buildTanggalChips(tanggalList, t),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Icon(Icons.timelapse, size: 14, color: t.textSecondary),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '$lama hari',
-                                      style: TextStyle(fontSize: 12, color: t.textSecondary),
-                                    ),
-                                  ],
-                                ),
-                                // Baris alasan dihapus sesuai permintaan
-                              ],
-                            ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        locked ? Icons.lock : Icons.lock_open,
-                                        color: controller.getLockColor(locked),
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        locked ? 'Terkunci' : 'Terbuka',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: controller.getLockColor(locked),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 12),
-                                  IconButton(
-                                    onPressed: () => controller.showForceDeleteConfirmation(item),
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: t.dangerFg,
-                                    ),
-                                    tooltip: 'Hapus paksa',
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: t.card,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: t.shadowColor,
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16),
+                                onTap: () => controller.showDetail(item),
+                                leading: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: t.cutiAllGradient,
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: t.shadowColor,
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      (lama.isEmpty || lama == '-')
+                                          ? '-'
+                                          : lama,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(
+                                  nama.isEmpty ? '-' : nama,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: t.textPrimary,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.schedule,
+                                            size: 14, color: t.textSecondary),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            _formatDateIso(tanggalPengajuan,
+                                                includeTime: true),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: t.textSecondary),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.calendar_today,
+                                            size: 14, color: t.textSecondary),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: _buildTanggalChips(
+                                              tanggalList, t),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.timelapse,
+                                            size: 14, color: t.textSecondary),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          int.tryParse(lama) != null
+                                              ? '$lama hari'
+                                              : '-',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: t.textSecondary),
+                                        ),
+                                      ],
+                                    ),
+                                    // Baris alasan dihapus sesuai permintaan
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          locked ? Icons.lock : Icons.lock_open,
+                                          color:
+                                              controller.getLockColor(locked),
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          locked ? 'Terkunci' : 'Terbuka',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                controller.getLockColor(locked),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 12),
+                                    IconButton(
+                                      onPressed: () => controller
+                                          .showForceDeleteConfirmation(item),
+                                      icon: Icon(
+                                        Icons.delete_outline,
+                                        color: t.dangerFg,
+                                      ),
+                                      tooltip: 'Hapus paksa',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     }
 
@@ -382,7 +453,8 @@ class SemuaDataCutiPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                             color: t.card,
                             borderRadius: BorderRadius.circular(12),

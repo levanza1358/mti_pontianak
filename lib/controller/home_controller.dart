@@ -7,47 +7,41 @@ class HomeController extends GetxController {
   final LoginController authController = Get.find<LoginController>();
 
   List<Widget> buildPermissionBasedMenus(
-    BuildContext context,
-    Function menuCardBuilder,
-  ) {
+      BuildContext context, Function menuCardBuilder,
+      {Function? cutiDualCardBuilder}) {
     final List<Widget> menus = [];
 
-    if (authController.hasPermissionManagementData) {
-      menus.add(
-        menuCardBuilder(
-          context: context,
-          title: 'Manajemen Data',
-          subtitle: 'Kelola data pegawai dan sistem',
-          icon: Icons.storage_rounded,
-          color: const Color(0xFF667eea),
-          onTap: () => Get.toNamed('/data-management'),
-        ),
-      );
-      menus.add(const SizedBox(height: AppSpacing.md));
-    }
     if (authController.hasPermissionCuti) {
-      menus.add(
-        menuCardBuilder(
-          context: context,
-          title: 'Pengajuan Cuti',
-          subtitle: 'Ajukan dan kelola permohonan cuti',
-          icon: Icons.event_available_rounded,
-          color: const Color(0xFF4facfe),
-          onTap: () => Get.toNamed('/cuti'),
-        ),
-      );
-      menus.add(const SizedBox(height: AppSpacing.md));
-      menus.add(
-        menuCardBuilder(
-          context: context,
-          title: 'Kalender Cuti',
-          subtitle: 'Lihat jadwal cuti dalam kalender',
-          icon: Icons.calendar_month_rounded,
-          color: const Color(0xFF00d2ff),
-          onTap: () => Get.toNamed('/calendar-cuti'),
-        ),
-      );
-      menus.add(const SizedBox(height: AppSpacing.md));
+      // Gabungkan Pengajuan Cuti dan Kalender Cuti menjadi satu kartu dual-aksi jika builder tersedia
+      if (cutiDualCardBuilder != null) {
+        menus.add(cutiDualCardBuilder(context));
+        menus.add(const SizedBox(height: AppSpacing.md));
+      } else {
+        // Fallback ke dua kartu terpisah bila builder dual tidak disediakan
+        menus.add(
+          menuCardBuilder(
+            context: context,
+            title: 'Pengajuan',
+            subtitle: 'Cuti',
+            icon: Icons.event_available_rounded,
+            color: const Color(0xFF4facfe),
+            onTap: () => Get.toNamed('/cuti'),
+          ),
+        );
+        menus.add(const SizedBox(height: AppSpacing.md));
+        menus.add(
+          menuCardBuilder(
+            context: context,
+            title: 'Kalender',
+            subtitle: 'Cuti',
+            icon: Icons.calendar_month_rounded,
+            color: const Color(0xFF00d2ff),
+            onTap: () => Get.toNamed('/calendar-cuti'),
+          ),
+        );
+        menus.add(const SizedBox(height: AppSpacing.md));
+      }
+      // Pindahkan Eksepsi sebelum kalender (tetap tersedia sebagai kartu tunggal)
       menus.add(
         menuCardBuilder(
           context: context,
@@ -56,6 +50,20 @@ class HomeController extends GetxController {
           icon: Icons.schedule_rounded,
           color: const Color(0xFFf093fb),
           onTap: () => Get.toNamed('/eksepsi'),
+        ),
+      );
+      menus.add(const SizedBox(height: AppSpacing.md));
+    }
+    // Letakkan Data Insentif setelah rangkaian pengajuan
+    if (authController.hasPermissionInsentif) {
+      menus.add(
+        menuCardBuilder(
+          context: context,
+          title: 'Data Insentif',
+          subtitle: 'Kelola insentif premi dan lembur',
+          icon: Icons.request_quote,
+          color: const Color(0xFF38b2ac),
+          onTap: () => Get.toNamed('/insentif'),
         ),
       );
       menus.add(const SizedBox(height: AppSpacing.md));
@@ -86,15 +94,29 @@ class HomeController extends GetxController {
       );
       menus.add(const SizedBox(height: AppSpacing.md));
     }
-    if (authController.hasPermissionInsentif) {
+    if (authController.hasPermissionAllInsentif) {
       menus.add(
         menuCardBuilder(
           context: context,
-          title: 'Data Insentif',
-          subtitle: 'Kelola insentif premi dan lembur',
-          icon: Icons.attach_money_rounded,
-          color: const Color(0xFF38b2ac),
-          onTap: () => Get.toNamed('/insentif'),
+          title: 'Semua Data Insentif',
+          subtitle: 'Lihat semua insentif premi dan lembur',
+          icon: Icons.view_list,
+          color: const Color(0xFF2dd4bf),
+          onTap: () => Get.toNamed('/all-insentif'),
+        ),
+      );
+      menus.add(const SizedBox(height: AppSpacing.md));
+    }
+    // Manajemen Data dipindah ke bagian bawah agar fokus ke tugas harian
+    if (authController.hasPermissionManagementData) {
+      menus.add(
+        menuCardBuilder(
+          context: context,
+          title: 'Manajemen Data',
+          subtitle: 'Kelola data pegawai dan sistem',
+          icon: Icons.storage_rounded,
+          color: const Color(0xFF667eea),
+          onTap: () => Get.toNamed('/data-management'),
         ),
       );
       menus.add(const SizedBox(height: AppSpacing.md));

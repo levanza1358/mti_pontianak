@@ -1,11 +1,87 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'edit_jabatan_page.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_spacing.dart';
+import '../services/supabase_service.dart';
 
 class DataManagementPage extends StatelessWidget {
   const DataManagementPage({super.key});
+
+  Future<void> _confirmAndResetAllCuti(BuildContext context) async {
+    final theme = Theme.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi Reset Sisa Cuti'),
+        content: const Text(
+          'Tindakan ini akan mengubah sisa cuti SEMUA pegawai menjadi 14 hari.\n\nApakah Anda yakin ingin melanjutkan?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => navigator.pop(false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
+            onPressed: () => navigator.pop(true),
+            child: const Text('Reset Semua ke 14'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final client = SupabaseService.instance.client;
+      final idsRes = await client.from('users').select('id');
+      final ids = List<Map<String, dynamic>>.from(idsRes)
+          .map((e) => e['id'])
+          .whereType<String>()
+          .toList();
+
+      if (ids.isEmpty) {
+        navigator.pop();
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Tidak ada pegawai untuk di-reset')),
+        );
+        return;
+      }
+
+      await client.from('users').update({'sisa_cuti': 14}).inFilter('id', ids);
+
+      navigator.pop();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: const Text('Berhasil reset sisa cuti semua pegawai ke 14'),
+          backgroundColor: theme.colorScheme.primary,
+        ),
+      );
+    } catch (e) {
+      navigator.pop();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Gagal reset sisa cuti: $e'),
+          backgroundColor: theme.colorScheme.error,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +166,8 @@ class DataManagementPage extends StatelessWidget {
                                 'Kelola data sistem dengan mudah',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color:
-                                      theme.colorScheme.onPrimary.withOpacity(0.9),
+                                  color: theme.colorScheme.onPrimary
+                                      .withOpacity(0.9),
                                 ),
                               ),
                             ],
@@ -167,7 +243,6 @@ class DataManagementPage extends StatelessWidget {
                           ],
                         ),
                       ),
-
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(
@@ -182,10 +257,10 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/add-pegawai'),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
-                               // Tambah Jabatan Card
-                               _buildKerenUIMenuCard(
+                              // Tambah Jabatan Card
+                              _buildKerenUIMenuCard(
                                 context: context,
                                 title: 'Tambah Jabatan',
                                 subtitle: 'Menambahkan jabatan baru ke sistem',
@@ -194,7 +269,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/add-jabatan'),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Edit Data Card
                               _buildKerenUIMenuCard(
@@ -206,7 +281,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.toNamed('/data-management/edit'),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Edit Data Jabatan Card
                               _buildKerenUIMenuCard(
@@ -218,7 +293,7 @@ class DataManagementPage extends StatelessWidget {
                                 onTap: () =>
                                     Get.to(() => const EditJabatanPage()),
                               ),
-                               const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: AppSpacing.lg),
 
                               // Group Management Card
                               _buildKerenUIMenuCard(
@@ -235,12 +310,53 @@ class DataManagementPage extends StatelessWidget {
                               _buildKerenUIMenuCard(
                                 context: context,
                                 title: 'Manajemen Supervisor',
-                                subtitle: 'Kelola data supervisor Penunjang & Logistik',
+                                subtitle:
+                                    'Kelola data supervisor Penunjang & Logistik',
                                 icon: Icons.supervisor_account_rounded,
                                 color: const Color(0xFF8b5cf6),
-                                onTap: () => Get.toNamed('/supervisor-management'),
+                                onTap: () =>
+                                    Get.toNamed('/supervisor-management'),
                               ),
                               const SizedBox(height: 16),
+                              const SizedBox(height: AppSpacing.xl),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.lg),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Theme.of(context).colorScheme.error,
+                                        foregroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .onError,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: AppSpacing.md),
+                                      ),
+                                      onPressed: () =>
+                                          _confirmAndResetAllCuti(context),
+                                      icon: const Icon(Icons.restore),
+                                      label: const Text(
+                                          'Reset Sisa Cuti ke 14 (Semua Pegawai)'),
+                                    ),
+                                    const SizedBox(height: AppSpacing.sm),
+                                    Text(
+                                      'Tombol admin: gunakan saat awal tahun untuk mengatur ulang sisa cuti seluruh pegawai.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .extension<AppTokens>()!
+                                            .textSecondary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xl),
                             ],
                           ),
                         ),

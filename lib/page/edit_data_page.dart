@@ -531,7 +531,7 @@ class _EditForm extends StatelessWidget {
                           )
                           .length;
                       return DropdownButtonFormField<String>(
-                        value: matches == 1 ? selected : null,
+                        initialValue: matches == 1 ? selected : null,
                         validator: controller.validateJabatan,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -566,7 +566,7 @@ class _EditForm extends StatelessWidget {
                     tokens: tokens,
                     child: Obx(
                       () => DropdownButtonFormField<String>(
-                        value: controller.selectedStatus.value,
+                        initialValue: controller.selectedStatus.value,
                         validator: controller.validateStatus,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -596,7 +596,7 @@ class _EditForm extends StatelessWidget {
                     child: Obx(() {
                       final groups = controller.groupList;
                       return DropdownButtonFormField<String>(
-                        value: controller.selectedGroup.value,
+                        initialValue: controller.selectedGroup.value,
                         validator: controller.validateGroup,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -629,7 +629,7 @@ class _EditForm extends StatelessWidget {
                     tokens: tokens,
                     child: Obx(
                       () => DropdownButtonFormField<String>(
-                        value: controller.selectedStatusGroup.value,
+                        initialValue: controller.selectedStatusGroup.value,
                         validator: controller.validateStatusGroup,
                         decoration: _inputDecoration(
                           tokens: tokens,
@@ -649,6 +649,23 @@ class _EditForm extends StatelessWidget {
                         onChanged: (value) {
                           controller.selectedStatusGroup.value = value;
                         },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _LabeledField(
+                    label: 'Sisa Cuti (hari)',
+                    tokens: tokens,
+                    child: TextFormField(
+                      controller: controller.sisaCutiController,
+                      validator: controller.validateSisaCuti,
+                      keyboardType: TextInputType.number,
+                      decoration: _inputDecoration(
+                        tokens: tokens,
+                        theme: theme,
+                        accent: accent,
+                        hintText: 'Masukkan sisa cuti (hari)',
+                        icon: Icons.timelapse_rounded,
                       ),
                     ),
                   ),
@@ -874,13 +891,18 @@ InputDecoration _disabledDecoration(
 BoxDecoration _cardDecoration(AppTokens tokens) {
   return BoxDecoration(
     color: tokens.card,
-    borderRadius: BorderRadius.circular(20),
-    border: Border.all(color: tokens.borderSubtle),
-    boxShadow: [
+    borderRadius: BorderRadius.circular(22),
+    border: Border.all(color: tokens.borderSubtle, width: 1),
+    boxShadow: const [
       BoxShadow(
-        color: tokens.shadowColor,
-        blurRadius: 14,
-        offset: const Offset(0, 6),
+        color: Color(0x1F000000),
+        blurRadius: 18,
+        offset: Offset(0, 8),
+      ),
+      BoxShadow(
+        color: Color(0x12000000),
+        blurRadius: 8,
+        offset: Offset(0, 2),
       ),
     ],
   );

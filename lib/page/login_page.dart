@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../controller/login_controller.dart';
 
@@ -94,6 +95,10 @@ class LoginPage extends StatelessWidget {
                                   TextFormField(
                                     controller: loginController.nrpController,
                                     validator: loginController.validateNrp,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
                                     decoration: InputDecoration(
                                       labelText: 'NRP',
                                       hintText: 'Masukkan NRP Anda',

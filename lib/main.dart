@@ -7,6 +7,7 @@ import 'services/supabase_service.dart';
 // Controllers
 import 'controller/login_controller.dart';
 import 'controller/home_controller.dart';
+import 'controller/update_checker_controller.dart';
 
 // Pages
 import 'page/login_page.dart';
@@ -73,6 +74,8 @@ class MyApp extends StatelessWidget {
     Get.put(LoginController());
     // Ensure HomeController is available for HomePage
     Get.put(HomeController());
+    // Update checker controller untuk auto cek update di Home
+    Get.put(UpdateCheckerController(), permanent: true);
     Get.put(ThemeController(), permanent: true);
   }
 

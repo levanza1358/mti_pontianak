@@ -467,8 +467,8 @@ class EksepsiPage extends StatelessWidget {
               final DateTime? picked = await showDatePicker(
                 context: Get.context!,
                 initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
+                firstDate: DateTime(2000, 1, 1),
+                lastDate: DateTime(DateTime.now().year + 10, 12, 31),
               );
               if (picked != null) {
                 controller.setSelectedDate(picked, index);

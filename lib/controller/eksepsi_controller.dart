@@ -65,16 +65,9 @@ class EksepsiController extends GetxController
     if (value == null || value.isEmpty) {
       return 'Tanggal eksepsi harus diisi';
     }
-    
     try {
-      final date = DateFormat('dd/MM/yyyy').parseStrict(value);
-      final today = DateTime.now();
-      final todayOnly = DateTime(today.year, today.month, today.day);
-      
-      if (date.isBefore(todayOnly)) {
-        return 'Tanggal eksepsi tidak boleh sebelum hari ini';
-      }
-      
+      // Validasi hanya format tanggal, tanpa membatasi ke masa depan/masa lalu
+      DateFormat('dd/MM/yyyy').parseStrict(value);
       return null;
     } catch (e) {
       return 'Format tanggal tidak valid (dd/MM/yyyy)';

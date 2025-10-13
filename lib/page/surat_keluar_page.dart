@@ -18,143 +18,78 @@ class SuratKeluarPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: tokens.bg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Modern Header Section
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppSpacing.lg),
-                gradient: LinearGradient(
-                  colors: tokens.eksepsiGradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: tokens.shadowColor,
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Back Button
-                      Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(AppSpacing.md),
-                        ),
-                        child: IconButton(
-                          onPressed: () => Get.back(),
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                        ),
-                      ),
-                      // Title Section
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Surat Keluar',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(
-                              'Kelola surat keluar perusahaan',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white.withOpacity(0.8),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Mail Icon
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(AppSpacing.md),
-                        ),
-                        child: const Icon(
-                          Icons.mail_rounded,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  // Tab Selection
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(AppSpacing.md),
-                    ),
-                    child: TabBar(
-                      controller: controller.tabController,
-                      indicator: BoxDecoration(
-                        color: Colors.white.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(AppSpacing.md - 2),
-                      ),
-                      indicatorPadding: const EdgeInsets.all(AppSpacing.xs),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white.withOpacity(0.7),
-                      labelStyle: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                      ),
-                      dividerColor: Colors.transparent,
-                      overlayColor: MaterialStateProperty.all(
-                        Colors.transparent,
-                      ),
-                      splashFactory: NoSplash.splashFactory,
-                      tabs: const [
-                        Tab(text: 'Buat Surat'),
-                        Tab(text: 'History'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      appBar: AppBar(
+        elevation: 4,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: tokens.eksepsiGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            // Content Section
-            Expanded(
-              child: TabBarView(
-                controller: controller.tabController,
-                children: [
-                  _buildFormTab(controller, theme),
-                  _buildHistoryTab(controller, theme),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        ),
+        title: const Text(
+          'Surat Keluar',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: TabBar(
+                controller: controller.tabController,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: tokens.shadowColor,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: theme.colorScheme.primary,
+                unselectedLabelColor: Colors.white.withOpacity(0.85),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+                dividerColor: Colors.transparent,
+                tabs: const [
+                  Tab(text: 'Buat Surat'),
+                  Tab(text: 'History'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: controller.tabController,
+        children: [
+          _buildFormTab(controller, theme),
+          _buildHistoryTab(controller, theme),
+        ],
       ),
     );
   }

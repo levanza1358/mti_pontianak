@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/theme_controller.dart';
 import '../theme/app_tokens.dart';
-import '../theme/app_spacing.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/supabase_service.dart';
@@ -47,209 +46,144 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: isDark ? 0 : 4,
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark ? t.insentifGradient : t.homeGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        ),
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pengaturan',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            // SizedBox(height: 2),
+            // Text(
+            //   'Tema & Pembaruan Aplikasi',
+            //   style: TextStyle(
+            //     fontSize: 12,
+            //     color: Colors.white70,
+            //   ),
+            // ),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Obx(() {
+              final selected = themeC.mode.value;
+              final accent = t.insentifGradient.first;
+              return Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => themeC.setMode(ThemeMode.light),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: selected == ThemeMode.light
+                                ? Colors.white
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: selected == ThemeMode.light
+                                ? [
+                                    BoxShadow(
+                                      color: t.shadowColor,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Light Mode',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: selected == ThemeMode.light
+                                  ? accent
+                                  : Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => themeC.setMode(ThemeMode.dark),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: selected == ThemeMode.dark
+                                ? Colors.white
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: selected == ThemeMode.dark
+                                ? [
+                                    BoxShadow(
+                                      color: t.shadowColor,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Dark Mode',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: selected == ThemeMode.dark
+                                  ? accent
+                                  : Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // Header in Card style (no AppBar)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Card(
-                elevation: isDark ? 0 : 8,
-                shadowColor:
-                    isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: t.borderSubtle),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isDark ? t.insentifGradient : t.homeGradient,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.onPrimary.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color:
-                                theme.colorScheme.onPrimary.withOpacity(0.25),
-                          ),
-                        ),
-                        child: IconButton(
-                          onPressed: () => Get.back(),
-                          icon: Icon(
-                            Icons.arrow_back_ios_new,
-                            color: theme.colorScheme.onPrimary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Pengaturan',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Tema & Pembaruan Aplikasi',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: theme.colorScheme.onPrimary
-                                    .withOpacity(0.85),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // AppBar now handles the header; removing old header Card.
 
             // Content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Theme section (Card style)
-                    Card(
-                      elevation: isDark ? 0 : 3,
-                      shadowColor: isDark
-                          ? t.shadowColor
-                          : t.shadowColor.withOpacity(0.25),
-                      color: t.card,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: t.borderSubtle),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                        child: Obx(() {
-                          final selected = themeC.mode.value;
-                          final accent = t.insentifGradient.first;
-                          return Column(
-                            children: [
-                              ListTile(
-                                leading: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        t.insentifGradient.first
-                                            .withOpacity(0.15),
-                                        t.insentifGradient.last
-                                            .withOpacity(0.15),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    Icons.brightness_6_rounded,
-                                    color: accent,
-                                  ),
-                                ),
-                                title: const Text('Tema'),
-                                subtitle: Text(
-                                  _labelForMode(selected),
-                                  style: Theme.of(
-                                    context,
-                                  ).listTileTheme.subtitleTextStyle,
-                                ),
-                              ),
-                              Divider(height: 1, color: t.borderSubtle),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  ChoiceChip(
-                                    label: const Text('Ikuti Sistem'),
-                                    selected: selected == ThemeMode.system,
-                                    onSelected: (_) =>
-                                        themeC.setMode(ThemeMode.system),
-                                    selectedColor: accent,
-                                    labelStyle: TextStyle(
-                                      color: selected == ThemeMode.system
-                                          ? Colors.white
-                                          : theme.textTheme.bodyMedium?.color,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    backgroundColor:
-                                        isDark ? t.surface : t.card,
-                                    shape: StadiumBorder(
-                                      side: BorderSide(color: t.borderSubtle),
-                                    ),
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Terang'),
-                                    selected: selected == ThemeMode.light,
-                                    onSelected: (_) =>
-                                        themeC.setMode(ThemeMode.light),
-                                    selectedColor: accent,
-                                    labelStyle: TextStyle(
-                                      color: selected == ThemeMode.light
-                                          ? Colors.white
-                                          : theme.textTheme.bodyMedium?.color,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    backgroundColor:
-                                        isDark ? t.surface : t.card,
-                                    shape: StadiumBorder(
-                                      side: BorderSide(color: t.borderSubtle),
-                                    ),
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Gelap'),
-                                    selected: selected == ThemeMode.dark,
-                                    onSelected: (_) =>
-                                        themeC.setMode(ThemeMode.dark),
-                                    selectedColor: accent,
-                                    labelStyle: TextStyle(
-                                      color: selected == ThemeMode.dark
-                                          ? Colors.white
-                                          : theme.textTheme.bodyMedium?.color,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    backgroundColor:
-                                        isDark ? t.surface : t.card,
-                                    shape: StadiumBorder(
-                                      side: BorderSide(color: t.borderSubtle),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                          );
-                        }),
-                      ),
-                    ),
-
-                    const SizedBox(height: AppSpacing.lg),
-
-                    // App & Account section (Card style)
                     Card(
                       elevation: isDark ? 0 : 3,
                       shadowColor: isDark
@@ -444,17 +378,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
-  }
-
-  String _labelForMode(ThemeMode m) {
-    switch (m) {
-      case ThemeMode.light:
-        return 'Terang';
-      case ThemeMode.dark:
-        return 'Gelap';
-      case ThemeMode.system:
-        return 'Ikuti Sistem';
-    }
   }
 
   void _showChangePasswordDialog() {

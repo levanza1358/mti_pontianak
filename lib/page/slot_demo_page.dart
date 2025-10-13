@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../theme/app_tokens.dart';
-import '../theme/app_spacing.dart';
 import '../controller/slot_demo_controller.dart';
 
 // SlotDemoPage kini hanya bertanggung jawab untuk membangun UI.
@@ -318,147 +317,92 @@ class _SlotDemoPageState extends State<SlotDemoPage>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Card(
-                elevation: isDark ? 0 : 8,
-                shadowColor:
-                    isDark ? t.shadowColor : t.shadowColor.withOpacity(0.25),
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: t.borderSubtle),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isDark ? t.insentifGradient : t.homeGradient,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
-                  ),
-                  child: Column(
-                    children: [
-                      // Navigasi header
-                      Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color:
-                                  theme.colorScheme.onPrimary.withOpacity(0.18),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: theme.colorScheme.onPrimary
-                                    .withOpacity(0.25),
-                              ),
-                            ),
-                            child: IconButton(
-                              onPressed: () => Get.back(),
-                              icon: Icon(
-                                Icons.arrow_back_ios_new,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Slot',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: theme.colorScheme.onPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Simulasi game slot',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: theme.colorScheme.onPrimary
-                                        .withOpacity(0.85),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // Tab digabungkan di dalam card header dan dirampingkan tampilannya
-                      Container(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.onPrimary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color:
-                                theme.colorScheme.onPrimary.withOpacity(0.15),
-                          ),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          onTap: (i) {
-                            if (i == 1) {
-                              _c.refreshLeaderboard();
-                            }
-                          },
-                          labelPadding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 6),
-                          indicatorPadding: const EdgeInsets.all(4),
-                          indicator: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
-                          labelColor: theme.colorScheme.primary,
-                          unselectedLabelColor:
-                              theme.colorScheme.onPrimary.withOpacity(0.85),
-                          tabs: const [
-                            Tab(text: 'Main'),
-                            Tab(text: 'Leaderboard'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+      appBar: AppBar(
+        elevation: isDark ? 0 : 4,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark ? t.insentifGradient : t.homeGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-
-            // Content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  children: [
-                    // Tab pindah ke header; hapus segmented Tab container agar tampilan lebih ramping
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildPlayTab(context),
-                          _buildLeaderboardTab(context),
-                        ],
-                      ),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          tooltip: 'Kembali',
+        ),
+        title: const Text(
+          'Slot',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            // Samakan dengan Pengajuan Cuti
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                onTap: (i) {
+                  if (i == 1) _c.refreshLeaderboard();
+                },
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: t.shadowColor,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                // Samakan dengan Pengajuan Cuti: gunakan aksen pertama cuti
+                labelColor: t.cutiAllGradient.first,
+                unselectedLabelColor: Colors.white.withOpacity(0.85),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+                tabs: const [
+                  Tab(text: 'Main'),
+                  Tab(text: 'Leaderboard'),
+                ],
               ),
             ),
-          ],
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildPlayTab(context),
+              _buildLeaderboardTab(context),
+            ],
+          ),
         ),
       ),
     );

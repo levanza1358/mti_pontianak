@@ -16,222 +16,122 @@ class CalendarCutiPage extends StatelessWidget {
     final CalendarCutiController controller = Get.put(CalendarCutiController());
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
-    final isDark = theme.brightness == Brightness.dark;
     final accent = t.cutiAllGradient.first;
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: t.cutiAllGradient
-                  .map((c) => c.withOpacity(isDark ? 0.08 : 0.14))
-                  .toList(),
+    return Obx(() {
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: AppBar(
+          elevation: 4,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: t.cutiAllGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              // Header card (mengadopsi gaya dari Pengajuan Cuti, tanpa AppBar)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: t.cutiAllGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+          // Follow CutiPage: no explicit shape border
+          leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          ),
+          title: const Text(
+            'Kalender Cuti',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () => controller.refreshAllData(),
+              icon: const Icon(Icons.refresh, color: Colors.white),
+            ),
+          ],
+          bottom: controller.isAtasan
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(56),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TabBar(
+                        controller: controller.tabController,
+                        indicator: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: t.shadowColor,
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        dividerColor: Colors.transparent,
+                        labelColor: accent,
+                        unselectedLabelColor: Colors.white.withOpacity(0.8),
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                        tabs: const [
+                          Tab(text: 'Pengajuan'),
+                          Tab(text: 'Riwayat'),
+                        ],
+                      ),
+                    ),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: t.shadowColor,
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                )
+              : null,
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                // Content
+                Expanded(
+                  child: Obx(() {
+                    if (controller.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    // Show TabBarView for Atasan, single view for Bawahan
+                    if (controller.isAtasan) {
+                      return TabBarView(
+                        controller: controller.tabController,
+                        children: [
+                          _buildCalendarView(controller, t, accent),
+                          _buildDataListView(controller, t, accent),
+                        ],
+                      );
+                    } else {
+                      // For Bawahan, show only calendar view
+                      return _buildCalendarView(controller, t, accent);
+                    }
+                  }),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        // Back Button bergaya card
-                        Container(
-                          margin: const EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: IconButton(
-                            onPressed: () => Get.back(),
-                            icon: const Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            padding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                        // Title & subtitle
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Kalender Cuti',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                'Lihat kalender cuti dan riwayat tim',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.85),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Tombol refresh bergaya card
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: IconButton(
-                            onPressed: () => controller.refreshAllData(),
-                            icon: const Icon(
-                              Icons.refresh,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            padding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                        // Remaining leave display
-                        Obx(() {
-                          final user = controller.currentUser.value;
-                          if (user != null && user['sisa_cuti'] != null) {
-                            return Container(
-                              margin: const EdgeInsets.only(left: 16),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.event_available,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Sisa Cuti: ${user['sisa_cuti']} hari',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        }),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Tab Bar (conditional visibility)
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return const SizedBox.shrink();
-                }
-
-                // Show tabs only for Atasan
-                if (controller.isAtasan) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: t.card,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: t.shadowColor,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: TabBar(
-                      controller: controller.tabController,
-                      labelColor: accent,
-                      unselectedLabelColor: t.textSecondary,
-                      indicatorColor: accent,
-                      indicatorWeight: 3,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      tabs: const [
-                        Tab(
-                          icon: Icon(Icons.calendar_month),
-                          text: 'Kalender',
-                        ),
-                        Tab(
-                          icon: Icon(Icons.list_alt),
-                          text: 'Data Cuti',
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-
-              // Content
-              Expanded(
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  // Show TabBarView for Atasan, single view for Bawahan
-                  if (controller.isAtasan) {
-                    return TabBarView(
-                      controller: controller.tabController,
-                      children: [
-                        _buildCalendarView(controller, t, accent),
-                        _buildDataListView(controller, t, accent),
-                      ],
-                    );
-                  } else {
-                    // For Bawahan, show only calendar view
-                    return _buildCalendarView(controller, t, accent);
-                  }
-                }),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildCalendarView(
@@ -240,13 +140,10 @@ class CalendarCutiPage extends StatelessWidget {
     Color accent,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Info tip (inspirasi dari halaman Cuti)
-          _buildInfoTip(t, accent),
-          const SizedBox(height: AppSpacing.md),
           // User info card
           _buildUserInfoCard(controller, t, accent),
           const SizedBox(height: AppSpacing.lg),
@@ -268,45 +165,11 @@ class CalendarCutiPage extends StatelessWidget {
     Color accent,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Info tip for data list
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: t.card,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: t.shadowColor,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.info_outline, color: accent, size: 20),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Text(
-                    'Daftar semua pengajuan cuti dari pegawai dalam group yang sama.',
-                    style: TextStyle(fontSize: 14, color: t.textSecondary),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
+          // Info tip dihapus sesuai permintaan
 
           // Data list card
           _buildDataListCard(controller, t, accent),
@@ -320,18 +183,23 @@ class CalendarCutiPage extends StatelessWidget {
     AppTokens t,
     Color accent,
   ) {
+    final isDark = Theme.of(Get.context!).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: t.card,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: t.shadowColor,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(
+          color: t.borderSubtle,
+          width: isDark ? 1.5 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,12 +219,11 @@ class CalendarCutiPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-
           Obx(() {
             if (controller.isLoadingEmployeeList.value) {
               return Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(10),
                   child: CircularProgressIndicator(color: accent),
                 ),
               );
@@ -370,7 +237,8 @@ class CalendarCutiPage extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    Icon(Icons.people_outline, size: 48, color: t.textSecondary),
+                    Icon(Icons.people_outline,
+                        size: 48, color: t.textSecondary),
                     const SizedBox(height: AppSpacing.md),
                     Text(
                       'Belum ada data pegawai',
@@ -386,10 +254,19 @@ class CalendarCutiPage extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: employeeList.length,
-              separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppSpacing.md),
               itemBuilder: (context, index) {
                 final employee = employeeList[index];
-                return _buildEmployeeCard(employee, controller, t, accent);
+                final isDarkItem =
+                    Theme.of(context).brightness == Brightness.dark;
+                return _buildEmployeeCard(
+                  employee,
+                  controller,
+                  t,
+                  accent,
+                  isDarkItem,
+                );
               },
             );
           }),
@@ -403,6 +280,7 @@ class CalendarCutiPage extends StatelessWidget {
     CalendarCutiController controller,
     AppTokens t,
     Color accent,
+    bool isDark,
   ) {
     final isCurrentUser = employee['id'] == controller.currentUser.value?['id'];
     final statusGroup = employee['status_group'] ?? 'Staff';
@@ -412,10 +290,14 @@ class CalendarCutiPage extends StatelessWidget {
       elevation: 0,
       color: isCurrentUser ? accent.withOpacity(0.05) : t.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        // Sedikit lebih membulat agar mirip contoh, namun tetap halus
+        borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isCurrentUser ? accent.withOpacity(0.2) : t.borderSubtle,
-          width: 1,
+          // Outline putih halus saat dark mode, sesuai contoh
+          color: isDark
+              ? Colors.white.withOpacity(0.28)
+              : (isCurrentUser ? accent.withOpacity(0.20) : t.borderSubtle),
+          width: isDark ? 1.4 : 1.0,
         ),
       ),
       child: ListTile(
@@ -424,7 +306,7 @@ class CalendarCutiPage extends StatelessWidget {
         },
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 8,
+          vertical: 10,
         ),
         title: Row(
           children: [
@@ -444,7 +326,7 @@ class CalendarCutiPage extends StatelessWidget {
                 vertical: 4,
               ),
               decoration: BoxDecoration(
-                color: statusGroup == 'Atasan' 
+                color: statusGroup == 'Atasan'
                     ? Colors.blue.withOpacity(0.12)
                     : Colors.grey.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(12),
@@ -453,7 +335,8 @@ class CalendarCutiPage extends StatelessWidget {
                 statusGroup,
                 style: TextStyle(
                   fontSize: 11,
-                  color: statusGroup == 'Atasan' ? Colors.blue : Colors.grey[600],
+                  color:
+                      statusGroup == 'Atasan' ? Colors.blue : Colors.grey[600],
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -499,42 +382,6 @@ class CalendarCutiPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTip(AppTokens t, Color accent) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: t.card,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: t.shadowColor,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.info_outline, color: accent, size: 20),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              'Pilih tanggal cuti dengan teliti. Ketuk tanggal untuk melihat detail pengajuan Anda maupun tim.',
-              style: TextStyle(fontSize: 14, color: t.textSecondary),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildUserInfoCard(
     CalendarCutiController controller,
     AppTokens t,
@@ -544,19 +391,25 @@ class CalendarCutiPage extends StatelessWidget {
       final user = controller.currentUser.value;
       if (user == null) return const SizedBox.shrink();
 
+      final isDark = Theme.of(Get.context!).brightness == Brightness.dark;
+
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: t.card,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: t.shadowColor,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
           ],
+          border: Border.all(
+            color: t.borderSubtle,
+            width: isDark ? 1.5 : 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -579,7 +432,8 @@ class CalendarCutiPage extends StatelessWidget {
             _buildInfoRow('Nama', user['name'] ?? '-', t),
             _buildInfoRow('Group', user['group'] ?? '-', t),
             _buildInfoRow('Status', user['status_group'] ?? '-', t),
-            _buildInfoRow('Sisa Cuti', '${user['sisa_cuti'] ?? 0} hari', t, isHighlight: true, accent: accent),
+            _buildInfoRow('Sisa Cuti', '${user['sisa_cuti'] ?? 0} hari', t,
+                isHighlight: true, accent: accent),
             if (user['status_group'] == 'Atasan') ...[
               const SizedBox(height: AppSpacing.sm),
               Container(
@@ -607,7 +461,8 @@ class CalendarCutiPage extends StatelessWidget {
     });
   }
 
-  Widget _buildInfoRow(String label, String value, AppTokens t, {bool isHighlight = false, Color? accent}) {
+  Widget _buildInfoRow(String label, String value, AppTokens t,
+      {bool isHighlight = false, Color? accent}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: Row(
@@ -663,18 +518,23 @@ class CalendarCutiPage extends StatelessWidget {
     AppTokens t,
     Color accent,
   ) {
+    final isDark = Theme.of(Get.context!).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: t.card,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: t.shadowColor,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(
+          color: t.borderSubtle,
+          width: isDark ? 1.5 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,7 +554,6 @@ class CalendarCutiPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-
           Obx(() {
             if (controller.isLoadingCalendar.value) {
               return Center(
@@ -809,21 +668,26 @@ class CalendarCutiPage extends StatelessWidget {
       final selectedEvents = controller.getEventsForDay(
         controller.selectedDay.value,
       );
+      final isDark = Theme.of(Get.context!).brightness == Brightness.dark;
 
       if (selectedEvents.isEmpty) {
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: t.card,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: t.shadowColor,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
             ],
+            border: Border.all(
+              color: t.borderSubtle,
+              width: isDark ? 1.5 : 1,
+            ),
           ),
           child: Column(
             children: [
@@ -840,17 +704,21 @@ class CalendarCutiPage extends StatelessWidget {
       }
 
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: t.card,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: t.shadowColor,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
           ],
+          border: Border.all(
+            color: t.borderSubtle,
+            width: isDark ? 1.5 : 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -870,8 +738,12 @@ class CalendarCutiPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-
-            ...selectedEvents.map((event) => _buildEventCard(event, t, accent)),
+            // Outline putih per item di dark mode mengikuti contoh Pengajuan Cuti
+            ...selectedEvents.map((event) {
+              final isDarkItem =
+                  Theme.of(Get.context!).brightness == Brightness.dark;
+              return _buildEventCard(event, t, accent, isDarkItem);
+            }),
           ],
         ),
       );
@@ -882,18 +754,22 @@ class CalendarCutiPage extends StatelessWidget {
     Map<String, dynamic> event,
     AppTokens t,
     Color accent,
+    bool isDark,
   ) {
     final isOwn = event['is_own'] ?? false;
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: isOwn ? accent.withOpacity(0.08) : t.surface,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isOwn ? accent.withOpacity(0.25) : t.borderSubtle,
-          width: 1,
+          // Outline putih halus saat dark mode, mengikuti contoh Pengajuan Cuti
+          color: isDark
+              ? Colors.white.withOpacity(isOwn ? 0.28 : 0.24)
+              : (isOwn ? accent.withOpacity(0.25) : t.borderSubtle),
+          width: isDark ? 1.4 : 1.0,
         ),
       ),
       child: Column(
@@ -973,7 +849,6 @@ class CalendarCutiPage extends StatelessWidget {
     final employeeId = employee['id'];
     final employeeName = employee['name'] ?? 'Unknown';
 
-
     // Use a single dialog with loading state management
     Get.dialog(
       Dialog(
@@ -987,7 +862,7 @@ class CalendarCutiPage extends StatelessWidget {
             builder: (context, snapshot) {
               final theme = Theme.of(context);
               final isDark = theme.brightness == Brightness.dark;
-              
+
               if (snapshot.connectionState == ConnectionState.waiting) {
                 // Show loading state
                 return SizedBox(
@@ -997,7 +872,7 @@ class CalendarCutiPage extends StatelessWidget {
                   ),
                 );
               }
-              
+
               if (snapshot.hasError) {
                 // Show error state
                 return Container(
@@ -1028,9 +903,9 @@ class CalendarCutiPage extends StatelessWidget {
                   ),
                 );
               }
-              
+
               final cutiData = snapshot.data ?? [];
-              
+
               // Show dialog content with data
               return Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1042,9 +917,12 @@ class CalendarCutiPage extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: isDark 
-                          ? [const Color(0xFF1E293B), const Color(0xFF334155)]
-                          : [const Color(0xFF667eea), const Color(0xFF764ba2)],
+                        colors: isDark
+                            ? [const Color(0xFF1E293B), const Color(0xFF334155)]
+                            : [
+                                const Color(0xFF667eea),
+                                const Color(0xFF764ba2)
+                              ],
                       ),
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20),
@@ -1052,9 +930,9 @@ class CalendarCutiPage extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isDark 
-                            ? const Color(0xFF1E293B).withOpacity(0.3)
-                            : const Color(0xFF667eea).withOpacity(0.3),
+                          color: isDark
+                              ? const Color(0xFF1E293B).withOpacity(0.3)
+                              : const Color(0xFF667eea).withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -1127,14 +1005,16 @@ class CalendarCutiPage extends StatelessWidget {
                                 Icon(
                                   Icons.event_busy,
                                   size: 64,
-                                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.4),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   'Tidak ada data cuti',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.7),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -1143,7 +1023,8 @@ class CalendarCutiPage extends StatelessWidget {
                                   'Pegawai ini belum pernah mengajukan cuti',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.5),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -1156,7 +1037,8 @@ class CalendarCutiPage extends StatelessWidget {
                             itemCount: cutiData.length,
                             itemBuilder: (context, index) {
                               final cuti = cutiData[index];
-                              return _buildCutiCard(cuti, index + 1, theme, isDark);
+                              return _buildCutiCard(
+                                  cuti, index + 1, theme, isDark);
                             },
                           ),
                   ),
@@ -1170,8 +1052,8 @@ class CalendarCutiPage extends StatelessWidget {
   }
 
   // Build individual leave card for dialog with theme-aware colors
-  Widget _buildCutiCard(Map<String, dynamic> cuti, int number, ThemeData theme, bool isDark) {
-    
+  Widget _buildCutiCard(
+      Map<String, dynamic> cuti, int number, ThemeData theme, bool isDark) {
     final alasan = cuti['alasan_cuti'] ?? 'Tidak ada keterangan';
     final lamaCuti = cuti['lama_cuti'] ?? 0;
     final listTanggalCuti = cuti['list_tanggal_cuti'] ?? '';
@@ -1193,16 +1075,19 @@ class CalendarCutiPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: isDark 
-              ? Colors.black.withOpacity(0.3)
-              : Colors.black.withOpacity(0.08),
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : Colors.black.withOpacity(0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: theme.dividerColor.withOpacity(0.2),
-          width: 1,
+          // Outline putih halus di dark mode agar konsisten dengan Pengajuan Cuti
+          color: isDark
+              ? Colors.white.withOpacity(0.24)
+              : theme.dividerColor.withOpacity(0.2),
+          width: isDark ? 1.4 : 1.0,
         ),
       ),
       child: Padding(
@@ -1218,16 +1103,16 @@ class CalendarCutiPage extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: isDark 
-                    ? [const Color(0xFF3B82F6), const Color(0xFF1D4ED8)]
-                    : [const Color(0xFF667eea), const Color(0xFF764ba2)],
+                  colors: isDark
+                      ? [const Color(0xFF3B82F6), const Color(0xFF1D4ED8)]
+                      : [const Color(0xFF667eea), const Color(0xFF764ba2)],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: isDark 
-                      ? const Color(0xFF3B82F6).withOpacity(0.3)
-                      : const Color(0xFF667eea).withOpacity(0.3),
+                    color: isDark
+                        ? const Color(0xFF3B82F6).withOpacity(0.3)
+                        : const Color(0xFF667eea).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -1255,16 +1140,17 @@ class CalendarCutiPage extends StatelessWidget {
                     children: [
                       // Duration badge with theme-aware colors
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: isDark 
-                            ? const Color(0xFF059669).withOpacity(0.2)
-                            : const Color(0xFF10B981).withOpacity(0.1),
+                          color: isDark
+                              ? const Color(0xFF059669).withOpacity(0.2)
+                              : const Color(0xFF10B981).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isDark 
-                              ? const Color(0xFF059669).withOpacity(0.4)
-                              : const Color(0xFF10B981).withOpacity(0.3),
+                            color: isDark
+                                ? const Color(0xFF059669).withOpacity(0.4)
+                                : const Color(0xFF10B981).withOpacity(0.3),
                             width: 1,
                           ),
                         ),
@@ -1274,9 +1160,9 @@ class CalendarCutiPage extends StatelessWidget {
                             Icon(
                               Icons.calendar_today,
                               size: 16,
-                              color: isDark 
-                                ? const Color(0xFF10B981)
-                                : const Color(0xFF059669),
+                              color: isDark
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF059669),
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -1284,9 +1170,9 @@ class CalendarCutiPage extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
-                                color: isDark 
-                                  ? const Color(0xFF10B981)
-                                  : const Color(0xFF059669),
+                                color: isDark
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFF059669),
                               ),
                             ),
                           ],
@@ -1296,16 +1182,17 @@ class CalendarCutiPage extends StatelessWidget {
                       if (pengajuanDate != null) ...[
                         const SizedBox(width: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: isDark 
-                              ? const Color(0xFFD97706).withOpacity(0.2)
-                              : const Color(0xFFFFF3E0),
+                            color: isDark
+                                ? const Color(0xFFD97706).withOpacity(0.2)
+                                : const Color(0xFFFFF3E0),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: isDark 
-                                ? const Color(0xFFD97706).withOpacity(0.4)
-                                : const Color(0xFFFF9800).withOpacity(0.3),
+                              color: isDark
+                                  ? const Color(0xFFD97706).withOpacity(0.4)
+                                  : const Color(0xFFFF9800).withOpacity(0.3),
                               width: 1,
                             ),
                           ),
@@ -1315,9 +1202,9 @@ class CalendarCutiPage extends StatelessWidget {
                               Icon(
                                 Icons.schedule,
                                 size: 14,
-                                color: isDark 
-                                  ? const Color(0xFFFBBF24)
-                                  : const Color(0xFFFF9800),
+                                color: isDark
+                                    ? const Color(0xFFFBBF24)
+                                    : const Color(0xFFFF9800),
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -1325,9 +1212,9 @@ class CalendarCutiPage extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: isDark 
-                                    ? const Color(0xFFFBBF24)
-                                    : const Color(0xFFE65100),
+                                  color: isDark
+                                      ? const Color(0xFFFBBF24)
+                                      : const Color(0xFFE65100),
                                 ),
                               ),
                             ],
@@ -1347,9 +1234,9 @@ class CalendarCutiPage extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isDark 
-                              ? theme.colorScheme.surface.withOpacity(0.5)
-                              : const Color(0xFFF5F7FA),
+                            color: isDark
+                                ? theme.colorScheme.surface.withOpacity(0.5)
+                                : const Color(0xFFF5F7FA),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: theme.dividerColor.withOpacity(0.3),
@@ -1362,7 +1249,8 @@ class CalendarCutiPage extends StatelessWidget {
                               Icon(
                                 Icons.info_outline,
                                 size: 18,
-                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.6),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -1374,7 +1262,8 @@ class CalendarCutiPage extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                        color: theme.colorScheme.onSurface
+                                            .withOpacity(0.6),
                                         letterSpacing: 0.5,
                                       ),
                                     ),
@@ -1402,14 +1291,14 @@ class CalendarCutiPage extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isDark 
-                                ? const Color(0xFF1E40AF).withOpacity(0.1)
-                                : const Color(0xFF2196F3).withOpacity(0.05),
+                              color: isDark
+                                  ? const Color(0xFF1E40AF).withOpacity(0.1)
+                                  : const Color(0xFF2196F3).withOpacity(0.05),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isDark 
-                                  ? const Color(0xFF3B82F6).withOpacity(0.3)
-                                  : const Color(0xFF2196F3).withOpacity(0.2),
+                                color: isDark
+                                    ? const Color(0xFF3B82F6).withOpacity(0.3)
+                                    : const Color(0xFF2196F3).withOpacity(0.2),
                                 width: 1,
                               ),
                             ),
@@ -1419,21 +1308,23 @@ class CalendarCutiPage extends StatelessWidget {
                                 Icon(
                                   Icons.date_range,
                                   size: 16,
-                                  color: isDark 
-                                    ? const Color(0xFF60A5FA)
-                                    : const Color(0xFF2196F3),
+                                  color: isDark
+                                      ? const Color(0xFF60A5FA)
+                                      : const Color(0xFF2196F3),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Tanggal Cuti',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                          color: theme.colorScheme.onSurface
+                                              .withOpacity(0.6),
                                           letterSpacing: 0.5,
                                         ),
                                       ),
@@ -1467,23 +1358,23 @@ class CalendarCutiPage extends StatelessWidget {
   // Helper function to simplify date range display
   String _simplifyDateRange(String dateList) {
     if (dateList.isEmpty) return '';
-    
+
     try {
       // Split the comma-separated dates
       List<String> dates = dateList.split(',').map((e) => e.trim()).toList();
-      
+
       if (dates.isEmpty) return '';
       if (dates.length == 1) {
         // Single date
         DateTime date = DateTime.parse(dates[0]);
         return DateFormat('dd MMM yyyy').format(date);
       }
-      
+
       // Multiple dates - show as range
       dates.sort(); // Sort dates
       DateTime firstDate = DateTime.parse(dates.first);
       DateTime lastDate = DateTime.parse(dates.last);
-      
+
       if (dates.length == 2) {
         // Two dates
         return '${DateFormat('dd MMM').format(firstDate)} - ${DateFormat('dd MMM yyyy').format(lastDate)}';
@@ -1493,7 +1384,9 @@ class CalendarCutiPage extends StatelessWidget {
       }
     } catch (e) {
       // If parsing fails, return original string truncated
-      return dateList.length > 50 ? '${dateList.substring(0, 50)}...' : dateList;
+      return dateList.length > 50
+          ? '${dateList.substring(0, 50)}...'
+          : dateList;
     }
   }
 }

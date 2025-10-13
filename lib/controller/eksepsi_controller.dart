@@ -36,7 +36,7 @@ class EksepsiController extends GetxController
     isLoadingUser.value = true;
     try {
       final user = loginController.currentUser.value;
-      
+
       if (user != null) {
         final result = await SupabaseService.instance.client
             .from('users')
@@ -99,13 +99,15 @@ class EksepsiController extends GetxController
         final alasanController = entry['alasan']!;
         final tanggalController = entry['tanggal']!;
 
-        if (alasanController.text.trim().isEmpty || tanggalController.text.trim().isEmpty) {
+        if (alasanController.text.trim().isEmpty ||
+            tanggalController.text.trim().isEmpty) {
           continue;
         }
 
         DateTime? parsedDate;
         try {
-          parsedDate = DateFormat('dd/MM/yyyy').parseStrict(tanggalController.text);
+          parsedDate =
+              DateFormat('dd/MM/yyyy').parseStrict(tanggalController.text);
         } catch (e) {
           Get.snackbar(
             'Error',
@@ -147,24 +149,27 @@ class EksepsiController extends GetxController
 
         final eksepsiId = eksepsiResponse['id'];
 
-        final tanggalData = validEntries.map((entry) => {
-          'eksepsi_id': eksepsiId,
-          'tanggal_eksepsi': DateFormat('yyyy-MM-dd').format(entry['tanggal']),
-          'urutan': entry['urutan'],
-          'alasan_eksepsi': entry['alasan'],
-        }).toList();
+        final tanggalData = validEntries
+            .map((entry) => {
+                  'eksepsi_id': eksepsiId,
+                  'tanggal_eksepsi':
+                      DateFormat('yyyy-MM-dd').format(entry['tanggal']),
+                  'urutan': entry['urutan'],
+                  'alasan_eksepsi': entry['alasan'],
+                })
+            .toList();
 
         await SupabaseService.instance.client
             .from('eksepsi_tanggal')
             .insert(tanggalData);
-
       } catch (e) {
         for (final entry in validEntries) {
           await SupabaseService.instance.client.from('eksepsi').insert({
             'user_id': user['id'],
             'jenis_eksepsi': jenisEksepsi,
             'alasan_eksepsi': entry['alasan'],
-            'list_tanggal_eksepsi': DateFormat('yyyy-MM-dd').format(entry['tanggal']),
+            'list_tanggal_eksepsi':
+                DateFormat('yyyy-MM-dd').format(entry['tanggal']),
             'jumlah_hari': 1,
             'tanggal_pengajuan': DateTime.now().toIso8601String(),
             'status_persetujuan': 'Menunggu',
@@ -182,7 +187,6 @@ class EksepsiController extends GetxController
       clearForm();
       await loadEksepsiHistory();
       tabController.animateTo(1);
-
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -219,10 +223,12 @@ class EksepsiController extends GetxController
             final tanggalList = (item['eksepsi_tanggal'] as List? ?? [])
                 .map((t) => t['tanggal_eksepsi'] as String)
                 .toList()
-                ..sort();
+              ..sort();
 
             final firstAlasan = (item['eksepsi_tanggal'] as List? ?? [])
-                .isNotEmpty ? (item['eksepsi_tanggal'] as List)[0]['alasan_eksepsi'] ?? '' : '';
+                    .isNotEmpty
+                ? (item['eksepsi_tanggal'] as List)[0]['alasan_eksepsi'] ?? ''
+                : '';
 
             return {
               ...item,
@@ -232,7 +238,8 @@ class EksepsiController extends GetxController
             };
           }).toList();
 
-          eksepsiHistory.value = List<Map<String, dynamic>>.from(transformedData);
+          eksepsiHistory.value =
+              List<Map<String, dynamic>>.from(transformedData);
         } catch (e) {
           final result = await SupabaseService.instance.client
               .from('eksepsi')
@@ -266,6 +273,17 @@ class EksepsiController extends GetxController
           .eq('id', eksepsiId);
 
       await loadEksepsiHistory();
+      // Pastikan tidak ada overlay yang masih terbuka sebelum menampilkan snackbar
+      try {
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+        if (Get.isSnackbarOpen == true) {
+          Get.closeAllSnackbars();
+        }
+      } catch (_) {
+        // abaikan jika properti tidak tersedia pada versi GetX
+      }
 
       Get.snackbar(
         'Berhasil',
@@ -275,6 +293,15 @@ class EksepsiController extends GetxController
         snackPosition: SnackPosition.TOP,
       );
     } catch (e) {
+      // Tutup overlay yang mungkin mengganggu sebelum menampilkan snackbar error
+      try {
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+        if (Get.isSnackbarOpen == true) {
+          Get.closeAllSnackbars();
+        }
+      } catch (_) {}
       Get.snackbar(
         'Error',
         'Gagal menghapus eksepsi: $e',
@@ -290,8 +317,18 @@ class EksepsiController extends GetxController
     final dates = dateString.isNotEmpty
         ? dateString.split(',').map((e) => e.trim()).toList()
         : <String>[];
+    // Tutup snackbar aktif sebelum membuka dialog untuk menghindari konflik overlay
+    try {
+      if (Get.isSnackbarOpen == true) {
+        Get.closeAllSnackbars();
+      }
+    } catch (_) {
+      // abaikan jika properti tidak tersedia pada versi GetX
+    }
+    // Beri jeda singkat agar overlay benar-benar tertutup
+    await Future.delayed(const Duration(milliseconds: 50));
 
-    Get.dialog(
+    final confirmed = await Get.dialog<bool>(
       AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: Column(
@@ -308,12 +345,12 @@ class EksepsiController extends GetxController
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Batal'),
+          ),
           ElevatedButton(
-            onPressed: () {
-              Get.back();
-              deleteEksepsi(eksepsiData);
-            },
+            onPressed: () => Get.back(result: true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -322,7 +359,14 @@ class EksepsiController extends GetxController
           ),
         ],
       ),
+      barrierDismissible: false,
     );
+
+    if (confirmed == true) {
+      // Beri jeda singkat untuk memastikan dialog benar-benar tertutup
+      await Future.delayed(const Duration(milliseconds: 50));
+      await deleteEksepsi(eksepsiData);
+    }
   }
 
   Future<void> refreshData() async {
@@ -339,9 +383,14 @@ class EksepsiController extends GetxController
 
   void removeEksepsiEntry(int index) {
     if (eksepsiEntries.length > 1) {
-      eksepsiEntries[index]['alasan']?.dispose();
-      eksepsiEntries[index]['tanggal']?.dispose();
+      final alasan = eksepsiEntries[index]['alasan'];
+      final tanggal = eksepsiEntries[index]['tanggal'];
+      // Lepas dulu dari UI, baru dispose setelah frame berikutnya
       eksepsiEntries.removeAt(index);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        alasan?.dispose();
+        tanggal?.dispose();
+      });
     }
   }
 
@@ -353,14 +402,35 @@ class EksepsiController extends GetxController
   }
 
   void clearForm() {
-    while (eksepsiEntries.length > 1) {
-      removeEksepsiEntry(eksepsiEntries.length - 1);
+    // Buang entri tambahan dengan aman (detach dari UI dulu)
+    if (eksepsiEntries.length > 1) {
+      final toDispose = eksepsiEntries
+          .sublist(1)
+          .map((e) => [e['alasan'], e['tanggal']])
+          .toList();
+      eksepsiEntries.removeRange(1, eksepsiEntries.length);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        for (final pair in toDispose) {
+          pair[0]?.dispose();
+          pair[1]?.dispose();
+        }
+      });
     }
     if (eksepsiEntries.isNotEmpty) {
       eksepsiEntries[0]['alasan']?.clear();
       eksepsiEntries[0]['tanggal']?.clear();
     }
     eksepsiFormKey.currentState?.reset();
+  }
+
+  @override
+  void onClose() {
+    for (final entry in eksepsiEntries) {
+      entry['alasan']?.dispose();
+      entry['tanggal']?.dispose();
+    }
+    tabController.dispose();
+    super.onClose();
   }
 
   String? validateAlasan(String? value) {

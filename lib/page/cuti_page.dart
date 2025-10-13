@@ -20,6 +20,108 @@ class CutiPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      appBar: AppBar(
+        elevation: 4,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: t.cutiAllGradient,
+            ),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.chevron_left, color: Colors.white),
+          iconSize: 28,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          tooltip: 'Kembali',
+        ),
+        title: const Text(
+          'Pengajuan Cuti',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Obx(
+              () => Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.av_timer, color: Colors.white, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Sisa : ${controller.sisaCuti.value} hari',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: TabBar(
+                controller: controller.tabController,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: t.shadowColor,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                labelColor: t.cutiAllGradient.first,
+                unselectedLabelColor: Colors.white.withOpacity(0.85),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+                tabs: const [
+                  Tab(text: 'Pengajuan'),
+                  Tab(text: 'Riwayat'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Container(
@@ -34,110 +136,6 @@ class CutiPage extends StatelessWidget {
           ),
           child: Column(
             children: [
-              // Modern Header Section
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: t.cutiAllGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: t.shadowColor,
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        // Back Button
-                        Container(
-                          margin: const EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: IconButton(
-                            onPressed: () => Get.back(),
-                            icon: const Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            padding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                        // Title Section
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Pengajuan Cuti',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                'Kelola pengajuan dan riwayat cuti',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.85),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    // Tab Bar
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TabBar(
-                        controller: controller.tabController,
-                        indicator: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        dividerColor: Colors.transparent,
-                        labelColor: t.cutiAllGradient.first,
-                        unselectedLabelColor: Colors.white.withOpacity(0.8),
-                        labelStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                        unselectedLabelStyle: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                        tabs: const [
-                          Tab(text: 'Pengajuan'),
-                          Tab(text: 'Riwayat'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               // Content
               Expanded(
                 child: Obx(() {
@@ -196,6 +194,7 @@ class CutiPage extends StatelessWidget {
   ) {
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Form(
@@ -203,51 +202,16 @@ class CutiPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Info Card
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: t.card,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: t.shadowColor,
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: t.cutiAllGradient.first.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.info_outline,
-                      color: Color(0xFF4facfe),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Pilih tanggal cuti yang diinginkan dengan teliti',
-                      style: TextStyle(fontSize: 14, color: t.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             // User Info Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: t.card,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: t.borderSubtle,
+                  width: isDark ? 1.4 : 1.0,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: t.shadowColor,
@@ -305,52 +269,6 @@ class CutiPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.xl),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          t.cutiAllGradient.first.withOpacity(0.10),
-                          t.cutiAllGradient.first.withOpacity(0.05),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Sisa Cuti:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: t.textPrimary,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: t.cutiAllGradient.first,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Obx(
-                            () => Text(
-                              '${controller.sisaCuti.value} hari',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -369,6 +287,10 @@ class CutiPage extends StatelessWidget {
                     offset: const Offset(0, 4),
                   ),
                 ],
+                border: Border.all(
+                  color: t.borderSubtle,
+                  width: isDark ? 1.5 : 1,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,6 +484,10 @@ class CutiPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: t.card,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: t.borderSubtle,
+                  width: isDark ? 1.4 : 1.0,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: t.shadowColor,
@@ -582,6 +508,7 @@ class CutiPage extends StatelessWidget {
                     Icons.description_outlined,
                     color: Color(0xFF4facfe),
                   ),
+                  filled: false,
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
@@ -601,6 +528,10 @@ class CutiPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: t.card,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: t.borderSubtle,
+                  width: isDark ? 1.4 : 1.0,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: t.shadowColor,
@@ -877,6 +808,7 @@ class CutiPage extends StatelessWidget {
   Widget _buildHistoryTab(BuildContext context, CutiController controller) {
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
+    final isDark = theme.brightness == Brightness.dark;
     return Obx(() {
       if (controller.isLoadingHistory.value) {
         return Center(
@@ -947,6 +879,10 @@ class CutiPage extends StatelessWidget {
                   offset: const Offset(0, 4),
                 ),
               ],
+              border: Border.all(
+                color: t.borderSubtle,
+                width: isDark ? 1.5 : 1,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -1155,6 +1091,10 @@ class CutiPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: theme.inputDecorationTheme.fillColor ?? t.surface,
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: t.borderSubtle,
+                        width: isDark ? 1.2 : 1.0,
+                      ),
                     ),
                     child: Column(
                       children: [

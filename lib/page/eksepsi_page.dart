@@ -22,6 +22,169 @@ class EksepsiPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 4,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        foregroundColor: theme.colorScheme.onPrimary,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: accentGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          tooltip: 'Kembali',
+        ),
+        titleSpacing: 0,
+        title: Text(
+          'Pengajuan Eksepsi',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: controller.refreshData,
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.16),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: TabBar(
+                controller: controller.tabController,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                labelColor: accent,
+                unselectedLabelColor: Colors.white.withOpacity(0.85),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+                tabs: const [
+                  Tab(text: 'Pengajuan'),
+                  Tab(text: 'Riwayat'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      // Satu tombol tambah tanggal saja untuk semua platform/orientasi
+      floatingActionButton: AnimatedBuilder(
+        animation: controller.tabController,
+        builder: (context, _) {
+          final isPengajuan = controller.tabController.index == 0;
+          return isPengajuan
+              ? FloatingActionButton.extended(
+                  onPressed: controller.addEksepsiEntry,
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Tambah tanggal'),
+                  backgroundColor: accent,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                )
+              : const SizedBox.shrink();
+        },
+      ),
+      // Tombol submit sticky untuk mode portrait agar selalu terlihat di Android
+      bottomNavigationBar: AnimatedBuilder(
+        animation: controller.tabController,
+        builder: (context, _) {
+          final isPengajuan = controller.tabController.index == 0;
+          final isPortrait =
+              MediaQuery.of(context).orientation == Orientation.portrait;
+          if (!isPengajuan || !isPortrait) return const SizedBox.shrink();
+          return SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.md,
+              ),
+              decoration: BoxDecoration(
+                color: theme.cardColor.withOpacity(isDark ? 0.6 : 0.8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+                border: Border(
+                  top: BorderSide(
+                    color: theme.dividerColor.withOpacity(0.2),
+                  ),
+                ),
+              ),
+              child: Obx(() {
+                final isLoading = controller.isLoading.value;
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed:
+                        isLoading ? null : controller.submitEksepsiApplication,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accent,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isLoading
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            'Kirim Pengajuan',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                );
+              }),
+            ),
+          );
+        },
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -35,252 +198,70 @@ class EksepsiPage extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                  children: [
-                    _buildHeaderCard(
-                      theme: theme,
-                      tokens: tokens,
-                      accentGradient: accentGradient,
-                      controller: controller,
-                      accent: accent,
-                      accentAlt: accentAlt,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
-                ),
-              ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                  ),
-                  child: TabBarView(
-                    controller: controller.tabController,
-                    children: [
-                      _buildEksepsiForm(
-                        controller,
-                        theme,
-                        tokens,
-                        accent,
-                        accentAlt,
-                      ),
-                      _buildHistoryTab(
-                        controller,
-                        theme,
-                        tokens,
-                        accent,
-                        accentAlt,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderCard({
-    required ThemeData theme,
-    required AppTokens tokens,
-    required List<Color> accentGradient,
-    required EksepsiController controller,
-    required Color accent,
-    required Color accentAlt,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.section),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: accentGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.shadowColor,
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onPrimary.withAlpha(
-                    (0.18 * 255).round(),
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: theme.colorScheme.onPrimary.withAlpha(
-                      (0.28 * 255).round(),
-                    ),
-                  ),
-                ),
-                child: IconButton(
-                  onPressed: () => Get.back(),
-                  icon: Icon(
-                    Icons.arrow_back_rounded,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Pengajuan Eksepsi',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Ajukan eksepsi jam kerja dan pantau statusnya.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: theme.colorScheme.onPrimary.withAlpha(
-                          (0.88 * 255).round(),
+                  // Gunakan padding 20px di atas, kiri, kanan
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    interactive: true,
+                    child: TabBarView(
+                      controller: controller.tabController,
+                      children: [
+                        _buildEksepsiForm(
+                          context,
+                          controller,
+                          theme,
+                          tokens,
+                          accent,
+                          accentAlt,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onPrimary.withAlpha(
-                    (0.18 * 255).round(),
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: theme.colorScheme.onPrimary.withAlpha(
-                      (0.28 * 255).round(),
+                        _buildHistoryTab(
+                          controller,
+                          theme,
+                          tokens,
+                          accent,
+                          accentAlt,
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Icon(
-                  Icons.schedule_rounded,
-                  color: theme.colorScheme.onPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
-          // TabBar di dalam kartu header (meniru gaya Pengajuan Cuti)
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TabBar(
-              controller: controller.tabController,
-              indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              labelColor: accent,
-              unselectedLabelColor: Colors.white.withOpacity(0.8),
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
-              ),
-              tabs: const [
-                Tab(text: 'Pengajuan'),
-                Tab(text: 'Riwayat'),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildEksepsiForm(
+    BuildContext context,
     EksepsiController controller,
     ThemeData theme,
     AppTokens tokens,
     Color accent,
     Color accentAlt,
   ) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    // Tata letak adaptif: mode landscape dua kolom agar scroll lebih nyaman
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.section),
+      // Hilangkan padding bawah agar tidak ada ruang kosong ekstra
+      padding: EdgeInsets.zero,
       child: Form(
         key: controller.eksepsiFormKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoCard(
-              theme: theme,
-              tokens: tokens,
-              accent: accent,
-              accentAlt: accentAlt,
-              subtitle: controller.jenisEksepsi,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: Container(
-                decoration: _cardDecoration(tokens),
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_month_rounded, color: accent),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              'Tanggal Eksepsi',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: tokens.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        TextButton.icon(
-                          onPressed: controller.addEksepsiEntry,
-                          style: TextButton.styleFrom(
-                            foregroundColor: accent,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.sm,
-                            ),
-                          ),
-                          icon: const Icon(Icons.add_rounded),
-                          label: const Text('Tambah'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Expanded(
+        child: isLandscape
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Kolom kiri: daftar entri eksepsi dengan scrollbar
+                  Expanded(
+                    child: Container(
+                      // Hilangkan padding container agar konten menyentuh tepi
+                      padding: EdgeInsets.zero,
                       child: Obx(
                         () => controller.eksepsiEntries.isEmpty
                             ? _buildEmptyState(
@@ -291,7 +272,10 @@ class EksepsiPage extends StatelessWidget {
                                     'Tekan tombol "Tambah" untuk menambahkan entri eksepsi.',
                               )
                             : ListView.separated(
+                                primary: true,
                                 padding: EdgeInsets.zero,
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
                                 itemCount: controller.eksepsiEntries.length,
                                 separatorBuilder: (_, __) =>
                                     const SizedBox(height: AppSpacing.md),
@@ -307,106 +291,100 @@ class EksepsiPage extends StatelessWidget {
                               ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Obx(() {
-                        final isLoading = controller.isLoading.value;
-                        return ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : controller.submitEksepsiApplication,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: accent,
-                            foregroundColor: theme.colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: isLoading
-                              ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      theme.colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                )
-                              : const Text(
-                                  'Kirim Pengajuan',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required ThemeData theme,
-    required AppTokens tokens,
-    required Color accent,
-    required Color accentAlt,
-    required String subtitle,
-  }) {
-    return Container(
-      decoration: _cardDecoration(tokens),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [accent, accentAlt],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              Icons.schedule_rounded,
-              color: theme.colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Jenis Eksepsi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: tokens.textPrimary,
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 14, color: tokens.textSecondary),
-                ),
-              ],
-            ),
-          ),
-        ],
+                  // Kurangi jarak antar kolom agar lebih rapat
+                  const SizedBox(width: AppSpacing.sm),
+                  // Kolom kanan: informasi dan CTA selalu terlihat
+                  SizedBox(
+                    width: 360,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Obx(() {
+                            final isLoading = controller.isLoading.value;
+                            return ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : controller.submitEksepsiApplication,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: accent,
+                                foregroundColor: theme.colorScheme.onPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: AppSpacing.md,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: isLoading
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          theme.colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Kirim Pengajuan',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      // Hilangkan padding container agar konten menyentuh tepi
+                      padding: EdgeInsets.zero,
+                      child: Obx(
+                        () => controller.eksepsiEntries.isEmpty
+                            ? _buildEmptyState(
+                                tokens: tokens,
+                                message:
+                                    'Belum ada tanggal eksepsi yang ditambahkan.',
+                                description:
+                                    'Tekan tombol "Tambah" untuk menambahkan entri eksepsi.',
+                              )
+                            : ListView.separated(
+                                primary: true,
+                                padding: EdgeInsets.zero,
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                itemCount: controller.eksepsiEntries.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: AppSpacing.md),
+                                itemBuilder: (context, index) {
+                                  return _buildEksepsiEntry(
+                                    controller,
+                                    index,
+                                    theme,
+                                    tokens,
+                                    accent,
+                                  );
+                                },
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -423,7 +401,7 @@ class EksepsiPage extends StatelessWidget {
     final tanggalController = entry['tanggal']!;
 
     return Container(
-      decoration: _cardDecoration(tokens),
+      decoration: _cardDecoration(tokens, theme),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,45 +483,6 @@ class EksepsiPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.section),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: _cardDecoration(tokens),
-            child: Row(
-              children: [
-                _buildHistoryIcon(accent, accentAlt, theme),
-                const SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Riwayat Eksepsi',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: tokens.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        'Pantau status pengajuan eksepsi Anda.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: tokens.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: controller.refreshData,
-                  icon: Icon(Icons.refresh_rounded, color: accent),
-                  tooltip: 'Muat ulang data',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
           Expanded(
             child: Obx(() {
               if (controller.isLoadingHistory.value) {
@@ -564,7 +503,10 @@ class EksepsiPage extends StatelessWidget {
               }
 
               return ListView.separated(
+                primary: true,
                 padding: EdgeInsets.zero,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 itemCount: controller.eksepsiHistory.length,
                 separatorBuilder: (_, __) =>
                     const SizedBox(height: AppSpacing.md),
@@ -586,21 +528,6 @@ class EksepsiPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHistoryIcon(Color accent, Color accentAlt, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [accent, accentAlt],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Icon(Icons.history_rounded, color: theme.colorScheme.onPrimary),
-    );
-  }
-
   Widget _buildHistoryCard(
     EksepsiController controller,
     Map<String, dynamic> item,
@@ -613,7 +540,7 @@ class EksepsiPage extends StatelessWidget {
     final statusIcon = controller.getStatusIcon(status);
 
     return Container(
-      decoration: _cardDecoration(tokens),
+      decoration: _cardDecoration(tokens, theme),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: InkWell(
         onTap: () => _showDetailDialog(item, theme, tokens, accent),
@@ -788,6 +715,11 @@ class EksepsiPage extends StatelessWidget {
     Widget? suffix,
     bool alignLabelWithHint = false,
   }) {
+    final isDark = theme.brightness == Brightness.dark;
+    final baseOutlineColor =
+        isDark ? tokens.borderSubtle.withOpacity(0.9) : tokens.borderSubtle;
+    final outlineWidth = isDark ? 1.4 : 1.0;
+
     return InputDecoration(
       hintText: hint,
       labelText: label,
@@ -802,11 +734,11 @@ class EksepsiPage extends StatelessWidget {
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
-        borderSide: BorderSide(color: tokens.borderSubtle),
+        borderSide: BorderSide(color: baseOutlineColor, width: outlineWidth),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
-        borderSide: BorderSide(color: tokens.borderSubtle),
+        borderSide: BorderSide(color: baseOutlineColor, width: outlineWidth),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
@@ -823,11 +755,13 @@ class EksepsiPage extends StatelessWidget {
     );
   }
 
-  BoxDecoration _cardDecoration(AppTokens tokens) {
+  BoxDecoration _cardDecoration(AppTokens tokens, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+    final borderWidth = isDark ? 1.4 : 1.0;
     return BoxDecoration(
       color: tokens.card,
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: tokens.borderSubtle),
+      border: Border.all(color: tokens.borderSubtle, width: borderWidth),
       boxShadow: [
         BoxShadow(
           color: tokens.shadowColor,

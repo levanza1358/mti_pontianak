@@ -60,21 +60,24 @@ class EksepsiPage extends StatelessWidget {
               if (!isPengajuan) return const SizedBox.shrink();
               return Padding(
                 padding: const EdgeInsets.only(right: AppSpacing.sm),
-                child: TextButton.icon(
-                  onPressed: controller.addEksepsiEntry,
-                  icon: const Icon(Icons.add_rounded, color: Colors.white),
-                  label: const Text(
-                    'Tambah tanggal',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
+                child: Obx(() {
+                  final disabled = controller.eksepsiEntries.length >= 10;
+                  return TextButton.icon(
+                    onPressed: disabled ? null : controller.addEksepsiEntry,
+                    icon: const Icon(Icons.add_rounded, color: Colors.white),
+                    label: const Text(
+                      'Tambah tanggal',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ),
-                ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
+                      ),
+                    ),
+                  );
+                }),
               );
             },
           ),

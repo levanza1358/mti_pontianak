@@ -184,7 +184,15 @@ class InsentifPage extends GetView<InsentifController> {
                     controller.formatCurrency(
                       controller.filteredPremiList.fold<int>(
                         0,
-                        (sum, item) => sum + ((item['nominal'] ?? 0) as int),
+                        (sum, item) {
+                          final v = item['nominal'];
+                          final n = v is int
+                              ? v
+                              : (v is num
+                                  ? v.toInt()
+                                  : int.tryParse(v?.toString() ?? '0') ?? 0);
+                          return sum + n;
+                        },
                       ),
                     ),
                     style: TextStyle(
@@ -268,7 +276,15 @@ class InsentifPage extends GetView<InsentifController> {
                     controller.formatCurrency(
                       controller.filteredLemburList.fold<int>(
                         0,
-                        (sum, item) => sum + ((item['nominal'] ?? 0) as int),
+                        (sum, item) {
+                          final v = item['nominal'];
+                          final n = v is int
+                              ? v
+                              : (v is num
+                                  ? v.toInt()
+                                  : int.tryParse(v?.toString() ?? '0') ?? 0);
+                          return sum + n;
+                        },
                       ),
                     ),
                     style: TextStyle(
@@ -459,10 +475,16 @@ class InsentifPage extends GetView<InsentifController> {
                           size: 14, color: t.textSecondary),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        insentif['bulan'] != null
-                            ? DateFormat('MMMM yyyy')
-                                .format(DateTime.parse(insentif['bulan']))
-                            : '-',
+                        (() {
+                          final b = insentif['bulan'];
+                          if (b is String) {
+                            final dt = DateTime.tryParse(b);
+                            if (dt != null) {
+                              return DateFormat('MMMM yyyy').format(dt);
+                            }
+                          }
+                          return '-';
+                        })(),
                         style: TextStyle(color: t.textSecondary),
                       ),
                     ],

@@ -161,6 +161,17 @@ class EksepsiController extends GetxController
         return;
       }
 
+      // Tegakkan batas maksimal 10 tanggal saat pengajuan
+      if (validEntries.length > 10) {
+        Get.snackbar(
+          'Error',
+          'Maksimal 10 tanggal eksepsi per pengajuan. Hapus beberapa tanggal.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       try {
         // Pastikan URL tanda tangan tersimpan ke Storage sebelum insert
         if (signatureUrl.value.isEmpty && signatureData.value != null) {
@@ -296,6 +307,40 @@ class EksepsiController extends GetxController
   Future<void> deleteEksepsi(Map<String, dynamic> eksepsiData) async {
     try {
       final eksepsiId = eksepsiData['id'];
+      // Coba hapus file tanda tangan di Supabase Storage jika ada URL
+      final ttdUrl = (eksepsiData['url_ttd_eksepsi'] ?? '').toString();
+      if (ttdUrl.isNotEmpty) {
+        try {
+          // Ambil path object setelah nama bucket
+          const bucketPrefix = '/ttd_eksepsi/';
+          String objectPath = '';
+          final idx = ttdUrl.indexOf(bucketPrefix);
+          if (idx != -1) {
+            objectPath = ttdUrl.substring(idx + bucketPrefix.length);
+          } else {
+            final uri = Uri.tryParse(ttdUrl);
+            if (uri != null && uri.pathSegments.isNotEmpty) {
+              // Fallback: gunakan segmen terakhir sebagai nama file
+              objectPath = uri.pathSegments.last;
+            }
+          }
+
+          if (objectPath.isNotEmpty) {
+            await SupabaseService.instance.client.storage
+                .from('ttd_eksepsi')
+                .remove([objectPath]);
+          }
+        } catch (e) {
+          // Jangan blokir penghapusan eksepsi jika hapus TTD gagal
+          Get.snackbar(
+            'Peringatan',
+            'Gagal menghapus TTD dari storage: $e',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+          );
+        }
+      }
 
       await SupabaseService.instance.client
           .from('eksepsi')
@@ -405,6 +450,17 @@ class EksepsiController extends GetxController
   }
 
   void addEksepsiEntry() {
+    // Batasi maksimal 10 entri tanggal eksepsi
+    if (eksepsiEntries.length >= 10) {
+      Get.snackbar(
+        'Batas tercapai',
+        'Maksimal 10 tanggal eksepsi per pengajuan.',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     eksepsiEntries.add({
       'alasan': TextEditingController(),
       'tanggal': TextEditingController(),

@@ -453,6 +453,33 @@ class CutiController extends GetxController
         return;
       }
 
+      // Attempt to delete the signature file from storage (non-blocking)
+      final String? signatureUrlStr = cutiData['url_ttd'];
+      if (signatureUrlStr != null && signatureUrlStr.isNotEmpty) {
+        try {
+          const bucketName = 'ttd_cuti';
+          final marker = '/object/public/$bucketName/';
+          final index = signatureUrlStr.indexOf(marker);
+          if (index != -1) {
+            final objectPath = signatureUrlStr.substring(index + marker.length);
+            if (objectPath.isNotEmpty) {
+              await SupabaseService.instance.client.storage
+                  .from(bucketName)
+                  .remove([objectPath]);
+            }
+          }
+        } catch (e) {
+          // Inform the user but continue with deletion
+          Get.snackbar(
+            'Peringatan',
+            'Gagal menghapus file tanda tangan dari penyimpanan: $e',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.TOP,
+          );
+        }
+      }
+
       // Start transaction-like operations
       // 1. Delete the cuti record
       await SupabaseService.instance.client

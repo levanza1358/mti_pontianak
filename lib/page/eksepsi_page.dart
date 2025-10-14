@@ -52,10 +52,31 @@ class EksepsiPage extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            tooltip: 'Refresh',
-            onPressed: controller.refreshData,
-            icon: const Icon(Icons.refresh_rounded),
+          // Pindahkan tombol Tambah Tanggal ke AppBar; tampil hanya di tab Pengajuan
+          AnimatedBuilder(
+            animation: controller.tabController,
+            builder: (context, _) {
+              final isPengajuan = controller.tabController.index == 0;
+              if (!isPengajuan) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: TextButton.icon(
+                  onPressed: controller.addEksepsiEntry,
+                  icon: const Icon(Icons.add_rounded, color: Colors.white),
+                  label: const Text(
+                    'Tambah tanggal',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xs,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
         bottom: PreferredSize(
@@ -96,22 +117,7 @@ class EksepsiPage extends StatelessWidget {
           ),
         ),
       ),
-      // Satu tombol tambah tanggal saja untuk semua platform/orientasi
-      floatingActionButton: AnimatedBuilder(
-        animation: controller.tabController,
-        builder: (context, _) {
-          final isPengajuan = controller.tabController.index == 0;
-          return isPengajuan
-              ? FloatingActionButton.extended(
-                  onPressed: controller.addEksepsiEntry,
-                  icon: const Icon(Icons.add_rounded),
-                  label: const Text('Tambah tanggal'),
-                  backgroundColor: accent,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                )
-              : const SizedBox.shrink();
-        },
-      ),
+      // Tombol tambah tanggal dipindah ke AppBar; hilangkan FAB
       // Tombol submit sticky untuk mode portrait agar selalu terlihat di Android
       bottomNavigationBar: AnimatedBuilder(
         animation: controller.tabController,

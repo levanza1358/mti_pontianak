@@ -204,8 +204,9 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                                                   value: y, child: Text('$y')))
                                               .toList(),
                                           onChanged: (v) {
-                                            if (v != null)
+                                            if (v != null) {
                                               controller.changeYear(v);
+                                            }
                                           },
                                         ),
                                       ),

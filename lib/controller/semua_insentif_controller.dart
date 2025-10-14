@@ -117,27 +117,41 @@ class SemuaInsentifController extends GetxController
   void updateAvailableYears() {
     final years = <int>{};
 
-    // Collect years from premi data
+    // Kumpulkan tahun dari data premi
     for (final item in insentifPremiList) {
-      if (item['tahun'] != null) {
-        years.add(DateTime.parse(item['tahun']).year);
+      final tahunStr = item['tahun']?.toString();
+      if (tahunStr != null) {
+        final parsed = DateTime.tryParse(tahunStr);
+        if (parsed != null) {
+          years.add(parsed.year);
+        }
       }
     }
 
-    // Collect years from lembur data
+    // Kumpulkan tahun dari data lembur
     for (final item in insentifLemburList) {
-      if (item['tahun'] != null) {
-        years.add(DateTime.parse(item['tahun']).year);
+      final tahunStr = item['tahun']?.toString();
+      if (tahunStr != null) {
+        final parsed = DateTime.tryParse(tahunStr);
+        if (parsed != null) {
+          years.add(parsed.year);
+        }
       }
     }
 
-    // Add current year if no data exists
+    // Jika tidak ada data sama sekali, masukkan tahun berjalan
     if (years.isEmpty) {
       years.add(DateTime.now().year);
     }
 
-    // Sort years in descending order
-    availableYears.addAll(years);
+    // Perbarui daftar tahun tersedia (replace seluruh set agar reaktif)
+    availableYears.assignAll(years);
+
+    // Pastikan selectedYear valid: jika tidak ada di daftar, pilih tahun terbaru
+    if (!availableYears.contains(selectedYear.value)) {
+      final sorted = years.toList()..sort((a, b) => b.compareTo(a));
+      selectedYear.value = sorted.isNotEmpty ? sorted.first : DateTime.now().year;
+    }
   }
 
   void changeYear(int year) {
@@ -400,7 +414,55 @@ class SemuaInsentifController extends GetxController
   }
 
   int _parseRupiahToInt(String input) {
-    final cleaned = input.replaceAll(RegExp(r'[^0-9]'), '');
-    return int.tryParse(cleaned) ?? 0;
+    // Normalisasi string rupiah agar aman untuk di-parse.
+    // Tangani variasi: "Rp 2,125,816", "1.234.567,89", "629709.302325581".
+    var s = input.trim();
+    if (s.isEmpty) return 0;
+
+    // Hilangkan penanda mata uang (case-insensitive) dan spasi
+    s = s.replaceAll(RegExp(r'rp|idr', caseSensitive: false), '');
+    s = s.replaceAll(' ', '');
+
+    final hasComma = s.contains(',');
+    final hasDot = s.contains('.');
+    String integerPart = s;
+
+    if (hasComma && hasDot) {
+      // Jika terdapat koma dan titik, tentukan desimal berdasarkan separator terakhir.
+      // - Jika yang terakhir muncul adalah koma, anggap koma sebagai desimal (format Indonesia)
+      // - Jika yang terakhir muncul adalah titik, anggap titik sebagai desimal (format US)
+      final lastComma = s.lastIndexOf(',');
+      final lastDot = s.lastIndexOf('.');
+      final decimalIsComma = lastComma > lastDot;
+      if (decimalIsComma) {
+        integerPart = s.substring(0, lastComma).replaceAll('.', '');
+      } else {
+        integerPart = s.substring(0, lastDot).replaceAll(',', '');
+      }
+    } else if (hasComma && !hasDot) {
+      // Hanya koma: anggap koma sebagai pemisah ribuan
+      integerPart = s.replaceAll(',', '');
+    } else if (!hasComma && hasDot) {
+      // Hanya titik: bisa berarti ribuan (banyak titik) atau desimal (satu titik)
+      final dotCount = RegExp(r'\.').allMatches(s).length;
+      if (dotCount == 1) {
+        // Satu titik, anggap sebagai desimal. Ambil bagian sebelum titik.
+        integerPart = s.split('.').first;
+      } else {
+        // Banyak titik: anggap sebagai ribuan, hapus semuanya
+        integerPart = s.replaceAll('.', '');
+      }
+    } else {
+      // Hanya digit
+      integerPart = s;
+    }
+
+    // Sisakan hanya digit
+    integerPart = integerPart.replaceAll(RegExp(r'[^0-9]'), '');
+    if (integerPart.isEmpty) return 0;
+
+    final parsed = int.tryParse(integerPart) ?? 0;
+    const maxInt32 = 2147483647; // cegah overflow ke kolom integer
+    return parsed > maxInt32 ? maxInt32 : parsed;
   }
 }

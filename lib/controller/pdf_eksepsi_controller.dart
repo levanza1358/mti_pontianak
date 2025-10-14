@@ -102,6 +102,27 @@ class PdfEksepsiController extends GetxController {
       // Get eksepsi details
       final jenisEksepsi = eksepsiData['jenis_eksepsi'] ?? 'Jam Masuk & Pulang';
 
+      // Prepare signature image (prefer URL stored on record, fallback to current controller state)
+      pw.ImageProvider? ttdImageProvider;
+      final String recordTtdUrl = (eksepsiData['url_ttd_eksepsi'] ?? '').toString();
+      final String controllerTtdUrl = eksepsiController.signatureUrl.value;
+      final String ttdUrl = recordTtdUrl.isNotEmpty ? recordTtdUrl : controllerTtdUrl;
+      final Uint8List? ttdBytes = eksepsiController.signatureData.value;
+      if (ttdUrl.isNotEmpty) {
+        try {
+          ttdImageProvider = await networkImage(ttdUrl);
+        } catch (_) {
+          ttdImageProvider = null;
+        }
+      }
+      if (ttdImageProvider == null && ttdBytes != null) {
+        try {
+          ttdImageProvider = pw.MemoryImage(ttdBytes);
+        } catch (_) {
+          ttdImageProvider = null;
+        }
+      }
+
       // Get tanggal data with alasan per tanggal
       final eksepsiTanggalList = eksepsiData['eksepsi_tanggal'] as List? ?? [];
 
@@ -314,7 +335,14 @@ class PdfEksepsiController extends GetxController {
                           'Hormat Saya,',
                           style: pw.TextStyle(fontSize: 11),
                         ),
-                        pw.SizedBox(height: 50),
+                        if (ttdImageProvider != null)
+                          pw.Container(
+                            height: 60,
+                            padding: const pw.EdgeInsets.symmetric(vertical: 4),
+                            child: pw.Image(ttdImageProvider!, fit: pw.BoxFit.contain),
+                          )
+                        else
+                          pw.SizedBox(height: 50),
                         pw.Column(
                           children: [
                             pw.Text(

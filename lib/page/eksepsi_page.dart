@@ -302,6 +302,9 @@ class EksepsiPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // Signature Section (landscape sidebar)
+                          _buildSignatureSection(controller, theme, tokens),
+                          const SizedBox(height: AppSpacing.md),
                           Obx(() {
                             final isLoading = controller.isLoading.value;
                             return ElevatedButton(
@@ -383,6 +386,9 @@ class EksepsiPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.section),
+                  // Signature Section (portrait below list)
+                  _buildSignatureSection(controller, theme, tokens),
                 ],
               ),
       ),
@@ -466,6 +472,209 @@ class EksepsiPage extends StatelessWidget {
               alignLabelWithHint: true,
             ),
             validator: controller.validateAlasan,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSignatureSection(
+    EksepsiController controller,
+    ThemeData theme,
+    AppTokens tokens,
+  ) {
+    final isDark = theme.brightness == Brightness.dark;
+    return Container
+    (
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: tokens.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: tokens.borderSubtle,
+          width: isDark ? 1.4 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: tokens.shadowColor,
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFf093fb).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.gesture,
+                      color: Color(0xFFf093fb),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    'Tanda Tangan Digital',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: tokens.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: (controller.hasSignature.value
+                            ? Colors.green
+                            : Colors.amber)
+                        .withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(AppSpacing.sm),
+                    border: Border.all(
+                      color: controller.hasSignature.value
+                          ? Colors.green
+                          : Colors.amber,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        controller.hasSignature.value
+                            ? Icons.check_circle
+                            : Icons.pending,
+                        color: controller.hasSignature.value
+                            ? Colors.green
+                            : Colors.amber,
+                        size: 16,
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Text(
+                        controller.hasSignature.value
+                            ? 'Tersedia'
+                            : 'Belum ada',
+                        style: TextStyle(
+                          color: controller.hasSignature.value
+                              ? Colors.green
+                              : Colors.amber,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Obx(() {
+            final data = controller.signatureData.value;
+            if (data != null) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: tokens.card,
+                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                  border: Border.all(color: tokens.borderSubtle),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.memory(
+                      data,
+                      height: 120,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Preview tanda tangan',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: tokens.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: tokens.card,
+                borderRadius: BorderRadius.circular(AppSpacing.sm),
+                border: Border.all(color: tokens.borderSubtle),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.border_color,
+                    color: tokens.textSecondary,
+                    size: 28,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Belum ada tanda tangan',
+                    style: TextStyle(
+                      color: tokens.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: controller.clearSignature,
+                  icon: const Icon(Icons.clear),
+                  label: const Text('Hapus'),
+                  style: OutlinedButton.styleFrom(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.md),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: controller.showSignatureDialog,
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Buat TTD'),
+                  style: ElevatedButton.styleFrom(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.md),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

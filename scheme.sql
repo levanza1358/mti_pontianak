@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS public.eksepsi (
   tanggal_pengajuan timestamptz NULL DEFAULT now(),
   created_at timestamptz NULL DEFAULT now(),
   updated_at timestamptz NULL DEFAULT now(),
+  url_ttd_eksepsi text NULL,
   CONSTRAINT eksepsi_pkey PRIMARY KEY (id),
   CONSTRAINT eksepsi_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE
 ) TABLESPACE pg_default;

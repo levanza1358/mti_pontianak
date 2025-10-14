@@ -89,11 +89,9 @@ class PdfEksepsiController extends GetxController {
       final managerData = await fetchSupervisorByJenis('Manager_PDS');
 
       // Set supervisor info
-      final supervisorNama =
-          supervisorData?['nama'] ??
+      final supervisorNama = supervisorData?['nama'] ??
           'SUPERVISOR ${supervisorJenis.toUpperCase()}';
-      final supervisorJabatan =
-          supervisorData?['jabatan'] ??
+      final supervisorJabatan = supervisorData?['jabatan'] ??
           'SUPERVISOR ${supervisorJenis.toUpperCase()}';
       final managerNama = managerData?['nama'] ?? 'REGIONAL MANAGER';
       final managerJabatan =
@@ -104,9 +102,11 @@ class PdfEksepsiController extends GetxController {
 
       // Prepare signature image (prefer URL stored on record, fallback to current controller state)
       pw.ImageProvider? ttdImageProvider;
-      final String recordTtdUrl = (eksepsiData['url_ttd_eksepsi'] ?? '').toString();
+      final String recordTtdUrl =
+          (eksepsiData['url_ttd_eksepsi'] ?? '').toString();
       final String controllerTtdUrl = eksepsiController.signatureUrl.value;
-      final String ttdUrl = recordTtdUrl.isNotEmpty ? recordTtdUrl : controllerTtdUrl;
+      final String ttdUrl =
+          recordTtdUrl.isNotEmpty ? recordTtdUrl : controllerTtdUrl;
       final Uint8List? ttdBytes = eksepsiController.signatureData.value;
       if (ttdUrl.isNotEmpty) {
         try {
@@ -339,7 +339,8 @@ class PdfEksepsiController extends GetxController {
                           pw.Container(
                             height: 60,
                             padding: const pw.EdgeInsets.symmetric(vertical: 4),
-                            child: pw.Image(ttdImageProvider!, fit: pw.BoxFit.contain),
+                            child: pw.Image(ttdImageProvider,
+                                fit: pw.BoxFit.contain),
                           )
                         else
                           pw.SizedBox(height: 50),

@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mti_pontianak/controller/semua_insentif_controller.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_spacing.dart';
-import 'package:intl/intl.dart';
 
 class SemuaInsentifPage extends GetView<SemuaInsentifController> {
   const SemuaInsentifPage({super.key});
@@ -33,7 +33,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header dengan gradient
+              // Header
               Container(
                 margin: const EdgeInsets.fromLTRB(
                     AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
@@ -53,7 +53,6 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                 ),
                 child: Stack(
                   children: [
-                    // Dekorasi bubble
                     Positioned(
                       right: -20,
                       top: -10,
@@ -78,13 +77,13 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                         ),
                       ),
                     ),
-                    // Konten
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
                         children: [
                           Row(
                             children: [
+                              // Back
                               Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.18),
@@ -99,6 +98,8 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                                 ),
                               ),
                               const SizedBox(width: AppSpacing.md),
+
+                              // Title
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +114,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                                     ),
                                     SizedBox(height: AppSpacing.sm),
                                     Text(
-                                      'Insentif Premi & Lembur (Tanpa Filter)',
+                                      'Insentif Premi & Lembur (Tanpa Filter User)',
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -123,7 +124,52 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                                   ],
                                 ),
                               ),
+
                               const SizedBox(width: AppSpacing.md),
+
+                              // === NEW: Navigator Bulan <  September 2025  > ===
+                              Obx(() {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.sm,
+                                      vertical: AppSpacing.xs),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.16),
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                        color: Colors.white.withOpacity(0.25)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Prev month
+                                      _circleIconButton(
+                                        icon: Icons.chevron_left,
+                                        onTap: controller.prevMonth,
+                                      ),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      // Label month-year
+                                      Text(
+                                        controller.monthYearLabel,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      // Next month
+                                      _circleIconButton(
+                                        icon: Icons.chevron_right,
+                                        onTap: controller.nextMonth,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+
+                              const SizedBox(width: AppSpacing.md),
+
+                              // Tahun dropdown (tetap ada)
                               Obx(() {
                                 final years = controller.availableYears.toList()
                                   ..sort((a, b) => b.compareTo(a));
@@ -157,16 +203,20 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                                               .map((y) => DropdownMenuItem<int>(
                                                   value: y, child: Text('$y')))
                                               .toList(),
-                                          onChanged: (v) => v != null
-                                              ? controller.changeYear(v)
-                                              : null,
+                                          onChanged: (v) {
+                                            if (v != null)
+                                              controller.changeYear(v);
+                                          },
                                         ),
                                       ),
                                     ],
                                   ),
                                 );
                               }),
+
                               const SizedBox(width: AppSpacing.md),
+
+                              // Upload
                               Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.18),
@@ -183,7 +233,9 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                               ),
                             ],
                           ),
+
                           const SizedBox(height: AppSpacing.lg),
+
                           // TabBar
                           Container(
                             height: 50,
@@ -216,7 +268,9 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                   ],
                 ),
               ),
+
               const SizedBox(height: AppSpacing.sm),
+
               Expanded(
                 child: TabBarView(
                   controller: controller.tabController,
@@ -230,13 +284,33 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
     );
   }
 
+  // Tombol bulat kecil untuk navigasi bulan
+  Widget _circleIconButton(
+      {required IconData icon, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.22),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.28)),
+        ),
+        alignment: Alignment.center,
+        child: Icon(icon, size: 18, color: Colors.white),
+      ),
+    );
+  }
+
   void _showUploadSheet(BuildContext context) {
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
     final months = List<int>.generate(12, (i) => i + 1);
     String jenis = 'Premi';
     int tahun = controller.selectedYear.value;
-    int bulan = DateTime.now().month;
+    int bulan = controller.selectedMonth.value; // default bulan terpilih
 
     showModalBottomSheet(
       context: context,
@@ -273,6 +347,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
+
                 // Jenis
                 Row(
                   children: [
@@ -289,7 +364,9 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: AppSpacing.md),
+
                 // Tahun
                 Row(
                   children: [
@@ -307,7 +384,9 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: AppSpacing.md),
+
                 // Bulan
                 Row(
                   children: [
@@ -326,7 +405,9 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: AppSpacing.lg),
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -370,6 +451,11 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
         return const Center(child: CircularProgressIndicator());
       }
 
+      final total = controller.filteredPremiList.fold<int>(
+        0,
+        (sum, item) => sum + ((item['nominal'] ?? 0) as int),
+      );
+
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -398,7 +484,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Insentif Premi',
+                    'Total Insentif Premi (${controller.monthYearLabel})',
                     style: TextStyle(
                       fontSize: 16,
                       color: theme.colorScheme.onPrimary.withOpacity(0.8),
@@ -406,12 +492,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    controller.formatCurrency(
-                      controller.filteredPremiList.fold<int>(
-                        0,
-                        (sum, item) => sum + ((item['nominal'] ?? 0) as int),
-                      ),
-                    ),
+                    controller.formatCurrency(total),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -429,6 +510,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                 ],
               ),
             ),
+
             const SizedBox(height: AppSpacing.xl),
 
             // List Insentif Premi
@@ -462,6 +544,11 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
         return const Center(child: CircularProgressIndicator());
       }
 
+      final total = controller.filteredLemburList.fold<int>(
+        0,
+        (sum, item) => sum + ((item['nominal'] ?? 0) as int),
+      );
+
       return SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -490,7 +577,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Insentif Lembur',
+                    'Total Insentif Lembur (${controller.monthYearLabel})',
                     style: TextStyle(
                       fontSize: 16,
                       color: theme.colorScheme.onPrimary.withOpacity(0.8),
@@ -498,12 +585,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    controller.formatCurrency(
-                      controller.filteredLemburList.fold<int>(
-                        0,
-                        (sum, item) => sum + ((item['nominal'] ?? 0) as int),
-                      ),
-                    ),
+                    controller.formatCurrency(total),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -521,6 +603,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
                 ],
               ),
             ),
+
             const SizedBox(height: AppSpacing.xl),
 
             // List Insentif Lembur
@@ -555,7 +638,7 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
     String? typeLabel,
   }) {
     final accentAlt = t.insentifGradient.last;
-    // Ambil angka bulan dari field 'bulan'; fallback ke nomor urut jika tidak tersedia
+
     final String monthText = (() {
       final v = insentif['bulan'];
       if (v is String && v.isNotEmpty) {
@@ -567,13 +650,12 @@ class SemuaInsentifPage extends GetView<SemuaInsentifController> {
       return '${index + 1}';
     })();
 
-    // Label tanggal dari field bulan
     final String monthLabel = (() {
       final v = insentif['bulan'];
       if (v is String && v.isNotEmpty) {
         try {
           final dt = DateTime.parse(v);
-          return DateFormat('MMMM yyyy').format(dt);
+          return DateFormat('MMMM yyyy', 'id_ID').format(dt);
         } catch (_) {}
       }
       return '-';

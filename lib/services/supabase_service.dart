@@ -23,14 +23,15 @@ class SupabaseService {
       await client.from('users').select('nrp').limit(1);
       return true;
     } catch (e) {
-      // Surface error in logs to help diagnose release issues
       // ignore: avoid_print
       print('Supabase testConnection error: $e');
       return false;
     }
   }
 
-  // Auth methods
+  // =========================
+  // AUTH
+  // =========================
   Future<AuthResponse> signUp({
     required String email,
     required String password,
@@ -53,16 +54,16 @@ class SupabaseService {
   }
 
   User? get currentUser => client.auth.currentUser;
-
   Stream<AuthState> get authStateChanges => client.auth.onAuthStateChange;
 
-  // Custom authentication methods for users table
+  // =========================
+  // USERS TABLE
+  // =========================
   Future<Map<String, dynamic>?> loginWithNRP({
     required String nrp,
     required String password,
   }) async {
     try {
-      // Query users table with NRP and password
       final response = await client
           .from('users')
           .select('id, nrp, name, jabatan, sisa_cuti, updated_at')
@@ -72,12 +73,10 @@ class SupabaseService {
 
       return response;
     } catch (e) {
-      // Propagate error to caller so UI can show actual reason
       rethrow;
     }
   }
 
-  // Get user by NRP
   Future<Map<String, dynamic>?> getUserByNRP(String nrp) async {
     try {
       final response = await client
@@ -92,7 +91,6 @@ class SupabaseService {
     }
   }
 
-  // Create new user
   Future<Map<String, dynamic>?> createUser({
     required String nrp,
     required String password,
@@ -117,14 +115,13 @@ class SupabaseService {
     }
   }
 
-  // Update user profile
   Future<Map<String, dynamic>?> updateUserProfile({
     required String userId,
     String? name,
     String? jabatan,
   }) async {
     try {
-      Map<String, dynamic> updateData = {};
+      final updateData = <String, dynamic>{};
       if (name != null) updateData['name'] = name;
       if (jabatan != null) updateData['jabatan'] = jabatan;
 
@@ -143,7 +140,6 @@ class SupabaseService {
     }
   }
 
-  // Change password
   Future<bool> changePassword({
     required String userId,
     required String newPassword,
@@ -151,20 +147,20 @@ class SupabaseService {
     try {
       await client
           .from('users')
-          .update({'password': newPassword})
-          .eq('id', userId);
-
+          .update({'password': newPassword}).eq('id', userId);
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  // Database operations example
+  // =========================
+  // GENERIC DB HELPERS
+  // =========================
   Future<List<Map<String, dynamic>>> getData(String tableName) async {
     try {
       final response = await client.from(tableName).select();
-      return response;
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       rethrow;
     }
@@ -203,32 +199,66 @@ class SupabaseService {
     }
   }
 
-  // Insentif methods
+  // =========================
+  // INSENTIF
+  // =========================
+
+  // Ambil list Premi (urut terbaru berdasarkan bulan → created_at)
   Future<List<Map<String, dynamic>>> getInsentifPremi({String? userId}) async {
     try {
-      var query = client.from('insentif_premi').select();
+      var query = client.from('insentif_premi').select('*');
       if (userId != null && userId.isNotEmpty) {
         query = query.eq('users_id', userId);
       }
-      final response = await query.order('created_at');
-
+      final response = await query
+          .order('bulan', ascending: false) // bulan: DATE
+          .order('created_at', ascending: false);
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       rethrow;
     }
   }
 
+  // Ambil list Lembur (kalau kamu punya tabelnya, skema sama)
   Future<List<Map<String, dynamic>>> getInsentifLembur({String? userId}) async {
     try {
-      var query = client.from('insentif_lembur').select();
+      var query = client.from('insentif_lembur').select('*');
       if (userId != null && userId.isNotEmpty) {
         query = query.eq('users_id', userId);
       }
-      final response = await query.order('created_at');
-
+      final response = await query
+          .order('bulan', ascending: false)
+          .order('created_at', ascending: false);
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       rethrow;
     }
+  }
+
+  // === Batch lookup users by daftar NRP (pakai inFilter untuk kompatibilitas versi lama)
+  Future<Map<String, Map<String, dynamic>>> getUsersByNRPs(
+      List<String> nrps) async {
+    final unique = nrps.where((e) => e.trim().isNotEmpty).toSet().toList();
+    if (unique.isEmpty) return {};
+
+    final res = await client
+        .from('users')
+        .select('id, name, nrp')
+        .inFilter('nrp', unique); // <— perbaikan dari .in_() ke .inFilter()
+
+    final list = List<Map<String, dynamic>>.from(res);
+    return {for (final u in list) (u['nrp'] ?? '').toString(): u};
+  }
+
+  // === Upsert insentif (premi/lembur) berbasis unique(users_id, bulan)
+  Future<void> upsertInsentif({
+    required String table, // 'insentif_premi' | 'insentif_lembur'
+    required List<Map<String, dynamic>> rows,
+  }) async {
+    if (rows.isEmpty) return;
+    await client.from(table).upsert(
+          rows,
+          onConflict: 'users_id,bulan', // bulan: DATE
+        );
   }
 }

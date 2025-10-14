@@ -1,3 +1,5 @@
+// ignore_for_file: empty_catches
+
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -23,7 +25,7 @@ class PdfEksepsiController extends GetxController {
   // Simple logger to help trace PDF generation steps
   void _log(String message, [Map<String, dynamic>? data]) {
     final ts = DateTime.now().toIso8601String();
-    final extra = data == null ? '' : ' | ' + jsonEncode(data);
+    final extra = data == null ? '' : ' | ${jsonEncode(data)}';
     debugPrint('[PdfEksepsi][$ts] $message$extra');
   }
 
@@ -88,7 +90,10 @@ class PdfEksepsiController extends GetxController {
         'dd MMMM yyyy',
         'id_ID',
       ).format(tanggalPengajuan);
-      _log('Date formatted', {'tanggal_pengajuan': tanggalPengajuan.toIso8601String(), 'formatted': formattedDate});
+      _log('Date formatted', {
+        'tanggal_pengajuan': tanggalPengajuan.toIso8601String(),
+        'formatted': formattedDate
+      });
 
       // Get user data
       final userData = eksepsiController.currentUser.value;
@@ -97,7 +102,12 @@ class PdfEksepsiController extends GetxController {
       final kontak = userData?['kontak'] ?? '-';
       final jabatan = userData?['jabatan'] ?? 'Jabatan Pegawai';
       final userStatus = userData?['status'] ?? 'Operasional';
-      _log('User data', {'has_user': userData != null, 'nama': nama, 'nrp': nip, 'status': userStatus});
+      _log('User data', {
+        'has_user': userData != null,
+        'nama': nama,
+        'nrp': nip,
+        'status': userStatus
+      });
 
       // Fetch supervisor data berdasarkan status user
       final supervisorJenis = getSupervisorJenisByUserStatus(userStatus);
@@ -173,7 +183,7 @@ class PdfEksepsiController extends GetxController {
       if (eksepsiTanggalList.isNotEmpty) {
         final first = eksepsiTanggalList.first;
         _log('First tanggal item', {
-          'keys': (first is Map) ? (first as Map).keys.toList() : [],
+          'keys': (first is Map) ? (first).keys.toList() : [],
           'tanggal_eksepsi': first['tanggal_eksepsi'],
           'alasan_eksepsi': first['alasan_eksepsi'],
         });
@@ -351,12 +361,14 @@ class PdfEksepsiController extends GetxController {
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
-                      pw.Text('Hormat Saya,', style: pw.TextStyle(fontSize: 11)),
+                      pw.Text('Hormat Saya,',
+                          style: pw.TextStyle(fontSize: 11)),
                       if (ttdImageProvider != null)
                         pw.Container(
                           height: 60,
                           padding: const pw.EdgeInsets.symmetric(vertical: 4),
-                          child: pw.Image(ttdImageProvider, fit: pw.BoxFit.contain),
+                          child: pw.Image(ttdImageProvider,
+                              fit: pw.BoxFit.contain),
                         )
                       else
                         pw.SizedBox(height: 50),
@@ -364,7 +376,8 @@ class PdfEksepsiController extends GetxController {
                         children: [
                           pw.Text(
                             nama.toUpperCase(),
-                            style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
+                            style: pw.TextStyle(
+                                fontSize: 11, fontWeight: pw.FontWeight.bold),
                           ),
                           pw.Container(
                             width: nama.length * 6.0,
@@ -397,7 +410,8 @@ class PdfEksepsiController extends GetxController {
                         padding: pw.EdgeInsets.all(8),
                         child: pw.Text(
                           'SETUJU / TIDAK SETUJU MEMBERIKAN EKSEPSI PRESENSI',
-                          style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                          style: pw.TextStyle(
+                              fontSize: 8, fontWeight: pw.FontWeight.bold),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -405,7 +419,8 @@ class PdfEksepsiController extends GetxController {
                         padding: pw.EdgeInsets.all(8),
                         child: pw.Text(
                           'CATATAN PERTIMBANGAN ATASAN LANGSUNG',
-                          style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                          style: pw.TextStyle(
+                              fontSize: 8, fontWeight: pw.FontWeight.bold),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -413,7 +428,8 @@ class PdfEksepsiController extends GetxController {
                         padding: pw.EdgeInsets.all(8),
                         child: pw.Text(
                           'MENGETAHUI',
-                          style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                          style: pw.TextStyle(
+                              fontSize: 8, fontWeight: pw.FontWeight.bold),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -429,14 +445,26 @@ class PdfEksepsiController extends GetxController {
                           mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
                           children: [
                             pw.Row(children: [
-                              pw.Container(width: 10, height: 10, decoration: pw.BoxDecoration(border: pw.Border.all(width: 1))),
+                              pw.Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(width: 1))),
                               pw.SizedBox(width: 5),
-                              pw.Text('Hadir / Pulang sesuai jam kerja', style: pw.TextStyle(fontSize: 7)),
+                              pw.Text('Hadir / Pulang sesuai jam kerja',
+                                  style: pw.TextStyle(fontSize: 7)),
                             ]),
                             pw.Row(children: [
-                              pw.Container(width: 10, height: 10, decoration: pw.BoxDecoration(border: pw.Border.all(width: 1))),
+                              pw.Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: pw.BoxDecoration(
+                                      border: pw.Border.all(width: 1))),
                               pw.SizedBox(width: 5),
-                              pw.Expanded(child: pw.Text('Terlambat / Pulang Cepat / Kurang Absen dengan persetujuan', style: pw.TextStyle(fontSize: 7))),
+                              pw.Expanded(
+                                  child: pw.Text(
+                                      'Terlambat / Pulang Cepat / Kurang Absen dengan persetujuan',
+                                      style: pw.TextStyle(fontSize: 7))),
                             ]),
                           ],
                         ),
@@ -449,14 +477,17 @@ class PdfEksepsiController extends GetxController {
                           children: [
                             pw.Text(
                               supervisorJabatan.toUpperCase(),
-                              style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                              style: pw.TextStyle(
+                                  fontSize: 8, fontWeight: pw.FontWeight.bold),
                               textAlign: pw.TextAlign.center,
                             ),
                             pw.SizedBox(height: 15),
                             pw.Column(children: [
                               pw.Text(
                                 supervisorNama.toUpperCase(),
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: pw.FontWeight.bold),
                                 textAlign: pw.TextAlign.center,
                               ),
                               pw.Container(
@@ -477,14 +508,17 @@ class PdfEksepsiController extends GetxController {
                           children: [
                             pw.Text(
                               managerJabatan.toUpperCase(),
-                              style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                              style: pw.TextStyle(
+                                  fontSize: 8, fontWeight: pw.FontWeight.bold),
                               textAlign: pw.TextAlign.center,
                             ),
                             pw.SizedBox(height: 15),
                             pw.Column(children: [
                               pw.Text(
                                 managerNama.toUpperCase(),
-                                style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+                                style: pw.TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: pw.FontWeight.bold),
                                 textAlign: pw.TextAlign.center,
                               ),
                               pw.Container(
@@ -508,7 +542,8 @@ class PdfEksepsiController extends GetxController {
 
       return pdf.save();
     } catch (e, st) {
-      _log('Error generateEksepsiPdf', {'error': e.toString(), 'stack': st.toString()});
+      _log('Error generateEksepsiPdf',
+          {'error': e.toString(), 'stack': st.toString()});
       Get.snackbar(
         'Error',
         'Gagal membuat PDF: $e',

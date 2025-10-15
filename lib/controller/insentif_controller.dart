@@ -46,12 +46,18 @@ class InsentifController extends GetxController
   Future<void> fetchInsentifLembur() async {
     isLoading(true);
     try {
-      String? userId;
-      final canViewAll = loginController.hasPermissionAllInsentif;
       final currentUser = loginController.currentUser.value;
-      if (!canViewAll && currentUser != null) {
-        userId = currentUser['id'] as String?;
+      if (currentUser == null) {
+        insentifLemburList.value = [];
+        Get.snackbar(
+          'Error',
+          'User tidak ditemukan. Silakan login ulang.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
       }
+      final userId = currentUser['id'] as String?;
       final data = await supabaseService.getInsentifLembur(userId: userId);
       insentifLemburList.value = data;
     } catch (e) {
@@ -69,12 +75,18 @@ class InsentifController extends GetxController
   Future<void> fetchInsentifPremi() async {
     isLoading(true);
     try {
-      String? userId;
-      final canViewAll = loginController.hasPermissionAllInsentif;
       final currentUser = loginController.currentUser.value;
-      if (!canViewAll && currentUser != null) {
-        userId = currentUser['id'] as String?;
+      if (currentUser == null) {
+        insentifPremiList.value = [];
+        Get.snackbar(
+          'Error',
+          'User tidak ditemukan. Silakan login ulang.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
       }
+      final userId = currentUser['id'] as String?;
       final data = await supabaseService.getInsentifPremi(userId: userId);
       insentifPremiList.value = data;
     } catch (e) {

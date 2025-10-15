@@ -16,7 +16,7 @@ class UpdateCheckerController extends GetxController {
   final isChecking = false.obs;
   final isDownloading = false.obs;
   final downloadPercent = 0.0.obs; // 0.0 - 1.0
-  
+
   final currentVersion = ''.obs;
   final latestVersion = ''.obs;
   final releaseName = ''.obs;
@@ -31,6 +31,9 @@ class UpdateCheckerController extends GetxController {
 
   static const _releasesApi =
       'https://api.github.com/repos/levanza1358/mti_pontianak/releases/latest';
+  // Optional GitHub token supplied via --dart-define=GITHUB_TOKEN=... to avoid rate limits
+  static const _githubToken =
+      String.fromEnvironment('GITHUB_TOKEN', defaultValue: '');
 
   @override
   Future<void> onInit() async {
@@ -55,20 +58,53 @@ class UpdateCheckerController extends GetxController {
     isChecking.value = true;
     errorText.value = '';
     try {
-      final resp = await http.get(
-        Uri.parse(_releasesApi),
-        headers: {
-          'Accept': 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          'User-Agent': 'mti-pontianak-app',
-        },
-      );
+      // Load cached ETag and last successful response to reduce API hits
+      final prefs = await SharedPreferences.getInstance();
+      final cachedEtag = prefs.getString('gh_release_etag') ?? '';
+      final cachedJson = prefs.getString('gh_release_latest_json') ?? '';
 
-      if (resp.statusCode != 200) {
-        throw Exception('HTTP ${resp.statusCode}: ${resp.body}');
+      // Base headers
+      final headers = <String, String>{
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'mti-pontianak-app',
+      };
+      // Add Authorization if token exists to get higher rate limit
+      if (_githubToken.trim().isNotEmpty) {
+        headers['Authorization'] = 'Bearer ${_githubToken.trim()}';
+      }
+      // Conditional request using ETag when available
+      if (cachedEtag.isNotEmpty) {
+        headers['If-None-Match'] = cachedEtag;
       }
 
-      final data = json.decode(resp.body) as Map<String, dynamic>;
+      final resp = await http.get(
+        Uri.parse(_releasesApi),
+        headers: headers,
+      );
+
+      Map<String, dynamic> data;
+      if (resp.statusCode == 304 && cachedJson.isNotEmpty) {
+        // Not modified, use cached data
+        data = json.decode(cachedJson) as Map<String, dynamic>;
+      } else if (resp.statusCode == 200) {
+        data = json.decode(resp.body) as Map<String, dynamic>;
+        // Save new ETag and response body
+        final etag = resp.headers['etag'] ?? '';
+        try {
+          if (etag.isNotEmpty) await prefs.setString('gh_release_etag', etag);
+          await prefs.setString('gh_release_latest_json', resp.body);
+        } catch (_) {}
+      } else {
+        // If rate limited or other error, fallback to cached data if available
+        if ((resp.statusCode == 403 || resp.statusCode == 429) &&
+            cachedJson.isNotEmpty) {
+          data = json.decode(cachedJson) as Map<String, dynamic>;
+        } else {
+          throw Exception('HTTP ${resp.statusCode}: ${resp.body}');
+        }
+      }
+
       final tag = (data['tag_name'] ?? '').toString();
       final name = (data['name'] ?? tag).toString();
       final body = (data['body'] ?? '').toString();
@@ -139,15 +175,21 @@ class UpdateCheckerController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Versi saat ini: ${currentVersion.value.isEmpty ? '-' : currentVersion.value}'),
-            Text('Versi terbaru: ${latestVersion.value.isEmpty ? '-' : latestVersion.value}'),
+            Text(
+                'Versi saat ini: ${currentVersion.value.isEmpty ? '-' : currentVersion.value}'),
+            Text(
+                'Versi terbaru: ${latestVersion.value.isEmpty ? '-' : latestVersion.value}'),
             const SizedBox(height: 8),
-            Text('Catatan rilis:', style: TextStyle(color: Get.theme.extension<AppTokens>()!.textSecondary)),
+            Text('Catatan rilis:',
+                style: TextStyle(
+                    color: Get.theme.extension<AppTokens>()!.textSecondary)),
             const SizedBox(height: 4),
             SingleChildScrollView(
               child: Text(
                 releaseNotes.value.isEmpty ? '-' : releaseNotes.value,
-                style: TextStyle(fontSize: 12, color: Get.theme.extension<AppTokens>()!.textSecondary),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Get.theme.extension<AppTokens>()!.textSecondary),
               ),
             ),
           ],
@@ -233,7 +275,8 @@ class UpdateCheckerController extends GetxController {
     if (url.isEmpty) {
       // Fallback: open release page
       if (releasePageUrl.value.isNotEmpty) {
-        await launchUrlString(releasePageUrl.value, mode: LaunchMode.externalApplication);
+        await launchUrlString(releasePageUrl.value,
+            mode: LaunchMode.externalApplication);
       }
       return;
     }
@@ -247,7 +290,8 @@ class UpdateCheckerController extends GetxController {
 
       final dio = Dio();
       final dir = await getTemporaryDirectory();
-      final versionTag = latestVersion.value.isEmpty ? 'update' : latestVersion.value;
+      final versionTag =
+          latestVersion.value.isEmpty ? 'update' : latestVersion.value;
       final filePath = '${dir.path}/mti_pontianak-$versionTag.apk';
 
       await dio.download(
@@ -261,7 +305,8 @@ class UpdateCheckerController extends GetxController {
             progressText.value = '$pct%';
           }
         },
-        options: Options(followRedirects: true, receiveTimeout: const Duration(minutes: 10)),
+        options: Options(
+            followRedirects: true, receiveTimeout: const Duration(minutes: 10)),
       );
 
       // Simpan marker untuk cleanup setelah instal
@@ -312,14 +357,17 @@ class UpdateCheckerController extends GetxController {
           List<int> p(String v) {
             final core = v.split('+').first;
             final s = core.split('.');
-            return List<int>.generate(3, (i) => i < s.length ? int.tryParse(s[i]) ?? 0 : 0);
+            return List<int>.generate(
+                3, (i) => i < s.length ? int.tryParse(s[i]) ?? 0 : 0);
           }
+
           final ap = p(a), bp = p(b);
           for (int i = 0; i < 3; i++) {
             if (ap[i] != bp[i]) return ap[i] - bp[i];
           }
           return 0;
         }
+
         shouldDelete = cmp(currentVer, pendingVersion) >= 0;
       }
 

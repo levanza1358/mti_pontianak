@@ -11,7 +11,7 @@ class UpdateCheckerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = Get.put(UpdateCheckerController());
+    final c = Get.find<UpdateCheckerController>();
     final theme = Theme.of(context);
     final tokens = theme.extension<AppTokens>()!;
     final primaryGradient = tokens.updateGradient;

@@ -98,3 +98,38 @@ flutter pub get
 ### APK tidak bisa diinstall
 - Pastikan "Install from unknown sources" diaktifkan di Android
 - APK adalah release build, bukan debug build
+
+## 🔒 GitHub API Rate Limit & Cek Pembaruan
+
+Aplikasi melakukan cek versi terbaru melalui GitHub Releases. Tanpa autentikasi, GitHub membatasi sekitar 60 request/jam per IP sehingga kadang muncul error:
+
+```
+Exception: HTTP 403: {"message":"API rate limit exceeded ..."}
+```
+
+Untuk menghindari hal tersebut:
+
+- Set variabel lingkungan `GITHUB_TOKEN` (Personal Access Token minimal read-only public repos).
+- Skrip build di folder `tool/` otomatis meneruskan token ini ke aplikasi via `--dart-define=GITHUB_TOKEN=...`.
+
+Contoh cara set token di PowerShell (hanya untuk sesi terminal saat ini):
+
+```powershell
+$env:GITHUB_TOKEN = "ghp_xxxYourTokenHere"
+```
+
+Atau permanen di Windows (butuh restart terminal):
+
+```powershell
+setx GITHUB_TOKEN "ghp_xxxYourTokenHere"
+```
+
+Jika ingin menjalankan aplikasi secara lokal tanpa skrip build, tambahkan `--dart-define` saat run:
+
+```powershell
+flutter run --dart-define=GITHUB_TOKEN=$env:GITHUB_TOKEN
+```
+
+Catatan keamanan:
+- Jangan commit token ke repository.
+- Gunakan token dengan scope minimal (public_repo sudah cukup).

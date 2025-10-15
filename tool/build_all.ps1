@@ -28,7 +28,10 @@ try {
   # Build Android APK (release)
   Write-Host ""
   Write-Host "Building Android APK (release)..." -ForegroundColor Yellow
-  Exec "flutter build apk --release"
+  # Pass GITHUB_TOKEN via dart-define if available
+  $defineArg = ""
+  if ($env:GITHUB_TOKEN) { $defineArg = "--dart-define=GITHUB_TOKEN=$($env:GITHUB_TOKEN)" }
+  Exec "flutter build apk --release $defineArg"
 
   # Show APK info
   $apkDir = "android\app\build\outputs\apk\release"
@@ -44,7 +47,7 @@ try {
   # Build Web (release) with base href
   Write-Host ""
   Write-Host "Building Web (release) dengan base-href '$BaseHref'..." -ForegroundColor Yellow
-  Exec "flutter build web --release --base-href `"$BaseHref`""
+  Exec "flutter build web --release --base-href `"$BaseHref`" $defineArg"
 
   # Sync build/web to docs
   Write-Host "Menyalin build/web -> docs..."

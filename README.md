@@ -35,3 +35,19 @@ Penjelasan skrip:
 Catatan:
 - Pastikan `Settings → Pages` repo ini menggunakan `Branch: main` dan `Folder: /(docs)`.
 - Jika hanya ingin build tanpa push, hilangkan `-Push` atau gunakan task `Build APK + Web to docs (no push)`.
+
+## Cek Pembaruan & Rate Limit GitHub
+
+Aplikasi memeriksa versi terbaru dari GitHub Releases. Jika melihat error `API rate limit exceeded`, gunakan token GitHub agar kuota lebih tinggi:
+
+- Set variabel lingkungan `GITHUB_TOKEN` dengan Personal Access Token (scope minimal `public_repo`).
+- Skrip `tool/*.ps1` dan `tool/*.bat` akan otomatis meneruskan token ke aplikasi via `--dart-define=GITHUB_TOKEN=...` saat build.
+
+Contoh di PowerShell:
+
+```
+$env:GITHUB_TOKEN = "ghp_xxxYourTokenHere"
+flutter run --dart-define=GITHUB_TOKEN=$env:GITHUB_TOKEN
+```
+
+Jangan commit token ke repo. Gunakan token dengan scope minimal.

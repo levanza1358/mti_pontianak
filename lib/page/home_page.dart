@@ -302,14 +302,16 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final LoginController authController = Get.find<LoginController>();
     final HomeController homeController = Get.find<HomeController>();
-    final UpdateCheckerController updateChecker = Get.find<UpdateCheckerController>();
     final theme = Theme.of(context);
     final t = theme.extension<AppTokens>()!;
     final isDark = theme.brightness == Brightness.dark;
+    final isAndroid = GetPlatform.isAndroid;
 
     // Jalankan auto cek update sekali setelah halaman Home dirender
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      updateChecker.checkOnHomeOnce();
+      if (isAndroid && Get.isRegistered<UpdateCheckerController>()) {
+        Get.find<UpdateCheckerController>().checkOnHomeOnce();
+      }
     });
 
     return Scaffold(

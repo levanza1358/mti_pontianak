@@ -196,55 +196,57 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       child: Column(
                         children: [
-                          ListTile(
-                            leading: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    t.updateGradient.first.withOpacity(0.15),
-                                    t.updateGradient.last.withOpacity(0.15),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                          if (GetPlatform.isAndroid) ...[
+                            ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      t.updateGradient.first.withOpacity(0.15),
+                                      t.updateGradient.last.withOpacity(0.15),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: t.borderSubtle),
                                 ),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: t.borderSubtle),
+                                child: Icon(
+                                  Icons.system_update_rounded,
+                                  color: t.updateGradient.first,
+                                  size: 20,
+                                ),
                               ),
-                              child: Icon(
-                                Icons.system_update_rounded,
-                                color: t.updateGradient.first,
-                                size: 20,
+                              title: const Text('Update Aplikasi'),
+                              subtitle: const Text(
+                                'Cek versi terbaru dan pasang pembaruan',
                               ),
-                            ),
-                            title: const Text('Update Aplikasi'),
-                            subtitle: const Text(
-                              'Cek versi terbaru dan pasang pembaruan',
-                            ),
-                            trailing: _version.isEmpty
-                                ? null
-                                : Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: t.updateGradient.first
-                                          .withOpacity(0.12),
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: Text(
-                                      'v$_version',
-                                      style: TextStyle(
-                                        color: t.updateGradient.first,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
+                              trailing: _version.isEmpty
+                                  ? null
+                                  : Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: t.updateGradient.first
+                                            .withOpacity(0.12),
+                                        borderRadius: BorderRadius.circular(999),
+                                      ),
+                                      child: Text(
+                                        'v$_version',
+                                        style: TextStyle(
+                                          color: t.updateGradient.first,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                            onTap: () => Get.toNamed('/update-checker'),
-                          ),
-                          Divider(height: 1, color: t.borderSubtle),
+                              onTap: () => Get.toNamed('/update-checker'),
+                            ),
+                            Divider(height: 1, color: t.borderSubtle),
+                          ],
                           // Change Password
                           ListTile(
                             leading: Container(

@@ -63,8 +63,11 @@ if "%CLEAN_BUILD%"=="true" (
 
 REM Build Web (release) with base href
 echo Building Web (release) dengan base-href '%BASE_HREF%'...
-echo -> flutter build web --release --base-href "%BASE_HREF%"
-flutter build web --release --base-href "%BASE_HREF%"
+REM Pass GITHUB_TOKEN via dart-define if available
+set DEFINE_ARG=
+if not "%GITHUB_TOKEN%"=="" set DEFINE_ARG=--dart-define=GITHUB_TOKEN=%GITHUB_TOKEN%
+echo -> flutter build web --release --base-href "%BASE_HREF%" %DEFINE_ARG%
+flutter build web --release --base-href "%BASE_HREF%" %DEFINE_ARG%
 if errorlevel 1 (
     echo Error: Web build gagal
     pause

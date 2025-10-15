@@ -27,7 +27,10 @@ try {
 
   # Build Web (release) with base href
   Write-Host "Building Web (release) dengan base-href '$BaseHref'..."
-  Exec "flutter build web --release --base-href `"$BaseHref`""
+  # Pass GITHUB_TOKEN via dart-define if available
+  $defineArg = ""
+  if ($env:GITHUB_TOKEN) { $defineArg = "--dart-define=GITHUB_TOKEN=$($env:GITHUB_TOKEN)" }
+  Exec "flutter build web --release --base-href `"$BaseHref`" $defineArg"
 
   # Sync build/web to docs
   Write-Host "Menyalin build/web -> docs..."

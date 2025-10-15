@@ -39,8 +39,11 @@ if "%CLEAN_BUILD%"=="true" (
 
 REM Build Android APK (release)
 echo Building Android APK (release)...
-echo -> flutter build apk --release
-flutter build apk --release
+REM Pass GITHUB_TOKEN via dart-define if available
+set DEFINE_ARG=
+if not "%GITHUB_TOKEN%"=="" set DEFINE_ARG=--dart-define=GITHUB_TOKEN=%GITHUB_TOKEN%
+echo -> flutter build apk --release %DEFINE_ARG%
+flutter build apk --release %DEFINE_ARG%
 if errorlevel 1 (
     echo Error: Android build gagal
     pause

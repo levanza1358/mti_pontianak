@@ -24,7 +24,10 @@ try {
 
   # Build Android APK (release)
   Write-Host "Building Android APK (release)..."
-  Exec "flutter build apk --release"
+  # Pass GITHUB_TOKEN via dart-define if available to enable authenticated GitHub API
+  $defineArg = ""
+  if ($env:GITHUB_TOKEN) { $defineArg = "--dart-define=GITHUB_TOKEN=$($env:GITHUB_TOKEN)" }
+  Exec "flutter build apk --release $defineArg"
 
   # Show APK location
   $apkDir = "android\app\build\outputs\apk\release"

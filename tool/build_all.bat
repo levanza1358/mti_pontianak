@@ -64,8 +64,11 @@ if "%CLEAN_BUILD%"=="true" (
 REM Build Android APK (release)
 echo.
 echo Building Android APK (release)...
-echo -> flutter build apk --release
-flutter build apk --release
+REM Pass GITHUB_TOKEN via dart-define if available
+set DEFINE_ARG=
+if not "%GITHUB_TOKEN%"=="" set DEFINE_ARG=--dart-define=GITHUB_TOKEN=%GITHUB_TOKEN%
+echo -> flutter build apk --release %DEFINE_ARG%
+flutter build apk --release %DEFINE_ARG%
 if errorlevel 1 (
     echo Error: Android build gagal
     pause
@@ -90,8 +93,8 @@ if exist "%APK_DIR%" (
 REM Build Web (release) with base href
 echo.
 echo Building Web (release) dengan base-href '%BASE_HREF%'...
-echo -> flutter build web --release --base-href "%BASE_HREF%"
-flutter build web --release --base-href "%BASE_HREF%"
+echo -> flutter build web --release --base-href "%BASE_HREF%" %DEFINE_ARG%
+flutter build web --release --base-href "%BASE_HREF%" %DEFINE_ARG%
 if errorlevel 1 (
     echo Error: Web build gagal
     pause

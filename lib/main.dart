@@ -74,8 +74,10 @@ class MyApp extends StatelessWidget {
     Get.put(LoginController());
     // Ensure HomeController is available for HomePage
     Get.put(HomeController());
-    // Update checker controller untuk auto cek update di Home
-    Get.put(UpdateCheckerController(), permanent: true);
+    // Update checker controller hanya untuk Android
+    if (GetPlatform.isAndroid) {
+      Get.put(UpdateCheckerController(), permanent: true);
+    }
     Get.put(ThemeController(), permanent: true);
   }
 
@@ -369,7 +371,7 @@ class MyApp extends StatelessWidget {
 
   /// Build application routes
   List<GetPage> _buildRoutes() {
-    return [
+    final routes = <GetPage>[
       // Authentication
       GetPage(name: '/login', page: () => const LoginPage()),
 
@@ -420,14 +422,19 @@ class MyApp extends StatelessWidget {
         page: () => const SupervisorManagementPage(),
       ),
 
-      // Update Checker
-      GetPage(name: '/update-checker', page: () => const UpdateCheckerPage()),
-
       // Settings
       GetPage(name: '/settings', page: () => const SettingsPage()),
 
       // Fun Demo
       GetPage(name: '/slot-demo', page: () => const SlotDemoPage()),
     ];
+
+    // Tambahkan rute Update Checker hanya di Android
+    if (GetPlatform.isAndroid) {
+      routes.add(GetPage(
+          name: '/update-checker', page: () => const UpdateCheckerPage()));
+    }
+
+    return routes;
   }
 }
